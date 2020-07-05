@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<Generators>
+  <TupleGenerator function="parse" seed="4361110951094835200" tuples="1">
+      <Combine tuples="2">
+          <Include var="Alternatives.Terms.Look-Behind"/>
+          <Include var="Alternatives.Terms.Look-Ahead"/>
+      </Combine>
+      <Combine tuples="2">
+          <Include var="Anchor-Start"/>
+          <Include var="Anchor-End"/>
+      </Combine>
+      <Combine tuples="2">
+          <Include var="Alternatives.Terms.Quantifier.Type"/>
+          <Include var="Alternatives.Terms.Quantifier.Lazy"/>
+      </Combine>
+      <Combine tuples="2">
+          <Include var="Alternatives.Terms.Quantifier.Min"/>
+          <Include var="Alternatives.Terms.Quantifier.Max"/>
+      </Combine>
+  </TupleGenerator>
+</Generators>

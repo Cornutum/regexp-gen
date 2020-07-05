@@ -1,0 +1,163 @@
+<System name="Parser">
+    <Function name="parse">
+        <Input>
+            <Var name="Anchor-Start">
+                <Value name="Yes"/>
+                <Value name="No"/>
+            </Var>
+            <VarSet name="Alternatives">
+                <Var name="Count">
+                    <Value name="0" failure="true"/>
+                    <Value name="1" property="alternative"/>
+                    <Value name="Many" property="alternative"/>
+                </Var>
+                <VarSet name="Terms" when="alternative">
+                    <Var name="Count">
+                        <Value name="1">
+                            <When>
+                                <Equals property="term" count="1"/>
+                            </When>
+                        </Value>
+                        <Value name="3">
+                            <When>
+                                <Equals property="term" count="3"/>
+                            </When>
+                        </Value>
+                        <Value name="Many">
+                            <When>
+                                <NotMoreThan property="term" max="8"/>
+                            </When>
+                        </Value>
+                    </Var>
+                    <Var name="Look-Behind">
+                        <Value name="Yes"/>
+                        <Value name="No"/>
+                    </Var>
+                    <Var name="Group">
+                        <Value name="Yes" property="term"/>
+                        <Value name="No"/>
+                    </Var>
+                    <VarSet name="Char-Class">
+                        <Var name="Count">
+                            <Value name="0">
+                                <When>
+                                    <Equals property="charClass" count="0"/>
+                                </When>
+                            </Value>
+                            <Value name="1" property="term">
+                                <When>
+                                    <Equals property="charClass" count="1"/>
+                                </When>
+                            </Value>
+                            <Value name="Many" property="term">
+                                <When>
+                                    <NotMoreThan property="charClass" max="8"/>
+                                </When>
+                            </Value>
+                        </Var>
+                        <Var name="Excluded">
+                            <Value name="Yes"/>
+                            <Value name="No"/>
+                        </Var>
+                        <Var name="Range">
+                            <Value name="Yes" property="charClass"/>
+                            <Value name="No"/>
+                        </Var>
+                        <VarSet name="Escape">
+                            <Var name="Literal">
+                                <Value name="No"/>
+                                <Value name="[" property="charClass"/>
+                                <Value name="]" property="charClass"/>
+                                <Value name="\" property="charClass"/>
+                            </Var>
+                            <Var name="Class">
+                                <Value name="No"/>
+                                <Value name="d" property="charClass"/>
+                                <Value name="D" property="charClass"/>
+                                <Value name="s" property="charClass"/>
+                                <Value name="S" property="charClass"/>
+                                <Value name="w" property="charClass"/>
+                                <Value name="W" property="charClass"/>
+                            </Var>
+                            <Var name="Char">
+                                <Value name="No"/>
+                                <Value name="0" property="charClass"/>
+                                <Value name="b" property="charClass"/>
+                                <Value name="c" property="charClass"/>
+                                <Value name="f" property="charClass"/>
+                                <Value name="n" property="charClass"/>
+                                <Value name="r" property="charClass"/>
+                                <Value name="t" property="charClass"/>
+                                <Value name="u" property="charClass"/>
+                                <Value name="v" property="charClass"/>
+                                <Value name="x" property="charClass"/>
+                            </Var>
+                        </VarSet>
+                        <Var name="Pattern-Char">
+                            <Value name="Yes" property="charClass"/>
+                            <Value name="No"/>
+                        </Var>
+                    </VarSet>
+                    <VarSet name="Atom-Escape">
+                        <Var name="Literal">
+                            <Value name="No"/>
+                            <Value name="(" property="term"/>
+                            <Value name=")" property="term"/>
+                            <Value name="\" property="term"/>
+                        </Var>
+                        <Var name="Char">
+                            <Value name="No"/>
+                            <Value name="0" property="term"/>
+                            <Value name="c" property="term"/>
+                            <Value name="f" property="term"/>
+                            <Value name="n" property="term"/>
+                            <Value name="r" property="term"/>
+                            <Value name="t" property="term"/>
+                            <Value name="u" property="term"/>
+                            <Value name="v" property="term"/>
+                            <Value name="x" property="term"/>
+                        </Var>
+                    </VarSet>
+                    <Var name="Dot">
+                        <Value name="Yes" property="term"/>
+                        <Value name="No"/>
+                    </Var>
+                    <Var name="Pattern-Char">
+                        <Value name="Yes" property="term"/>
+                        <Value name="No"/>
+                    </Var>
+                    <Var name="Look-Ahead">
+                        <Value name="Yes"/>
+                        <Value name="No"/>
+                    </Var>
+                    <VarSet name="Quantifier">
+                        <Var name="Type">
+                            <Value name="?" property="quantifier"/>
+                            <Value name="*" property="quantifier"/>
+                            <Value name="+" property="quantifier"/>
+                            <Value name="Bounded" property="bounded, quantifier"/>
+                            <Value name="None"/>
+                        </Var>
+                        <Var name="Min" when="bounded">
+                            <Value name="0"/>
+                            <Value name="2"/>
+                        </Var>
+                        <Var name="Max" when="bounded">
+                            <Value name="None"/>
+                            <Value name="2"/>
+                            <Value name="3"/>
+                        </Var>
+                        <Var name="Lazy" when="quantifier">
+                            <Value name="Yes"/>
+                            <Value name="No"/>
+                        </Var>
+                    </VarSet>
+                </VarSet>
+            </VarSet>
+            <Var name="Anchor-End">
+                <Value name="Yes"/>
+                <Value name="No"/>
+            </Var>
+        </Input>
+    </Function>
+</System>
