@@ -9,6 +9,7 @@ package org.cornutum.regexpgen.js;
 
 import org.cornutum.regexpgen.Bounds;
 import org.cornutum.regexpgen.RegExpGen;
+import org.cornutum.regexpgen.util.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,9 +23,17 @@ import java.util.regex.Pattern;
 public class Parser
   {
   /**
+   * Returns the {@link RegExpGen} represented by this Javascript regular expression.
+   */
+  public static RegExpGen parseRegExp( String regexp)
+    {
+    return new Parser( regexp).parse();
+    }
+
+  /**
    * Creates a new Parser instance.
    */
-  public Parser( String regexp)
+  private Parser( String regexp)
     {
     chars_ = regexp;
     }
@@ -32,10 +41,12 @@ public class Parser
   /**
    * Returns the {@link RegExpGen} represented by this Javascript regular expression.
    */
-  public RegExpGen parse()
+  private RegExpGen parse()
     {
     List<RegExpGen> seq = new ArrayList<RegExpGen>();
-    if( peekc() != '^')
+
+    char c = peekc();
+    if( c != '^' && c != EOS)
       {
       seq.add( new AnyPrintableGen( 0, null));
       }
@@ -48,7 +59,7 @@ public class Parser
       Optional.ofNullable( getNext())
       .orElseThrow( () -> error( "No regular expression found")));
 
-    char c = peekc();
+    c = peekc();
     if( c == EOS)
       {
       seq.add( new AnyPrintableGen( 0, null));
@@ -102,8 +113,8 @@ public class Parser
     AbstractRegExpGen term = getTerm();
     if( term != null)
       {
-      SeqGen seq = new SeqGen( term);
-      for( term = getTerm(); term != null; seq.add( term));
+      SeqGen seq;
+      for( seq = new SeqGen( term); (term = getTerm()) != null; seq.add( term));
       alternative = seq;
       }
 
@@ -309,16 +320,20 @@ public class Parser
    */
   private AbstractRegExpGen getAtom()
     {
-    return
-      Optional.ofNullable( getGroup())
-      .orElse(
-        Optional.ofNullable( getCharClass())
-        .orElse(
-          Optional.ofNullable( getAtomEscape())
-          .orElse(
-            Optional.ofNullable( getAnyOne())
-            .orElse(
-              getPatternChar()))));
+    AbstractRegExpGen atom;
+      
+    if( (atom = getGroup()) == null
+        &&
+        (atom = getCharClass()) == null
+        &&
+        (atom = getAtomEscape()) == null
+        &&
+        (atom = getAnyOne()) == null)
+      {
+      atom = getPatternChar();
+      }
+
+    return atom;
     }
 
   /**
@@ -351,6 +366,7 @@ public class Parser
         {
         throw error( "Missing ')'");
         }
+      pop(1);
       }
 
     return group;
@@ -488,12 +504,12 @@ public class Parser
       {
       pop(1);
 
-      escapeClass =
-        Optional.ofNullable( getBackspaceEscape())
-        .orElse(
-          Optional.ofNullable( getCharClassEscape())
-          .orElse(
-            getCharEscape()));
+      if( (escapeClass = getBackspaceEscape()) == null
+          &&
+          (escapeClass = getCharClassEscape()) == null)
+        {
+        escapeClass = getCharEscape();
+        }
       }
 
     return escapeClass;
@@ -592,16 +608,20 @@ public class Parser
    */
   private CharClassGen getCharEscape()
     {
-    return
-      Optional.ofNullable( getNamedCharEscape())
-      .orElse(
-        Optional.ofNullable( getControlEscape())
-        .orElse(
-          Optional.ofNullable( getHexCharClass())
-          .orElse(
-            Optional.ofNullable( getUnicodeCharClass())
-            .orElse(
-              getLiteralChar()))));
+    CharClassGen charClass;
+
+    if( (charClass = getNamedCharEscape()) == null
+        &&
+        (charClass = getControlEscape()) == null
+        &&
+        (charClass = getHexCharClass()) == null
+        &&
+        (charClass = getUnicodeCharClass()) == null)
+      {
+      charClass = getLiteralChar();
+      }
+
+    return charClass;
     }
 
   /**
@@ -759,7 +779,7 @@ public class Parser
     
     return
       Optional.of( peekc())
-      .filter( c -> syntaxChars.indexOf( c) < 0)
+      .filter( c -> c != EOS && syntaxChars.indexOf( c) < 0)
       .map( c -> {
         CharClassGen patternChar = new AnyOfGen( c);
         pop(1);
@@ -817,6 +837,19 @@ public class Parser
     cursor_ = Math.min( cursor_ + n, chars_.length());
     }
 
+  public String toString()
+    {
+    return
+      ToString.getBuilder( this)
+      .append(
+        String.format(
+          "%s%s%s",
+          chars_.substring( 0, cursor_),
+          new Character( (char) 0x00BB),
+          chars_.substring( cursor_)))
+      .toString();
+    }
+  
   private final String chars_;
   private int cursor_ = 0;
 
