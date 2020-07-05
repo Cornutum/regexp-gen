@@ -10,6 +10,10 @@ package org.cornutum.regexpgen.js;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.cornutum.regexpgen.util.ToString;
+
+import static java.util.stream.Collectors.joining;
+
 /**
  * Generates a sequence based on a set of characters.
  */
@@ -113,6 +117,27 @@ public abstract class CharClassGen extends AbstractRegExpGen
   public int getMaxLength()
     {
     return getMaxOccur();
+    }
+
+  public String toString()
+    {
+    return
+      ToString.getBuilder( this)
+      .append( "chars", charsString())
+      .appendSuper( super.toString())
+      .toString();
+    }
+
+  /**
+   * Returns a string representation of the characters in this class.
+   */
+  private String charsString()
+    {
+    StringBuilder chars = new StringBuilder();
+    chars.append( '[');
+    chars.append( chars_.stream().sorted().map( Object::toString).collect( joining( "")));
+    chars.append( ']');
+    return chars.toString();
     }
 
   private Set<Character> chars_ = new HashSet<Character>();

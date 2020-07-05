@@ -9,6 +9,7 @@ package org.cornutum.regexpgen.js;
 
 import org.cornutum.regexpgen.Bounds;
 import org.cornutum.regexpgen.RegExpGen;
+import org.cornutum.regexpgen.util.ToString;
 
 /**
  * Base class for {@link RegExpGen} implementations.
@@ -54,6 +55,14 @@ public abstract class AbstractRegExpGen implements RegExpGen
     {
     occurrences_ = occurrences;
     }
+  
+  /**
+   * Returns the number of occurrences allowed for this regular expression.
+   */
+  public Bounds getOccurrences()
+    {
+    return occurrences_;
+    }
 
   /**
    * Returns the minimum number occurrences allowed for this regular expression.
@@ -69,6 +78,14 @@ public abstract class AbstractRegExpGen implements RegExpGen
   public int getMaxOccur()
     {
     return occurrences_.getMaxValue();
+    }
+
+  public String toString()
+    {
+    return
+      ToString.getBuilder( this)
+      .append( "occurs", getOccurrences())
+      .toString();
     }
 
   private Bounds occurrences_;

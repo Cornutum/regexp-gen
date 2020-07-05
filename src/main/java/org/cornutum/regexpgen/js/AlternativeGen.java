@@ -9,6 +9,7 @@ package org.cornutum.regexpgen.js;
 
 import org.cornutum.regexpgen.Bounds;
 import org.cornutum.regexpgen.RegExpGen;
+import org.cornutum.regexpgen.util.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -88,6 +89,15 @@ public class AlternativeGen extends AbstractRegExpGen
   public String generate( Random random, Bounds bounds)
     {
     return null;
+    }
+
+  public String toString()
+    {
+    return
+      ToString.getBuilder( this)
+      .append( "members", members_)
+      .appendSuper( super.toString())
+      .toString();
     }
 
   private List<RegExpGen> members_ = new ArrayList<RegExpGen>();

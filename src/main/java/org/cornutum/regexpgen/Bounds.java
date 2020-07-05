@@ -82,6 +82,18 @@ public class Bounds
       }
     }
 
+  public String toString()
+    {
+    return
+      new StringBuilder()
+      .append( '[')
+      .append( getMinValue())
+      .append( ',')
+      .append( Optional.of( getMaxValue()).filter( max -> max < Integer.MAX_VALUE).orElse( null))
+      .append( ']')
+      .toString();
+    }
+  
   private final int minValue_;
   private final int maxValue_;
   }

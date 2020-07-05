@@ -11,6 +11,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import org.cornutum.regexpgen.util.ToString;
+
 /**
  * Generates a sequence of any printable characters.
  */
@@ -68,4 +70,12 @@ public class AnyPrintableGen extends AnyOfGen
       (int) Character.CONTROL,
       (int) Character.SURROGATE,
       (int) Character.UNASSIGNED);
+
+  public String toString()
+    {
+    return
+      ToString.getBuilder( this)
+      .append( "occurs", getOccurrences())
+      .toString();
+    }
   }
