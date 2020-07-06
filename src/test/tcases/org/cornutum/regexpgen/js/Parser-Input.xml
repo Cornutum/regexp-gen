@@ -2,7 +2,7 @@
     <Function name="parse">
         <Input>
             <Var name="Anchor-Start">
-                <Value name="Yes"/>
+                <Value name="Yes" whenNot="lookbehind"/>
                 <Value name="No"/>
             </Var>
             <VarSet name="Alternatives">
@@ -30,7 +30,7 @@
                         </Value>
                     </Var>
                     <Var name="Look-Behind">
-                        <Value name="Yes"/>
+                        <Value name="Yes" property="lookbehind"/>
                         <Value name="No"/>
                     </Var>
                     <Var name="Group">
@@ -127,7 +127,7 @@
                         <Value name="No"/>
                     </Var>
                     <Var name="Look-Ahead">
-                        <Value name="Yes"/>
+                        <Value name="Yes" property="lookahead"/>
                         <Value name="No"/>
                     </Var>
                     <VarSet name="Quantifier">
@@ -155,7 +155,7 @@
                 </VarSet>
             </VarSet>
             <Var name="Anchor-End">
-                <Value name="Yes"/>
+                <Value name="Yes" whenNot="lookahead"/>
                 <Value name="No"/>
             </Var>
         </Input>
