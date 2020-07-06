@@ -542,50 +542,33 @@ public class Parser
     switch( id)
       {
       case 'd':
+        {
+        escapeClass = CharClassGen.digit();
+        break;
+        }
       case 'D':
         {
-        escapeClass = new AnyOfGen( '0', '9');
-        if( id == 'D')
-          {
-          escapeClass = new NoneOfGen( escapeClass);
-          }
+        escapeClass = CharClassGen.nonDigit();
         break;
         }
       case 'w':
+        {
+        escapeClass = CharClassGen.word();
+        break;
+        }
       case 'W':
         {
-        escapeClass = new AnyOfGen( '0', '9');
-        escapeClass.addAll( 'A', 'Z');
-        escapeClass.addAll( 'a', 'z');
-        escapeClass.add( '_');
-        if( id == 'W')
-          {
-          escapeClass = new NoneOfGen( escapeClass);
-          }
+        escapeClass = CharClassGen.nonWord();
         break;
         }
       case 's':
+        {
+        escapeClass = CharClassGen.space();
+        break;
+        }
       case 'S':
         {
-        escapeClass = new AnyOfGen();
-        escapeClass.add( '\f');
-        escapeClass.add( '\n');
-        escapeClass.add( '\r');
-        escapeClass.add( '\t');
-        escapeClass.add( (char) 0x000b);
-        escapeClass.add( (char) 0x00a0);
-        escapeClass.add( (char) 0x1680);
-        escapeClass.add( (char) 0x2028);
-        escapeClass.add( (char) 0x2029);
-        escapeClass.add( (char) 0x202f);
-        escapeClass.add( (char) 0x205f);
-        escapeClass.add( (char) 0x3000);
-        escapeClass.add( (char) 0xfeff);
-        escapeClass.addAll( (char) 0x2000, (char) 0x200a);
-        if( id == 'S')
-          {
-          escapeClass = new NoneOfGen( escapeClass);
-          }
+        escapeClass = CharClassGen.nonSpace();
         break;
         }
       default:

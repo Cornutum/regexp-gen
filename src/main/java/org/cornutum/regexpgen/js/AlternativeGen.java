@@ -91,6 +91,14 @@ public class AlternativeGen extends AbstractRegExpGen
     return null;
     }
 
+  /**
+   * Returns an {@link AlternativeGen} builder.
+   */
+  public static Builder builder()
+    {
+    return new Builder();
+    }
+
   public String toString()
     {
     return
@@ -101,4 +109,34 @@ public class AlternativeGen extends AbstractRegExpGen
     }
 
   private List<RegExpGen> members_ = new ArrayList<RegExpGen>();
+
+  /**
+   * Builds an {@link AlternativeGen} instance.
+   */
+  public static class Builder extends BaseBuilder<Builder>
+    {
+    /**
+     * Returns the {@link AbstractRegExpGen} instance for this builder.
+     */
+    protected AbstractRegExpGen getAbstractRegExpGen()
+      {
+      return alternative_;
+      }
+
+	public Builder add( RegExpGen... members)
+      {
+      for( RegExpGen member : members)
+        {
+        alternative_.add( member);
+        }
+      return this;
+      }
+
+    public AlternativeGen build()
+      {
+      return alternative_;
+      }
+      
+    private AlternativeGen alternative_ = new AlternativeGen();
+    }
   }

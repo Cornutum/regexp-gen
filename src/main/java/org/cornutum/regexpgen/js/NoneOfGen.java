@@ -56,4 +56,33 @@ public class NoneOfGen extends CharClassGen
     {
     return null;
     }
+
+  /**
+   * Returns an {@link AlternativeGen} builder.
+   */
+  public static Builder builder()
+    {
+    return new Builder();
+    }
+
+  /**
+   * Builds a {@link NoneOfGen} instance.
+   */
+  public static class Builder extends CharClassGenBuilder<Builder>
+    {
+    /**
+     * Returns the {@link CharClassGen} instance for this builder.
+     */
+    protected CharClassGen getCharClassGen()
+      {
+      return noneOf_;
+      }
+
+    public NoneOfGen build()
+      {
+      return noneOf_;
+      }
+      
+    private NoneOfGen noneOf_ = new NoneOfGen();
+    }
   }

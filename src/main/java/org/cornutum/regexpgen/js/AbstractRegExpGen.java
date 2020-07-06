@@ -89,4 +89,28 @@ public abstract class AbstractRegExpGen implements RegExpGen
     }
 
   private Bounds occurrences_;
+
+  /**
+   * Builds an {@link AbstractRegExpGen} instance.
+   */
+  @SuppressWarnings("unchecked")
+  public static abstract class BaseBuilder<T extends BaseBuilder<T>>
+    {
+    /**
+     * Returns the {@link AbstractRegExpGen} instance for this builder.
+     */
+    protected abstract AbstractRegExpGen getAbstractRegExpGen();
+
+	public T occurs( Integer minOccur, Integer maxOccur)
+      {
+      getAbstractRegExpGen().setOccurrences( minOccur, maxOccur);
+      return (T) this;
+      }
+
+	public T occurs( int occurs)
+      {
+      getAbstractRegExpGen().setOccurrences( occurs, occurs);
+      return (T) this;
+      }
+    }
   }

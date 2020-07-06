@@ -13,8 +13,10 @@ import org.cornutum.regexpgen.util.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * Generates strings matching a sequence of regular expressions.
@@ -63,6 +65,16 @@ public class SeqGen extends AbstractRegExpGen
     }
 
   /**
+   * Add a sequence of characters to this sequence.
+   */
+  public void add( String chars)
+    {
+    Stream.of( Optional.ofNullable( chars).orElse( ""))
+      .flatMap( s -> IntStream.range( 0, s.length()).mapToObj( i -> new Character( s.charAt(i))))
+      .forEach( c -> add( new AnyOfGen( c)));
+    }
+
+  /**
    * Returns the minimum length for any matching string.
    */
   public int getMinLength()
@@ -94,6 +106,14 @@ public class SeqGen extends AbstractRegExpGen
     return null;
     }
 
+  /**
+   * Returns an {@link AlternativeGen} builder.
+   */
+  public static Builder builder()
+    {
+    return new Builder();
+    }
+
   public String toString()
     {
     return
@@ -104,4 +124,40 @@ public class SeqGen extends AbstractRegExpGen
     }
 
   private List<RegExpGen> members_ = new ArrayList<RegExpGen>();
+
+  /**
+   * Builds a {@link SeqGen} instance.
+   */
+  public static class Builder extends BaseBuilder<Builder>
+    {
+    /**
+     * Returns the {@link AbstractRegExpGen} instance for this builder.
+     */
+    protected AbstractRegExpGen getAbstractRegExpGen()
+      {
+      return seq_;
+      }
+
+	public Builder add( RegExpGen... members)
+      {
+      for( RegExpGen member : members)
+        {
+        seq_.add( member);
+        }
+      return this;
+      }
+
+	public Builder add( String chars)
+      {
+      seq_.add( chars);
+      return this;
+      }
+
+    public SeqGen build()
+      {
+      return seq_;
+      }
+      
+    private SeqGen seq_ = new SeqGen();
+    }  
   }

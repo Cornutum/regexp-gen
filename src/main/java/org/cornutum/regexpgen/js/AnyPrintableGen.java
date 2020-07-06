@@ -78,4 +78,12 @@ public class AnyPrintableGen extends AnyOfGen
       .append( "occurs", getOccurrences())
       .toString();
     }
+
+  /**
+   * Returns an {@link AnyPrintableGen} builder.
+   */
+  public static Builder<AnyPrintableGen> anyBuilder()
+    {
+    return new Builder<AnyPrintableGen>( new AnyPrintableGen());
+    }
   }
