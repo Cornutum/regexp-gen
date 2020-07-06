@@ -93,6 +93,27 @@ public class Bounds
       .append( ']')
       .toString();
     }
+
+  public boolean equals( Object object)
+    {
+    Bounds other =
+      object != null && object.getClass().equals( getClass())
+      ? (Bounds) object
+      : null;
+
+    return
+      other != null
+      && other.getMinValue() == getMinValue()
+      && other.getMaxValue() == getMaxValue();
+    }
+
+  public int hashCode()
+    {
+    return
+      getClass().hashCode()
+      ^ getMinValue()
+      ^ getMaxValue();
+    }
   
   private final int minValue_;
   private final int maxValue_;

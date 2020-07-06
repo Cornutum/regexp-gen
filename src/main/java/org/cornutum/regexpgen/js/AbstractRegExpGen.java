@@ -88,6 +88,25 @@ public abstract class AbstractRegExpGen implements RegExpGen
       .toString();
     }
 
+  public boolean equals( Object object)
+    {
+    AbstractRegExpGen other =
+      object instanceof AbstractRegExpGen
+      ? (AbstractRegExpGen) object
+      : null;
+
+    return
+      other != null
+      && other.getOccurrences().equals( getOccurrences());
+    }
+
+  public int hashCode()
+    {
+    return
+      getClass().hashCode()
+      ^ getOccurrences().hashCode();
+    }
+  
   private Bounds occurrences_;
 
   /**

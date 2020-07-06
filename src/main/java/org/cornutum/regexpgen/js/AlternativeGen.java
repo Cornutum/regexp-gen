@@ -108,6 +108,26 @@ public class AlternativeGen extends AbstractRegExpGen
       .toString();
     }
 
+  public boolean equals( Object object)
+    {
+    AlternativeGen other =
+      object != null && object.getClass().equals( getClass())
+      ? (AlternativeGen) object
+      : null;
+
+    return
+      other != null
+      && super.equals( other)
+      && other.members_.equals( members_);
+    }
+
+  public int hashCode()
+    {
+    return
+      super.hashCode()
+      ^ members_.hashCode();
+    }
+
   private List<RegExpGen> members_ = new ArrayList<RegExpGen>();
 
   /**

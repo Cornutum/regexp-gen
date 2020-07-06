@@ -128,6 +128,26 @@ public abstract class CharClassGen extends AbstractRegExpGen
       .toString();
     }
 
+  public boolean equals( Object object)
+    {
+    CharClassGen other =
+      object instanceof CharClassGen
+      ? (CharClassGen) object
+      : null;
+
+    return
+      other != null
+      && super.equals( other)
+      && other.chars_.equals( chars_);
+    }
+
+  public int hashCode()
+    {
+    return
+      super.hashCode()
+      ^ chars_.hashCode();
+    }
+
   /**
    * Returns a string representation of the characters in this class.
    */

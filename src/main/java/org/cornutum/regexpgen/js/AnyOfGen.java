@@ -48,6 +48,23 @@ public class AnyOfGen extends CharClassGen
     return null;
     }
 
+  public boolean equals( Object object)
+    {
+    AnyOfGen other =
+      object != null && object.getClass().equals( getClass())
+      ? (AnyOfGen) object
+      : null;
+
+    return
+      other != null
+      && super.equals( other);
+    }
+
+  public int hashCode()
+    {
+    return super.hashCode();
+    }
+
   /**
    * Returns an {@link AnyOfGen} builder.
    */

@@ -57,8 +57,25 @@ public class NoneOfGen extends CharClassGen
     return null;
     }
 
+  public boolean equals( Object object)
+    {
+    NoneOfGen other =
+      object != null && object.getClass().equals( getClass())
+      ? (NoneOfGen) object
+      : null;
+
+    return
+      other != null
+      && super.equals( other);
+    }
+
+  public int hashCode()
+    {
+    return super.hashCode();
+    }
+
   /**
-   * Returns an {@link AlternativeGen} builder.
+   * Returns an {@link NoneOfGen} builder.
    */
   public static Builder builder()
     {
