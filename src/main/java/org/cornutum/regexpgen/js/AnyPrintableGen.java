@@ -46,6 +46,14 @@ public class AnyPrintableGen extends AnyOfGen
     }
 
   /**
+   * Implements the Visitor pattern for {@link org.cornutum.regexpgen.RegExpGen} implementations.
+   */
+  public void accept( RegExpGenVisitor visitor)
+    {
+    visitor.visit( this);
+    }
+
+  /**
    * Adds all printable Latin-1 characters to this class.
    */
   private void addAllPrintable()

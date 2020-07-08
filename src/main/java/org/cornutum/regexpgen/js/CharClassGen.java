@@ -71,7 +71,7 @@ public abstract class CharClassGen extends AbstractRegExpGen
     }
 
   /**
-   * Adds all of the given characters to this class
+   * Adds all of the given characters to this class.
    */
   public void addAll( String chars) 
     {
@@ -82,7 +82,7 @@ public abstract class CharClassGen extends AbstractRegExpGen
     }
 
   /**
-   * Adds all of the given characters to this class
+   * Adds all of the given characters to this class.
    */
   public void addAll( CharClassGen charClass) 
     {
@@ -93,6 +93,14 @@ public abstract class CharClassGen extends AbstractRegExpGen
         add( c);
         }
       }
+    }
+
+  /**
+   * Returns the characters in this class.
+   */
+  public Iterable<Character> getChars()
+    {
+    return chars_;
     }
 
   /**

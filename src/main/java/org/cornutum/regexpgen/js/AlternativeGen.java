@@ -52,11 +52,19 @@ public class AlternativeGen extends AbstractRegExpGen
     }
 
   /**
-   * Adds a regular expression to this sequence.
+   * Adds an alternative regular expression.
    */
   public void add( RegExpGen member)
     {
     members_.add( member);
+    }
+
+  /**
+   * Returns the alternative regular expressions.
+   */
+  public Iterable<RegExpGen> getMembers()
+    {
+    return members_;
     }
 
   /**
@@ -89,6 +97,14 @@ public class AlternativeGen extends AbstractRegExpGen
   public String generate( Random random, Bounds bounds)
     {
     return null;
+    }
+
+  /**
+   * Implements the Visitor pattern for {@link RegExpGen} implementations.
+   */
+  public void accept( RegExpGenVisitor visitor)
+    {
+    visitor.visit( this);
     }
 
   /**

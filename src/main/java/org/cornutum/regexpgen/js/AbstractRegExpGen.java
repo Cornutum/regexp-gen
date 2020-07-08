@@ -80,6 +80,11 @@ public abstract class AbstractRegExpGen implements RegExpGen
     return occurrences_.getMaxValue();
     }
 
+  /**
+   * Implements the Visitor pattern for {@link RegExpGen} implementations.
+   */
+  public abstract void accept( RegExpGenVisitor visitor);
+
   public String toString()
     {
     return

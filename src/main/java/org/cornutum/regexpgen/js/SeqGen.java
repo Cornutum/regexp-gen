@@ -75,6 +75,14 @@ public class SeqGen extends AbstractRegExpGen
     }
 
   /**
+   * Returns the members of this sequence.
+   */
+  public Iterable<RegExpGen> getMembers()
+    {
+    return members_;
+    }
+
+  /**
    * Returns the minimum length for any matching string.
    */
   public int getMinLength()
@@ -104,6 +112,14 @@ public class SeqGen extends AbstractRegExpGen
   public String generate( Random random, Bounds bounds)
     {
     return null;
+    }
+
+  /**
+   * Implements the Visitor pattern for {@link RegExpGen} implementations.
+   */
+  public void accept( RegExpGenVisitor visitor)
+    {
+    visitor.visit( this);
     }
 
   /**

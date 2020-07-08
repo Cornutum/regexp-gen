@@ -48,6 +48,14 @@ public class AnyOfGen extends CharClassGen
     return null;
     }
 
+  /**
+   * Implements the Visitor pattern for {@link org.cornutum.regexpgen.RegExpGen} implementations.
+   */
+  public void accept( RegExpGenVisitor visitor)
+    {
+    visitor.visit( this);
+    }
+
   public boolean equals( Object object)
     {
     AnyOfGen other =
