@@ -98,9 +98,9 @@ public abstract class CharClassGen extends AbstractRegExpGen
   /**
    * Returns the characters in this class.
    */
-  public Iterable<Character> getChars()
+  public Character[] getChars()
     {
-    return chars_;
+    return chars_.stream().toArray( Character[]::new);
     }
 
   /**
