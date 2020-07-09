@@ -52,7 +52,7 @@ public class Parser
       }
     else
       {
-      pop(1);
+      advance(1);
       }
 
     seq.add(
@@ -87,7 +87,7 @@ public class Parser
       alternatives.add( alternative);
       while( peekc() == '|')
         {
-        pop(1);
+        advance(1);
         alternatives.add(
           Optional.ofNullable( getAlternative())
           .orElseThrow( () -> error( "Alternative missing")));
@@ -109,16 +109,22 @@ public class Parser
    */
   private AbstractRegExpGen getAlternative()
     {
-    AbstractRegExpGen alternative = null;
-    AbstractRegExpGen term = getTerm();
-    if( term != null)
+    List<AbstractRegExpGen> terms = new ArrayList<AbstractRegExpGen>();
+
+    AbstractRegExpGen term;
+    while( (term = getTerm()) != null)
       {
-      SeqGen seq;
-      for( seq = new SeqGen( term); (term = getTerm()) != null; seq.add( term));
-      alternative = seq;
+      terms.add( term);
       }
 
-    return alternative;
+    return
+      terms.isEmpty()?
+      null :
+
+      terms.size() > 1?
+      new SeqGen( terms) :
+      
+      terms.get(0);      
     }
 
   /**
@@ -138,7 +144,7 @@ public class Parser
     RegExpGen prefix = null;
     if( "(?<=".equals( peek(4)))
       {
-      pop(4);
+      advance(4);
 
       prefix =
         Optional.ofNullable( getNext())
@@ -148,7 +154,7 @@ public class Parser
         {
         throw error( "Missing ')'");
         }
-      pop(1);
+      advance(1);
       }
 
     AbstractRegExpGen quantified = getQuantified();
@@ -175,7 +181,7 @@ public class Parser
         {
         throw error( "Unexpected look-ahead expression");
         }
-      pop(3);
+      advance(3);
 
       RegExpGen suffix =
         Optional.ofNullable( getNext())
@@ -185,7 +191,7 @@ public class Parser
         {
         throw error( "Missing ')'");
         }
-      pop(1);
+      advance(1);
 
       quantified = new SeqGen( quantified, suffix);
       }
@@ -223,28 +229,28 @@ public class Parser
       {
       case '?':
         {
-        pop(1);
+        advance(1);
         minOccur = 0;
         maxOccur = 1;
         break;
         }
       case '*':
         {
-        pop(1);
+        advance(1);
         minOccur = 0;
         maxOccur = null;
         break;
         }
       case '+':
         {
-        pop(1);
+        advance(1);
         minOccur = 1;
         maxOccur = null;
         break;
         }
       case '{':
         {
-        pop(1);
+        advance(1);
 
         minOccur =
           Optional.ofNullable( getDecimal())
@@ -252,7 +258,7 @@ public class Parser
 
         if( peekc() == ',')
           {
-          pop(1);
+          advance(1);
           maxOccur = getDecimal();
           }
         else
@@ -280,7 +286,7 @@ public class Parser
       {
       if( peekc() == '?')
         {
-        pop(1);
+        advance(1);
         maxOccur = minOccur;
         }
 
@@ -300,7 +306,7 @@ public class Parser
     StringBuilder decimal = new StringBuilder();
     for( char c = 0;
          decimalChars.indexOf( (c = peekc())) >= 0;
-         pop(1), decimal.append( c));
+         advance(1), decimal.append( c));
 
     try
       {
@@ -344,18 +350,18 @@ public class Parser
     AbstractRegExpGen group = null;
     if( peekc() == '(')
       {
-      pop(1);
+      advance(1);
 
       if( "?:".equals( peek(2)))
         {
         // Generation doesn't depend on capturing.
-        pop(2);
+        advance(2);
         }
       else if( "?<".equals( peek(2)))
         {
         // Generation doesn't depend on capturing -- ignore group name.
-        for( pop(2); peekc() != '>'; pop(1));
-        pop(1);
+        for( advance(2); peekc() != '>'; advance(1));
+        advance(1);
         }
 
       group =
@@ -366,7 +372,7 @@ public class Parser
         {
         throw error( "Missing ')'");
         }
-      pop(1);
+      advance(1);
       }
 
     return group;
@@ -381,7 +387,7 @@ public class Parser
 
     if( peekc() == '.')
       {
-      pop(1);
+      advance(1);
       anyOne = new AnyPrintableGen(1);
       }
 
@@ -396,7 +402,7 @@ public class Parser
     CharClassGen escapeClass = null;
     if( peekc() == '\\')
       {
-      pop(1);
+      advance(1);
 
       escapeClass =
         Optional.ofNullable( getCharClassEscape())
@@ -414,11 +420,11 @@ public class Parser
     CharClassGen charClass = null;
     if( peekc() == '[')
       {
-      pop(1);
+      advance(1);
 
       if( peekc() == '^')
         {
-        pop(1);
+        advance(1);
         charClass = new NoneOfGen();
         }
       else
@@ -436,50 +442,52 @@ public class Parser
 
            c = peekc())
         {
-        Matcher rangeMatcher;
-        charClass.addAll( prevClass);
-
-        if( c == '-')
+        // Is this a non-initial/final '-' char?
+        CharClassGen rangeStart = null;
+        if( c == '-' && !(prevClass == null || peek(2).endsWith( "]")))
           {
-          if( !charClass.isEmpty())
-            {
-            unexpectedChar( c);
-            }
-
-          // Include '-' in this class
-          prevClass = new AnyOfGen( c);
-          pop(1);
+          // Yes, continue to look for end of character range
+          rangeStart = prevClass;
+          advance(1);
+          c = peekc();
+          }
+        else
+          {
+          // No, look for new class member
+          charClass.addAll( prevClass);
           }
         
-        else if( (prevClass = getClassEscape()) != null)
+        if( (prevClass = getClassEscape()) != null)
           {
           // Include escaped char(s) in this class
           }
-        
-        else if( (rangeMatcher = rangePattern_.matcher( peek( 3))).matches())
-          {
-          char first = rangeMatcher.group(1).charAt(0);
-          char last = rangeMatcher.group(2).charAt(0);
-          if( last == '\\' || last == '-')
-            {
-            pop(2);
-            unexpectedChar( last);
-            }
-
-          // Include character range in this class
-          prevClass = new AnyOfGen( first, last);
-          pop(3);
-          }
-        
         else
           {
           // Include single char in this class
           prevClass = new AnyOfGen( c);
-          pop(1);
+          advance(1);
+          }
+
+        if( rangeStart != null)
+          {
+          // Add char range to this class
+          char first =
+            Optional.of( rangeStart.getChars())
+            .filter( start -> start.length == 1)
+            .map( start -> start[0])
+            .orElseThrow( () -> error( "Character range must begin with a specific character"));
+
+          char last =
+            Optional.of( prevClass.getChars())
+            .filter( end -> end.length == 1)
+            .map( end -> end[0])
+            .orElseThrow( () -> error( "Character range must end with a specific character"));
+
+          prevClass = new AnyOfGen( first, last);
           }
         }
-      charClass.addAll( prevClass);
       
+      charClass.addAll( prevClass);
       if( c != ']')
         {
         throw error( "Missing ']'");
@@ -488,7 +496,7 @@ public class Parser
         {
         throw error( "Empty character class");
         }
-      pop(1);
+      advance(1);
       }
 
     return charClass;
@@ -502,7 +510,7 @@ public class Parser
     CharClassGen escapeClass = null;
     if( peekc() == '\\')
       {
-      pop(1);
+      advance(1);
 
       if( (escapeClass = getBackspaceEscape()) == null
           &&
@@ -524,7 +532,7 @@ public class Parser
 
     if( peekc() == 'b')
       {
-      pop(1);
+      advance(1);
       escapeClass = new AnyOfGen( '\b');
       }
     
@@ -580,7 +588,7 @@ public class Parser
 
     if( escapeClass != null)
       {
-      pop(1);
+      advance(1);
       }
 
     return escapeClass;
@@ -656,7 +664,7 @@ public class Parser
 
     if( escapeClass != null)
       {
-      pop(1);
+      advance(1);
       }
 
     return escapeClass;
@@ -671,7 +679,7 @@ public class Parser
 
     if( peekc() == 'c')
       {
-      pop(1);
+      advance(1);
 
       String controlChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
       int controlChar = controlChars.indexOf( Character.toUpperCase( peekc()));
@@ -679,7 +687,7 @@ public class Parser
         {
         throw error( String.format( "Invalid control escape character='%c'", peekc()));
         }
-      pop(1);
+      advance(1);
 
       escapeClass = new AnyOfGen( (char) (0x0001 + controlChar));
       }
@@ -696,7 +704,7 @@ public class Parser
 
     if( peekc() == 'x')
       {
-      pop(1);
+      advance(1);
 
       String digits = peek(2);
       Matcher hexCharMatcher = hexCharPattern_.matcher( digits);
@@ -704,7 +712,7 @@ public class Parser
         {
         throw error( String.format( "Invalid hex character='%s'", digits));
         }
-      pop(2);
+      advance(2);
 
       escapeClass = new AnyOfGen( (char) Integer.parseInt( digits, 16));
       }
@@ -721,7 +729,7 @@ public class Parser
 
     if( peekc() == 'u')
       {
-      pop(1);
+      advance(1);
 
       String digits = peek(4);
       Matcher unicodeCharMatcher = unicodeCharPattern_.matcher( digits);
@@ -729,7 +737,7 @@ public class Parser
         {
         throw error( String.format( "Invalid Unicode character='%s'", digits));
         }
-      pop(4);
+      advance(4);
 
       escapeClass = new AnyOfGen( (char) Integer.parseInt( digits, 16));
       }
@@ -747,7 +755,7 @@ public class Parser
       .filter( c -> c != EOS)
       .map( c -> {
         CharClassGen literal = new AnyOfGen( c);
-        pop(1);
+        advance(1);
         return literal;
         })
       .orElse( null);
@@ -765,7 +773,7 @@ public class Parser
       .filter( c -> c != EOS && syntaxChars.indexOf( c) < 0)
       .map( c -> {
         CharClassGen patternChar = new AnyOfGen( c);
-        pop(1);
+        advance(1);
         return patternChar;
         })
       .orElse( null);
@@ -812,10 +820,10 @@ public class Parser
     }
 
   /**
-   * Removes the next <CODE>N</CODE> characters. Removes all remaining characters if
+   * Advances past the next <CODE>N</CODE> characters. Advances to the end if
    * fewer than <CODE>N</CODE> characters remain.
    */
-  private void pop( int n)
+  private void advance( int n)
     {
     cursor_ = Math.min( cursor_ + n, chars_.length());
     }
@@ -837,7 +845,6 @@ public class Parser
   private int cursor_ = 0;
 
   private static final char EOS = (char) -1;
-  private static final Pattern rangePattern_ = Pattern.compile( "(.)-([^\\]])");
   private static final Pattern hexCharPattern_ = Pattern.compile( "\\p{XDigit}{2}");
   private static final Pattern unicodeCharPattern_ = Pattern.compile( "\\p{XDigit}{4}");
   }
