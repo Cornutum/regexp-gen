@@ -45,7 +45,7 @@ public class SeqGen extends AbstractRegExpGen
   /**
    * Creates a new SeqGen instance.
    */
-  public SeqGen( Iterable<RegExpGen> members)
+  public <T extends RegExpGen> SeqGen( Iterable<T> members)
     {
     for( RegExpGen member : members)
       {
@@ -123,7 +123,7 @@ public class SeqGen extends AbstractRegExpGen
     }
 
   /**
-   * Returns an {@link AlternativeGen} builder.
+   * Returns an {@link SeqGen} builder.
    */
   public static Builder builder()
     {
