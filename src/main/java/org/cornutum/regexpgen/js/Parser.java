@@ -270,7 +270,7 @@ public class Parser
           {
           throw error( "Missing '}'");
           }
-        
+        advance(1);
         break;
         }
       default:
