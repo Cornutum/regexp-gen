@@ -97,19 +97,22 @@ public class Parser
     {
     List<AbstractRegExpGen> terms = new ArrayList<AbstractRegExpGen>();
 
-    AbstractRegExpGen term;
-    while( (term = getTerm()) != null)
+    List<AbstractRegExpGen> termExpr;
+    while( (termExpr = getTerm()) != null)
       {
-      if( term.isAnchoredStart() && isAnchoredStart( terms))
+      for( AbstractRegExpGen term : termExpr)
         {
-        throw error( "Start-anchored expression can be matched at most once");
+        if( term.isAnchoredStart() && isAnchoredStart( terms))
+          {
+          throw error( "Start-anchored expression can be matched at most once");
+          }
+        if( isAnchoredEnd( terms))
+          {
+          throw error( "Extra expressions not allowed after $ anchor");
+          } 
+
+        terms.add( term);
         }
-      if( isAnchoredEnd( terms))
-        {
-        throw error( "Extra expressions not allowed after $ anchor");
-        }
-      
-      terms.add( term);
       }
 
     return
@@ -139,10 +142,12 @@ public class Parser
     }
 
   /**
-   * Returns the {@link RegExpGen} represented by next term of this Javascript regular expression.
+   * Returns the sequence of {@link RegExpGen} instances represented by next term of this Javascript regular expression.
    */
-  private AbstractRegExpGen getTerm()
+  private List<AbstractRegExpGen> getTerm()
     {
+    List<AbstractRegExpGen> termExpr = new ArrayList<AbstractRegExpGen>();
+    
     if( "\\b".equalsIgnoreCase( peek(2)))
       {
       throw error( "Unsupported word boundary expression");
@@ -188,11 +193,7 @@ public class Parser
       // Apply start assertion
       if( prefix != null)
         {
-        if( prefix.isAnchoredStart() && quantified.isAnchoredStart())
-          {
-          throw error( "Start-anchored expression can be matched at most once");
-          }
-        quantified = new SeqGen( prefix, quantified);
+        termExpr.add( prefix);
         }
       else if( anchoredStart)
         {
@@ -241,14 +242,12 @@ public class Parser
 
     if( quantified != null)
       {
+      termExpr.add( quantified);
+
       // Apply end assertion
       if( suffix != null)
         {
-        if( quantified.isAnchoredEnd() && suffix.isAnchoredEnd())
-          {
-          throw error( "End-anchored expression can be matched at most once");
-          }
-        quantified = new SeqGen( quantified, suffix);
+        termExpr.add( suffix);
         }
       else if( anchoredEnd)
         {
@@ -264,7 +263,10 @@ public class Parser
       unexpectedChar( '$');
       }
 
-    return quantified;
+    return
+      termExpr.isEmpty()
+      ? null
+      : termExpr;
     }
 
   /**

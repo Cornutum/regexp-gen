@@ -79,11 +79,8 @@ public class ParserTest
           .occurs( 0, 1)
           .build())
         .add( " ")
-        .add(
-          SeqGen.builder()
-          .add( "K")
-          .add( SeqGen.builder().add( "ornutum").build())
-          .build())
+        .add( "K")
+        .add( SeqGen.builder().add( "ornutum").build())
         .add(
           SeqGen.builder()
           .add( ")")
@@ -343,17 +340,14 @@ public class ParserTest
           .add( "X")
           .build())
         .add( "\\=")
+        .add( AnyOfGen.builder().anyPrintable().occurs( 0, 2).build())
         .add(
           SeqGen.builder()
-          .add( AnyOfGen.builder().anyPrintable().occurs( 0, 2).build())
+          .add( "Suffi")
           .add(
             SeqGen.builder()
-            .add( "Suffi")
-            .add(
-              SeqGen.builder()
-              .add( "x")
-              .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
-              .build())
+            .add( "x")
+            .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
             .build())
           .build())
         .build())
