@@ -148,6 +148,7 @@ public class Parser
     {
     List<AbstractRegExpGen> termExpr = new ArrayList<AbstractRegExpGen>();
     
+    // Get any start assertion
     if( "\\b".equalsIgnoreCase( peek(2)))
       {
       throw error( "Unsupported word boundary expression");
@@ -157,7 +158,6 @@ public class Parser
       throw error( "Unsupported negative look-behind expression");
       }
 
-    // Get any start assertion
     AbstractRegExpGen prefix = null;
     boolean anchoredStart = false;
     for( boolean assertionFound = true; assertionFound; )
@@ -186,9 +186,14 @@ public class Parser
       {
       throw error( "Start assertion is inconsistent with look-behind assertion");
       }
-    
+
+    // Get atomic expression
     AbstractRegExpGen quantified = getQuantified();
-    if( quantified != null)
+    if( quantified == null && (prefix != null || anchoredStart))
+      {
+      throw error( "Missing regular expression");
+      }
+    else if( quantified != null)
       {
       // Apply start assertion
       if( prefix != null)
@@ -199,50 +204,43 @@ public class Parser
         {
         quantified.setAnchoredStart( true);
         }
-      }
-    else if( prefix != null || anchoredStart)
-      {
-      throw error( "Missing regular expression");
-      }
 
-    if( "(?!".equals( peek(3)))
-      {
-      throw error( "Unsupported negative look-ahead expression");
-      }
-
-    // Get any end assertion
-    AbstractRegExpGen suffix = null;
-    boolean anchoredEnd = false;
-    for( boolean assertionFound = true; assertionFound; )
-      {
-      if( (assertionFound = "(?=".equals( peek(3))))
-        {
-        advance(3);
-
-        suffix =
-          Optional.ofNullable( getNext())
-          .orElseThrow( () -> error( "Missing look-ahead expression"));
-
-        if( peekc() != ')')
-          {
-          throw error( "Missing ')'");
-          }
-        advance(1);
-        }
-      else if( (assertionFound = peekc() == '$'))
-        {
-        anchoredEnd = true;
-        advance(1);
-        } 
-      }
-    if( suffix != null && anchoredEnd)
-      {
-      throw error( "End assertion is inconsistent with look-ahead assertion");
-      }
-
-    if( quantified != null)
-      {
       termExpr.add( quantified);
+
+      // Get any end assertion
+      if( "(?!".equals( peek(3)))
+        {
+        throw error( "Unsupported negative look-ahead expression");
+        }
+
+      AbstractRegExpGen suffix = null;
+      boolean anchoredEnd = false;
+      for( boolean assertionFound = true; assertionFound; )
+        {
+        if( (assertionFound = "(?=".equals( peek(3))))
+          {
+          advance(3);
+
+          suffix =
+            Optional.ofNullable( getNext())
+            .orElseThrow( () -> error( "Missing look-ahead expression"));
+
+          if( peekc() != ')')
+            {
+            throw error( "Missing ')'");
+            }
+          advance(1);
+          }
+        else if( (assertionFound = peekc() == '$'))
+          {
+          anchoredEnd = true;
+          advance(1);
+          } 
+        }
+      if( suffix != null && anchoredEnd)
+        {
+        throw error( "End assertion is inconsistent with look-ahead assertion");
+        }
 
       // Apply end assertion
       if( suffix != null)
@@ -253,14 +251,6 @@ public class Parser
         {
         quantified.setAnchoredEnd( true);
         }
-      }
-    else if( suffix != null)
-      {
-      throw error( "Unexpected look-ahead assertion");
-      }
-    else if( anchoredEnd)
-      {
-      unexpectedChar( '$');
       }
 
     return
