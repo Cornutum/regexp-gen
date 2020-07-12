@@ -113,6 +113,48 @@ public class SeqGen extends AbstractRegExpGen
     {
     return null;
     }
+  
+  /**
+   * Returns if any part of this regular expression must match the start of a string.
+   */
+  public boolean isAnchoredStart()
+    {
+    return
+      isAnchoredStartAll()
+      || getStartAlternatives().anyMatch( r -> r.isAnchoredStart());
+    }
+
+  /**
+   * Returns if any part of this regular expression must match the end of a string.
+   */
+  public boolean isAnchoredEnd()
+    {
+    return
+      isAnchoredEndAll()
+      || getEndAlternatives().anyMatch( r -> r.isAnchoredEnd());
+    }
+
+  /**
+   * Returns the possible starting subexpressions for this regular expression.
+   */
+  public Stream<AbstractRegExpGen> getStartAlternatives()
+    {
+    return
+      members_.isEmpty()?
+      Stream.empty() :
+      ((AbstractRegExpGen) members_.get(0)).getStartAlternatives();
+    }
+
+  /**
+   * Returns the possible ending subexpressions for this regular expression.
+   */
+  public Stream<AbstractRegExpGen> getEndAlternatives()
+    {
+    return
+      members_.isEmpty()?
+      Stream.empty() :
+      ((AbstractRegExpGen) members_.get( members_.size() - 1)).getEndAlternatives();
+    }
 
   /**
    * Implements the Visitor pattern for {@link RegExpGen} implementations.
@@ -179,6 +221,25 @@ public class SeqGen extends AbstractRegExpGen
       for( RegExpGen member : members)
         {
         seq_.add( member);
+        }
+      return this;
+      }
+
+	public Builder addFlat( RegExpGen... members)
+      {
+      for( RegExpGen member : members)
+        {
+        if( member instanceof SeqGen)
+          {
+          for( RegExpGen flattened : ((SeqGen) member).getMembers())
+            {
+            seq_.add( flattened);
+            }
+          }
+        else
+          {
+          seq_.add( member);
+          }
         }
       return this;
       }

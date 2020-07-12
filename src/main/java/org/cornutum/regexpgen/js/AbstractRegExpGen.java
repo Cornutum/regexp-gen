@@ -7,6 +7,8 @@
 
 package org.cornutum.regexpgen.js;
 
+import java.util.stream.Stream;
+
 import org.cornutum.regexpgen.Bounds;
 import org.cornutum.regexpgen.RegExpGen;
 import org.cornutum.regexpgen.util.ToString;
@@ -79,6 +81,70 @@ public abstract class AbstractRegExpGen implements RegExpGen
     {
     return occurrences_.getMaxValue();
     }
+  
+  /**
+   * Returns if any part of this regular expression must match the start of a string.
+   */
+  public boolean isAnchoredStart()
+    {
+    return isAnchoredStartAll();
+    }
+  
+  /**
+   * Returns if this regular expression must match the start of a string.
+   */
+  public boolean isAnchoredStartAll()
+    {
+    return anchoredStart_;
+    }
+  
+  /**
+   * Changes if this regular expression must match the start of a string.
+   */
+  public void setAnchoredStart( boolean anchored)
+    {
+    anchoredStart_ = anchored;
+    }
+  
+  /**
+   * Returns any part of if this regular expression must match the end of a string.
+   */
+  public boolean isAnchoredEnd()
+    {
+    return isAnchoredEndAll();
+    }
+  
+  /**
+   * Returns if this regular expression must match the end of a string.
+   */
+  public boolean isAnchoredEndAll()
+    {
+    return anchoredEnd_;
+    }
+
+  /**
+   * Changes if this regular expression must match the end of a string.
+   */
+  public void setAnchoredEnd( boolean anchored)
+    {
+    anchoredEnd_ = anchored;
+    }
+
+  /**
+   * Returns the possible starting subexpressions for this regular expression.
+   */
+  public Stream<AbstractRegExpGen> getStartAlternatives()
+    {
+    return Stream.of( this);
+    }
+
+  /**
+   * Returns the possible ending subexpressions for this regular expression.
+   */
+  public Stream<AbstractRegExpGen> getEndAlternatives()
+    {
+    return Stream.of( this);
+    }
 
   /**
    * Implements the Visitor pattern for {@link RegExpGen} implementations.
@@ -113,6 +179,8 @@ public abstract class AbstractRegExpGen implements RegExpGen
     }
   
   private Bounds occurrences_;
+  private boolean anchoredStart_ = false;
+  private boolean anchoredEnd_ = false;
 
   /**
    * Builds an {@link AbstractRegExpGen} instance.

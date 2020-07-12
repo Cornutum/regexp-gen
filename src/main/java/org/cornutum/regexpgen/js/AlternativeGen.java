@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * Generates strings matching one of a set of alternative regular expressions.
@@ -97,6 +98,42 @@ public class AlternativeGen extends AbstractRegExpGen
   public String generate( Random random, Bounds bounds)
     {
     return null;
+    }
+  
+  /**
+   * Returns if any part of this regular expression must match the start of a string.
+   */
+  public boolean isAnchoredStart()
+    {
+    return
+      isAnchoredStartAll()
+      || getStartAlternatives().anyMatch( r -> r.isAnchoredStart());
+    }
+  
+  /**
+   * Returns if any part of this regular expression must match the end of a string.
+   */
+  public boolean isAnchoredEnd()
+    {
+    return
+      isAnchoredEndAll()
+      || getEndAlternatives().anyMatch( r -> r.isAnchoredEnd());
+    }
+
+  /**
+   * Returns the possible starting subexpressions for this regular expression.
+   */
+  public Stream<AbstractRegExpGen> getStartAlternatives()
+    {
+    return members_.stream().flatMap( r -> ((AbstractRegExpGen) r).getStartAlternatives());
+    }
+
+  /**
+   * Returns the possible ending subexpressions for this regular expression.
+   */
+  public Stream<AbstractRegExpGen> getEndAlternatives()
+    {
+    return members_.stream().flatMap( r -> ((AbstractRegExpGen) r).getEndAlternatives());
     }
 
   /**

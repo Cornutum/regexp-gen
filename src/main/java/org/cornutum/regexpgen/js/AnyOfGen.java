@@ -76,21 +76,16 @@ public class AnyOfGen extends CharClassGen
   /**
    * Returns an {@link AnyOfGen} builder.
    */
-  public static Builder<AnyOfGen> builder()
+  public static Builder builder()
     {
-    return new Builder<AnyOfGen>( new AnyOfGen());
+    return new Builder();
     }
 
   /**
    * Builds an {@link AnyOfGen} instance.
    */
-  public static class Builder<T extends AnyOfGen>  extends CharClassGenBuilder<Builder<T>>
+  public static class Builder extends CharClassGenBuilder<Builder>
     {
-    public Builder( T anyOf)
-      {
-      anyOf_ = anyOf;
-      }
-    
     /**
      * Returns the {@link CharClassGen} instance for this builder.
      */
@@ -99,11 +94,17 @@ public class AnyOfGen extends CharClassGen
       return anyOf_;
       }
 
-    public T build()
+    public Builder anyPrintable()
+      {
+      anyOf_ = new AnyPrintableGen();
+      return this;
+      }
+
+    public AnyOfGen build()
       {
       return anyOf_;
       }
       
-    private T anyOf_;
+    private AnyOfGen anyOf_ = new AnyOfGen();
     }
   }

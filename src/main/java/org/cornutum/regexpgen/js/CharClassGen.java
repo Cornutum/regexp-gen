@@ -9,7 +9,6 @@ package org.cornutum.regexpgen.js;
 
 import java.util.HashSet;
 import java.util.Set;
-
 import org.cornutum.regexpgen.util.ToString;
 
 import static java.util.stream.Collectors.joining;

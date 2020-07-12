@@ -11,11 +11,15 @@ import org.cornutum.regexpgen.Bounds;
 import org.cornutum.regexpgen.RegExpGen;
 import org.cornutum.regexpgen.util.ToString;
 
+import org.apache.commons.collections4.IterableUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Returns the {@link RegExpGen} represented by a Javascript regular expression.
@@ -43,36 +47,18 @@ public class Parser
    */
   private RegExpGen parse()
     {
-    List<RegExpGen> seq = new ArrayList<RegExpGen>();
+    RegExpGen regExpGen = getNext();
 
     char c = peekc();
-    if( c != '^' && c != EOS)
-      {
-      seq.add( new AnyPrintableGen( 0, null));
-      }
-    else
-      {
-      advance(1);
-      }
-
-    seq.add(
-      Optional.ofNullable( getNext())
-      .orElseThrow( () -> error( "No regular expression found")));
-
-    c = peekc();
-    if( c == EOS)
-      {
-      seq.add( new AnyPrintableGen( 0, null));
-      }
-    else if( c != '$')
+    if( c != EOS)
       {
       unexpectedChar( c);
       }
-
+    
     return
-      seq.size() > 1
-      ? new SeqGen( seq)
-      : seq.get(0);
+      Optional.ofNullable( regExpGen)
+      .map( r -> withStartGen( withEndGen( r)))
+      .orElse( null);
     }
 
   /**
@@ -114,6 +100,15 @@ public class Parser
     AbstractRegExpGen term;
     while( (term = getTerm()) != null)
       {
+      if( term.isAnchoredStart() && isAnchoredStart( terms))
+        {
+        throw error( "Start-anchored expression can be matched at most once");
+        }
+      if( isAnchoredEnd( terms))
+        {
+        throw error( "Extra expressions not allowed after $ anchor");
+        }
+      
       terms.add( term);
       }
 
@@ -125,6 +120,22 @@ public class Parser
       new SeqGen( terms) :
       
       terms.get(0);      
+    }
+
+  /**
+   * Returns true if the given sequence of terms is start-anchored.
+   */
+  private boolean isAnchoredStart( List<AbstractRegExpGen> terms)
+    {
+    return !terms.isEmpty() && terms.get(0).isAnchoredStart();
+    }
+
+  /**
+   * Returns true if the given sequence of terms is end-anchored.
+   */
+  private boolean isAnchoredEnd( List<AbstractRegExpGen> terms)
+    {
+    return !terms.isEmpty() && terms.get( terms.size() - 1).isAnchoredEnd();
     }
 
   /**
@@ -141,59 +152,116 @@ public class Parser
       throw error( "Unsupported negative look-behind expression");
       }
 
-    RegExpGen prefix = null;
-    if( "(?<=".equals( peek(4)))
+    // Get any start assertion
+    AbstractRegExpGen prefix = null;
+    boolean anchoredStart = false;
+    for( boolean assertionFound = true; assertionFound; )
       {
-      advance(4);
-
-      prefix =
-        Optional.ofNullable( getNext())
-        .orElseThrow( () -> error( "Missing look-behind prefix"));
-
-      if( peekc() != ')')
+      if( (assertionFound = "(?<=".equals( peek(4))))
         {
-        throw error( "Missing ')'");
+        advance(4);
+
+        prefix =
+          Optional.ofNullable( getNext())
+          .orElseThrow( () -> error( "Missing look-behind expression"));
+
+        if( peekc() != ')')
+          {
+          throw error( "Missing ')'");
+          }
+        advance(1);
         }
-      advance(1);
-      }
-
-    AbstractRegExpGen quantified = getQuantified();
-    if( prefix != null)
-      {
-      if( quantified != null)
+      else if( (assertionFound = peekc() == '^'))
         {
+        anchoredStart = true;
+        advance(1);
+        }        
+      }
+    if( prefix != null && anchoredStart)
+      {
+      throw error( "Start assertion is inconsistent with look-behind assertion");
+      }
+    
+    AbstractRegExpGen quantified = getQuantified();
+    if( quantified != null)
+      {
+      // Apply start assertion
+      if( prefix != null)
+        {
+        if( prefix.isAnchoredStart() && quantified.isAnchoredStart())
+          {
+          throw error( "Start-anchored expression can be matched at most once");
+          }
         quantified = new SeqGen( prefix, quantified);
         }
-      else
+      else if( anchoredStart)
         {
-        throw error( "Missing regular expression");
+        quantified.setAnchoredStart( true);
         }
+      }
+    else if( prefix != null || anchoredStart)
+      {
+      throw error( "Missing regular expression");
       }
 
     if( "(?!".equals( peek(3)))
       {
       throw error( "Unsupported negative look-ahead expression");
       }
-    
-    if( "(?=".equals( peek(3)))
+
+    // Get any end assertion
+    AbstractRegExpGen suffix = null;
+    boolean anchoredEnd = false;
+    for( boolean assertionFound = true; assertionFound; )
       {
-      if( quantified == null)
+      if( (assertionFound = "(?=".equals( peek(3))))
         {
-        throw error( "Unexpected look-ahead expression");
+        advance(3);
+
+        suffix =
+          Optional.ofNullable( getNext())
+          .orElseThrow( () -> error( "Missing look-ahead expression"));
+
+        if( peekc() != ')')
+          {
+          throw error( "Missing ')'");
+          }
+        advance(1);
         }
-      advance(3);
-
-      RegExpGen suffix =
-        Optional.ofNullable( getNext())
-        .orElseThrow( () -> error( "Missing look-ahead suffix"));
-
-      if( peekc() != ')')
+      else if( (assertionFound = peekc() == '$'))
         {
-        throw error( "Missing ')'");
-        }
-      advance(1);
+        anchoredEnd = true;
+        advance(1);
+        } 
+      }
+    if( suffix != null && anchoredEnd)
+      {
+      throw error( "End assertion is inconsistent with look-ahead assertion");
+      }
 
-      quantified = new SeqGen( quantified, suffix);
+    if( quantified != null)
+      {
+      // Apply end assertion
+      if( suffix != null)
+        {
+        if( quantified.isAnchoredEnd() && suffix.isAnchoredEnd())
+          {
+          throw error( "End-anchored expression can be matched at most once");
+          }
+        quantified = new SeqGen( quantified, suffix);
+        }
+      else if( anchoredEnd)
+        {
+        quantified.setAnchoredEnd( true);
+        }
+      }
+    else if( suffix != null)
+      {
+      throw error( "Unexpected look-ahead assertion");
+      }
+    else if( anchoredEnd)
+      {
+      unexpectedChar( '$');
       }
 
     return quantified;
@@ -210,6 +278,10 @@ public class Parser
       Bounds quantifier = getQuantifier();
       if( quantifier != null)
         {
+        if( atom.isAnchoredEnd() && quantifier.getMaxValue() > 1)
+          {
+          throw error( "End-anchored expression can be matched at most once");
+          }
         atom.setOccurrences( quantifier);
         }
       }
@@ -777,6 +849,85 @@ public class Parser
         return patternChar;
         })
       .orElse( null);
+    }
+
+  /**
+   * Returns the given {@link RegExpGen} after prefacing any unanchored initial subexpressions
+   * with an implicit ".*" expression.
+   */
+  private RegExpGen withStartGen( RegExpGen regExpGen)
+    {
+    AbstractRegExpGen initiated = (AbstractRegExpGen) regExpGen;
+
+    if( initiated instanceof AlternativeGen)
+      {
+      AlternativeGen alternative = (AlternativeGen) initiated;
+      if( !alternative.isAnchoredStartAll())
+        {
+        initiated = 
+          new AlternativeGen(
+            IterableUtils.toList( alternative.getMembers())
+            .stream()
+            .map( this::withStartGen)
+            .collect( Collectors.toList()));
+        }
+      }
+    else if( initiated instanceof SeqGen)
+      {
+      SeqGen seq = (SeqGen) initiated;
+      if( !seq.isAnchoredStartAll())
+        {
+        List<RegExpGen> members = IterableUtils.toList( seq.getMembers());
+        initiated = 
+          new SeqGen(
+            IntStream.range( 0, members.size())
+            .mapToObj( i -> i == 0?  withStartGen( members.get(i)) : members.get(i))
+            .collect( Collectors.toList()));
+        }
+      }
+    else if( !initiated.isAnchoredStart())
+      {
+      initiated = new SeqGen( new AnyPrintableGen( 0, null), initiated);
+      }
+    
+    return initiated;
+    }
+
+  /**
+   * Returns the given {@link RegExpGen} after appending an implicit ".*" expression to
+   * any unanchored final subexpressions.
+   */
+  private RegExpGen withEndGen( RegExpGen regExpGen)
+    {
+    AbstractRegExpGen terminated = (AbstractRegExpGen) regExpGen;
+    AlternativeGen alternative;
+    SeqGen seq;
+
+    if( terminated instanceof AlternativeGen && (alternative = (AlternativeGen) terminated).isAnchoredEndAll() == false)
+      {
+      terminated = 
+        new AlternativeGen(
+          IterableUtils.toList( alternative.getMembers())
+          .stream()
+          .map( this::withEndGen)
+          .collect( Collectors.toList()));
+      }
+    else if( terminated instanceof SeqGen && (seq = (SeqGen) terminated).isAnchoredEndAll() == false && seq.getMaxOccur() <= 1)
+      {
+      List<RegExpGen> members = IterableUtils.toList( seq.getMembers());
+      int last = members.size() - 1;
+      terminated = 
+        new SeqGen(
+          IntStream.range( 0, members.size())
+          .mapToObj( i -> i == last?  withEndGen( members.get(i)) : members.get(i))
+          .collect( Collectors.toList()));
+      }
+    else if( !terminated.isAnchoredEnd())
+      {
+      terminated = new SeqGen( terminated, new AnyPrintableGen( 0, null));
+      }
+    
+    return terminated;
     }
 
   /**
