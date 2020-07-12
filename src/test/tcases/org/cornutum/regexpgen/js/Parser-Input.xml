@@ -55,7 +55,7 @@
                                 </When>
                             </Value>
                         </Var>
-                        <Var name="Excluded">
+                        <Var name="Excluded" when="charClass">
                             <Value name="Yes"/>
                             <Value name="No"/>
                         </Var>
