@@ -12,6 +12,7 @@ import org.cornutum.regexpgen.RegExpGen;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
+import org.hamcrest.core.IsNull;
 
 /**
  * A composite matcher for {@link AbstractRegExpGen} instances
@@ -58,9 +59,19 @@ public class RegExpGenMatcher extends BaseMatcher<RegExpGen>
      */
     public static Matcher<?> matcherFor( AbstractRegExpGen expected)
       {
-      MatcherFactory factory = new MatcherFactory();
-      expected.accept( factory);
-      return factory.matcher_;
+      Matcher<?> matcher;
+      if( expected == null)
+        {
+        matcher = new IsNull<AbstractRegExpGen>();
+        }
+      else
+        {
+        MatcherFactory factory = new MatcherFactory();
+        expected.accept( factory);
+        matcher = factory.matcher_;
+        }
+
+      return matcher;
       }
     
     public void visit( AlternativeGen regExpGen)

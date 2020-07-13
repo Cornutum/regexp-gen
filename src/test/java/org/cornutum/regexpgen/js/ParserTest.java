@@ -1247,53 +1247,13 @@ public class ParserTest
   public void parse_15()
     {
     // Given...
-    //
-    //   Anchor-Start = No
-    //
-    //   Alternatives.Count = 0
-    //
-    //   Alternatives.Terms.Count = (not applicable)
-    //
-    //   Alternatives.Terms.Look-Behind = (not applicable)
-    //
-    //   Alternatives.Terms.Group = (not applicable)
-    //
-    //   Alternatives.Terms.Char-Class.Count = (not applicable)
-    //
-    //   Alternatives.Terms.Char-Class.Excluded = (not applicable)
-    //
-    //   Alternatives.Terms.Char-Class.Range = (not applicable)
-    //
-    //   Alternatives.Terms.Char-Class.Escape.Literal = (not applicable)
-    //
-    //   Alternatives.Terms.Char-Class.Escape.Class = (not applicable)
-    //
-    //   Alternatives.Terms.Char-Class.Escape.Char = (not applicable)
-    //
-    //   Alternatives.Terms.Char-Class.Pattern-Char = (not applicable)
-    //
-    //   Alternatives.Terms.Atom-Escape.Literal = (not applicable)
-    //
-    //   Alternatives.Terms.Atom-Escape.Char = (not applicable)
-    //
-    //   Alternatives.Terms.Dot = (not applicable)
-    //
-    //   Alternatives.Terms.Pattern-Char = (not applicable)
-    //
-    //   Alternatives.Terms.Look-Ahead = (not applicable)
-    //
-    //   Alternatives.Terms.Quantifier.Type = (not applicable)
-    //
-    //   Alternatives.Terms.Quantifier.Min = (not applicable)
-    //
-    //   Alternatives.Terms.Quantifier.Max = (not applicable)
-    //
-    //   Alternatives.Terms.Quantifier.Lazy = (not applicable)
-    //
-    //   Anchor-End = No
+    String regexp = "";
     
     // When...
+    RegExpGen generator = Parser.parseRegExp( regexp);
 
     // Then...
+    RegExpGen expected = null;
+    assertThat( generator, matches( new RegExpGenMatcher( expected)));
     }
   }
