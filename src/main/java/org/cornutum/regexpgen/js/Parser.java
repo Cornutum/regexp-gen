@@ -106,6 +106,10 @@ public class Parser
           {
           throw error( "Start-anchored expression can be matched at most once");
           }
+        if( term.isAnchoredStart() && !terms.isEmpty())
+          {
+          throw error( "Extra expressions not allowed preceding ^ anchor");
+          }
         if( isAnchoredEnd( terms))
           {
           throw error( "Extra expressions not allowed after $ anchor");
@@ -151,11 +155,11 @@ public class Parser
     // Get any start assertion
     if( "\\b".equalsIgnoreCase( peek(2)))
       {
-      throw error( "Unsupported word boundary expression");
+      throw error( "Unsupported word boundary assertion");
       }
     if( "(?<!".equals( peek(4)))
       {
-      throw error( "Unsupported negative look-behind expression");
+      throw error( "Unsupported negative look-behind assertion");
       }
 
     AbstractRegExpGen prefix = null;
@@ -210,7 +214,7 @@ public class Parser
       // Get any end assertion
       if( "(?!".equals( peek(3)))
         {
-        throw error( "Unsupported negative look-ahead expression");
+        throw error( "Unsupported negative look-ahead assertion");
         }
 
       AbstractRegExpGen suffix = null;

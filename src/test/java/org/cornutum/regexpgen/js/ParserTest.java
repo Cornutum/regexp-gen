@@ -11,7 +11,9 @@ import org.cornutum.regexpgen.RegExpGen;
 
 import org.junit.Test;
 import static org.cornutum.hamcrest.Composites.*;
+import static org.cornutum.hamcrest.ExpectedFailure.expectFailure;
 import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
 
 /**
  * Runs tests for {@link Parser}.
@@ -1164,5 +1166,369 @@ public class ParserTest
     // Then...
     RegExpGen expected = null;
     assertThat( generator, matches( new RegExpGenMatcher( expected)));
+    }
+
+  @Test
+  public void whenAlternativeMissing()
+    {
+    // Given...
+    String regexp = "A||C";
+
+    expectFailure( IllegalStateException.class)
+      .when( () -> Parser.parseRegExp( regexp))
+      .then( failure -> {
+        assertThat( "Failure", failure.getMessage(), is( errorAt( "Alternative missing", 2)));
+        });
+    }
+
+  @Test
+  public void whenExtraStartAnchor()
+    {
+    // Given...
+    String regexp = "^A(B|^C)";
+
+    expectFailure( IllegalStateException.class)
+      .when( () -> Parser.parseRegExp( regexp))
+      .then( failure -> {
+        assertThat( "Failure", failure.getMessage(), is( errorAt( "Start-anchored expression can be matched at most once", 8)));
+        });
+    }
+
+  @Test
+  public void whenFollowingEndAnchor()
+    {
+    // Given...
+    String regexp = "(ABC$)(DEF)";
+
+    expectFailure( IllegalStateException.class)
+      .when( () -> Parser.parseRegExp( regexp))
+      .then( failure -> {
+        assertThat( "Failure", failure.getMessage(), is( errorAt( "Extra expressions not allowed after $ anchor", 11)));
+        });
+    }
+
+  @Test
+  public void whenWordBoundaryStart()
+    {
+    // Given...
+    String regexp = "Matchy \\bMatchy";
+
+    expectFailure( IllegalStateException.class)
+      .when( () -> Parser.parseRegExp( regexp))
+      .then( failure -> {
+        assertThat( "Failure", failure.getMessage(), is( errorAt( "Unsupported word boundary assertion", 7)));
+        });
+    }
+
+  @Test
+  public void whenWordBoundaryEnd()
+    {
+    // Given...
+    String regexp = "Matchy\\B Matchy";
+
+    expectFailure( IllegalStateException.class)
+      .when( () -> Parser.parseRegExp( regexp))
+      .then( failure -> {
+        assertThat( "Failure", failure.getMessage(), is( errorAt( "Unsupported word boundary assertion", 6)));
+        });
+    }
+
+  @Test
+  public void whenNegativeLookBehind()
+    {
+    // Given...
+    String regexp = "(?<!ABC)D";
+
+    expectFailure( IllegalStateException.class)
+      .when( () -> Parser.parseRegExp( regexp))
+      .then( failure -> {
+        assertThat( "Failure", failure.getMessage(), is( errorAt( "Unsupported negative look-behind assertion", 0)));
+        });
+    }
+
+  @Test
+  public void whenLookBehindMissing()
+    {
+    // Given...
+    String regexp = "(?<=)ABC";
+
+    expectFailure( IllegalStateException.class)
+      .when( () -> Parser.parseRegExp( regexp))
+      .then( failure -> {
+        assertThat( "Failure", failure.getMessage(), is( errorAt( "Missing look-behind expression", 4)));
+        });
+    }
+
+  @Test
+  public void whenLookBehindUnterminated()
+    {
+    // Given...
+    String regexp = "(?<=XYZ";
+
+    expectFailure( IllegalStateException.class)
+      .when( () -> Parser.parseRegExp( regexp))
+      .then( failure -> {
+        assertThat( "Failure", failure.getMessage(), is( errorAt( "Missing ')'", 7)));
+        });
+    }
+
+  @Test
+  public void whenExtraStartAssertion()
+    {
+    // Given...
+    String regexp = "(?<=A)^Z";
+
+    expectFailure( IllegalStateException.class)
+      .when( () -> Parser.parseRegExp( regexp))
+      .then( failure -> {
+        assertThat( "Failure", failure.getMessage(), is( errorAt( "Start assertion is inconsistent with look-behind assertion", 7)));
+        });
+    }
+
+  @Test
+  public void whenLookBehindIncomplete()
+    {
+    // Given...
+    String regexp = "A(?<=B)";
+
+    expectFailure( IllegalStateException.class)
+      .when( () -> Parser.parseRegExp( regexp))
+      .then( failure -> {
+        assertThat( "Failure", failure.getMessage(), is( errorAt( "Missing regular expression", 7)));
+        });
+    }
+
+  @Test
+  public void whenNegativeLookAhead()
+    {
+    // Given...
+    String regexp = "ABC(?!D)";
+
+    expectFailure( IllegalStateException.class)
+      .when( () -> Parser.parseRegExp( regexp))
+      .then( failure -> {
+        assertThat( "Failure", failure.getMessage(), is( errorAt( "Unsupported negative look-ahead assertion", 3)));
+        });
+    }
+
+  @Test
+  public void whenLookAheadMissing()
+    {
+    // Given...
+    String regexp = "(ABC)(?=)Z";
+
+    expectFailure( IllegalStateException.class)
+      .when( () -> Parser.parseRegExp( regexp))
+      .then( failure -> {
+        assertThat( "Failure", failure.getMessage(), is( errorAt( "Missing look-ahead expression", 8)));
+        });
+    }
+
+  @Test
+  public void whenLookAheadUnterminated()
+    {
+    // Given...
+    String regexp = "ABC(?=DEF";
+
+    expectFailure( IllegalStateException.class)
+      .when( () -> Parser.parseRegExp( regexp))
+      .then( failure -> {
+        assertThat( "Failure", failure.getMessage(), is( errorAt( "Missing ')'", 9)));
+        });
+    }
+
+  @Test
+  public void whenExtraEndAssertion()
+    {
+    // Given...
+    String regexp = "ABC$(?=DEF)";
+
+    expectFailure( IllegalStateException.class)
+      .when( () -> Parser.parseRegExp( regexp))
+      .then( failure -> {
+        assertThat( "Failure", failure.getMessage(), is( errorAt( "End assertion is inconsistent with look-ahead assertion", 11)));
+        });
+    }
+
+  @Test
+  public void whenEndAnchorMultiple()
+    {
+    // Given...
+    String regexp = "(ABC$)+";
+
+    expectFailure( IllegalStateException.class)
+      .when( () -> Parser.parseRegExp( regexp))
+      .then( failure -> {
+        assertThat( "Failure", failure.getMessage(), is( errorAt( "End-anchored expression can be matched at most once", 7)));
+        });
+    }
+
+  @Test
+  public void whenQuantifierMinMissing()
+    {
+    // Given...
+    String regexp = "X{}";
+
+    expectFailure( IllegalStateException.class)
+      .when( () -> Parser.parseRegExp( regexp))
+      .then( failure -> {
+        assertThat( "Failure", failure.getMessage(), is( errorAt( "Missing number", 2)));
+        });
+    }
+
+  @Test
+  public void whenQuantifierUnterminated()
+    {
+    // Given...
+    String regexp = "A{1,2BC";
+
+    expectFailure( IllegalStateException.class)
+      .when( () -> Parser.parseRegExp( regexp))
+      .then( failure -> {
+        assertThat( "Failure", failure.getMessage(), is( errorAt( "Missing '}'", 5)));
+        });
+    }
+
+  @Test
+  public void whenGroupEmpty()
+    {
+    // Given...
+    String regexp = "A()B";
+
+    expectFailure( IllegalStateException.class)
+      .when( () -> Parser.parseRegExp( regexp))
+      .then( failure -> {
+        assertThat( "Failure", failure.getMessage(), is( errorAt( "Incomplete group expression", 2)));
+        });
+    }
+
+  @Test
+  public void whenGroupUnterminated()
+    {
+    // Given...
+    String regexp = "(A|B";
+
+    expectFailure( IllegalStateException.class)
+      .when( () -> Parser.parseRegExp( regexp))
+      .then( failure -> {
+        assertThat( "Failure", failure.getMessage(), is( errorAt( "Missing ')'", 4)));
+        });
+    }
+
+  @Test
+  public void whenCharRangeStartInvalid()
+    {
+    // Given...
+    String regexp = "[\\w-Z]";
+
+    expectFailure( IllegalStateException.class)
+      .when( () -> Parser.parseRegExp( regexp))
+      .then( failure -> {
+        assertThat( "Failure", failure.getMessage(), is( errorAt( "Character range must begin with a specific character", 5)));
+        });
+    }
+
+  @Test
+  public void whenCharRangeEndInvalid()
+    {
+    // Given...
+    String regexp = "[d-\\S]";
+
+    expectFailure( IllegalStateException.class)
+      .when( () -> Parser.parseRegExp( regexp))
+      .then( failure -> {
+        assertThat( "Failure", failure.getMessage(), is( errorAt( "Character range must end with a specific character", 5)));
+        });
+    }
+
+  @Test
+  public void whenCharClassUnterminated()
+    {
+    // Given...
+    String regexp = "AB[CD";
+
+    expectFailure( IllegalStateException.class)
+      .when( () -> Parser.parseRegExp( regexp))
+      .then( failure -> {
+        assertThat( "Failure", failure.getMessage(), is( errorAt( "Missing ']'", 5)));
+        });
+    }
+
+  @Test
+  public void whenCharClassEmpty()
+    {
+    // Given...
+    String regexp = "A[^]Z";
+
+    expectFailure( IllegalStateException.class)
+      .when( () -> Parser.parseRegExp( regexp))
+      .then( failure -> {
+        assertThat( "Failure", failure.getMessage(), is( errorAt( "Empty character class", 3)));
+        });
+    }
+
+  @Test
+  public void whenControlCharInvalid()
+    {
+    // Given...
+    String regexp = "\\c9";
+
+    expectFailure( IllegalStateException.class)
+      .when( () -> Parser.parseRegExp( regexp))
+      .then( failure -> {
+        assertThat( "Failure", failure.getMessage(), is( errorAt( "Invalid control escape character='9'", 2)));
+        });
+    }
+
+  @Test
+  public void whenHexCharInvalid()
+    {
+    // Given...
+    String regexp = "\\x1G";
+
+    expectFailure( IllegalStateException.class)
+      .when( () -> Parser.parseRegExp( regexp))
+      .then( failure -> {
+        assertThat( "Failure", failure.getMessage(), is( errorAt( "Invalid hex character='1G'", 2)));
+        });
+    }
+
+  @Test
+  public void whenUnicodeCharInvalid()
+    {
+    // Given...
+    String incomplete = "\\u123";
+
+    expectFailure( IllegalStateException.class)
+      .when( () -> Parser.parseRegExp( incomplete))
+      .then( failure -> {
+        assertThat( "Failure", failure.getMessage(), is( errorAt( "Invalid Unicode character='123'", 2)));
+        });
+
+    String nonHex = "\\u123X";
+
+    expectFailure( IllegalStateException.class)
+      .when( () -> Parser.parseRegExp( nonHex))
+      .then( failure -> {
+        assertThat( "Failure", failure.getMessage(), is( errorAt( "Invalid Unicode character='123X'", 2)));
+        }); 
+    }
+
+  @Test
+  public void whenPrecedingStartAnchor()
+    {
+    // Given...
+    String regexp = "ABC^DEF";
+
+    expectFailure( IllegalStateException.class)
+      .when( () -> Parser.parseRegExp( regexp))
+      .then( failure -> {
+        assertThat( "Failure", failure.getMessage(), is( errorAt( "Extra expressions not allowed preceding ^ anchor", 5)));
+        });
+    }
+
+  private String errorAt( String message, int position)
+    {
+    return String.format( "%s at position=%s", message, position);
     }
   }
