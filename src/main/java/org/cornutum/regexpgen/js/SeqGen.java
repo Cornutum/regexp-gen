@@ -225,21 +225,11 @@ public class SeqGen extends AbstractRegExpGen
       return this;
       }
 
-	public Builder addFlat( RegExpGen... members)
+	public Builder addAll( Iterable<RegExpGen> members)
       {
       for( RegExpGen member : members)
         {
-        if( member instanceof SeqGen)
-          {
-          for( RegExpGen flattened : ((SeqGen) member).getMembers())
-            {
-            seq_.add( flattened);
-            }
-          }
-        else
-          {
-          seq_.add( member);
-          }
+        seq_.add( member);
         }
       return this;
       }

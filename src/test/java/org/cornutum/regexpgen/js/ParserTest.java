@@ -517,57 +517,35 @@ public class ParserTest
   @Test
   public void parse_6()
     {
-    // properties = alternative,bounded,charClass,lookbehind,quantifier,term
-
     // Given...
-    //
-    //   Anchor-Start = No
-    //
-    //   Alternatives.Count = 1
-    //
-    //   Alternatives.Terms.Count = Many
-    //
-    //   Alternatives.Terms.Look-Behind = Yes
-    //
-    //   Alternatives.Terms.Group = Yes
-    //
-    //   Alternatives.Terms.Char-Class.Count = Many
-    //
-    //   Alternatives.Terms.Char-Class.Excluded = No
-    //
-    //   Alternatives.Terms.Char-Class.Range = Yes
-    //
-    //   Alternatives.Terms.Char-Class.Escape.Literal = ]
-    //
-    //   Alternatives.Terms.Char-Class.Escape.Class = S
-    //
-    //   Alternatives.Terms.Char-Class.Escape.Char = v
-    //
-    //   Alternatives.Terms.Char-Class.Pattern-Char = Yes
-    //
-    //   Alternatives.Terms.Atom-Escape.Literal = (
-    //
-    //   Alternatives.Terms.Atom-Escape.Char = x
-    //
-    //   Alternatives.Terms.Dot = Yes
-    //
-    //   Alternatives.Terms.Pattern-Char = Yes
-    //
-    //   Alternatives.Terms.Look-Ahead = No
-    //
-    //   Alternatives.Terms.Quantifier.Type = Bounded
-    //
-    //   Alternatives.Terms.Quantifier.Min = 0
-    //
-    //   Alternatives.Terms.Quantifier.Max = None
-    //
-    //   Alternatives.Terms.Quantifier.Lazy = Yes
-    //
-    //   Anchor-End = Yes
+    String regexp = "(?<=^Prefix)([\\S@X-Z\\]\\v]\\(\\x6A.z\\))*?$";
     
     // When...
+    RegExpGen generator = Parser.parseRegExp( regexp);
 
     // Then...
+    RegExpGen expected =
+      SeqGen.builder()
+      .add( SeqGen.builder().add( "Prefix").build())
+      .add(
+        SeqGen.builder()
+        .add(
+          AnyOfGen.builder()
+          .addAll( CharClassGen.nonSpace())
+          .add( '@')
+          .addAll( 'X', 'Z')
+          .add( ']')
+          .add( (char) 0x000B)
+          .build())
+        .add( "(")
+        .add( AnyOfGen.builder().add( (char) 0x006A).build())
+        .add( AnyOfGen.builder().anyPrintable().build())
+        .add( "z)")
+        .occurs( 0)
+        .build())
+      .build();
+
+    assertThat( generator, matches( new RegExpGenMatcher( expected)));
     }
 
   /**
@@ -582,7 +560,7 @@ public class ParserTest
    * <TR><TD> Alternatives.Terms.Look-Behind </TD> <TD> Yes </TD> </TR>
    * <TR><TD> Alternatives.Terms.Group </TD> <TD> No </TD> </TR>
    * <TR><TD> Alternatives.Terms.Char-Class.Count </TD> <TD> 1 </TD> </TR>
-   * <TR><TD> Alternatives.Terms.Char-Class.Excluded </TD> <TD> (not applicable) </TD> </TR>
+   * <TR><TD> Alternatives.Terms.Char-Class.Excluded </TD> <TD> Yes </TD> </TR>
    * <TR><TD> Alternatives.Terms.Char-Class.Range </TD> <TD> No </TD> </TR>
    * <TR><TD> Alternatives.Terms.Char-Class.Escape.Literal </TD> <TD> No </TD> </TR>
    * <TR><TD> Alternatives.Terms.Char-Class.Escape.Class </TD> <TD> No </TD> </TR>
@@ -604,57 +582,60 @@ public class ParserTest
   @Test
   public void parse_7()
     {
-    // properties = alternative,charClass,lookahead,lookbehind,quantifier,term
-
     // Given...
-    //
-    //   Anchor-Start = No
-    //
-    //   Alternatives.Count = Many
-    //
-    //   Alternatives.Terms.Count = 3
-    //
-    //   Alternatives.Terms.Look-Behind = Yes
-    //
-    //   Alternatives.Terms.Group = No
-    //
-    //   Alternatives.Terms.Char-Class.Count = 1
-    //
-    //   Alternatives.Terms.Char-Class.Excluded = (not applicable)
-    //
-    //   Alternatives.Terms.Char-Class.Range = No
-    //
-    //   Alternatives.Terms.Char-Class.Escape.Literal = No
-    //
-    //   Alternatives.Terms.Char-Class.Escape.Class = No
-    //
-    //   Alternatives.Terms.Char-Class.Escape.Char = c
-    //
-    //   Alternatives.Terms.Char-Class.Pattern-Char = No
-    //
-    //   Alternatives.Terms.Atom-Escape.Literal = \
-    //
-    //   Alternatives.Terms.Atom-Escape.Char = t
-    //
-    //   Alternatives.Terms.Dot = No
-    //
-    //   Alternatives.Terms.Pattern-Char = No
-    //
-    //   Alternatives.Terms.Look-Ahead = Yes
-    //
-    //   Alternatives.Terms.Quantifier.Type = *
-    //
-    //   Alternatives.Terms.Quantifier.Min = (not applicable)
-    //
-    //   Alternatives.Terms.Quantifier.Max = (not applicable)
-    //
-    //   Alternatives.Terms.Quantifier.Lazy = No
-    //
-    //   Anchor-End = No
+    String regexp = "(?<=^(?<group>A|B))([^\\cC]*\\\\\\t)+(?=Z$|D)|(Z|D$)";
     
     // When...
+    RegExpGen generator = Parser.parseRegExp( regexp);
 
     // Then...
+    RegExpGen expected =
+      AlternativeGen.builder()
+      .add(
+        SeqGen.builder()
+        .add(
+          AlternativeGen.builder()
+          .add( AnyOfGen.builder().add( 'A').build())
+          .add( AnyOfGen.builder().add( 'B').build())
+          .build())
+        .add(
+          SeqGen.builder()
+          .add( NoneOfGen.builder().add( (char) 0x0003).occurs( 0, null).build())
+          .add( "\\\t")
+          .occurs( 1, null)
+          .build())
+        .add(
+          AlternativeGen.builder()
+          .add( AnyOfGen.builder().add( 'Z').build())
+          .add(
+            SeqGen.builder()
+            .add( AnyOfGen.builder().add( 'D').build())
+            .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+            .build())
+          .build())
+        .build())
+      
+      .add(
+        AlternativeGen.builder()
+        .add(
+          SeqGen.builder()
+          .add(
+            SeqGen.builder()
+            .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+            .add( AnyOfGen.builder().add( 'Z').build())
+            .build())
+          .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+          .build())
+        .add(
+          SeqGen.builder()
+          .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+          .add( AnyOfGen.builder().add( 'D').build())
+          .build())
+        .build())
+      
+      .build();
+
+    assertThat( generator, matches( new RegExpGenMatcher( expected)));
     }
 
   /**
@@ -691,57 +672,24 @@ public class ParserTest
   @Test
   public void parse_8()
     {
-    // properties = alternative,bounded,quantifier,term
-
     // Given...
-    //
-    //   Anchor-Start = Yes
-    //
-    //   Alternatives.Count = 1
-    //
-    //   Alternatives.Terms.Count = 1
-    //
-    //   Alternatives.Terms.Look-Behind = No
-    //
-    //   Alternatives.Terms.Group = No
-    //
-    //   Alternatives.Terms.Char-Class.Count = 0
-    //
-    //   Alternatives.Terms.Char-Class.Excluded = (not applicable)
-    //
-    //   Alternatives.Terms.Char-Class.Range = No
-    //
-    //   Alternatives.Terms.Char-Class.Escape.Literal = No
-    //
-    //   Alternatives.Terms.Char-Class.Escape.Class = No
-    //
-    //   Alternatives.Terms.Char-Class.Escape.Char = No
-    //
-    //   Alternatives.Terms.Char-Class.Pattern-Char = No
-    //
-    //   Alternatives.Terms.Atom-Escape.Literal = No
-    //
-    //   Alternatives.Terms.Atom-Escape.Char = u
-    //
-    //   Alternatives.Terms.Dot = No
-    //
-    //   Alternatives.Terms.Pattern-Char = No
-    //
-    //   Alternatives.Terms.Look-Ahead = No
-    //
-    //   Alternatives.Terms.Quantifier.Type = Bounded
-    //
-    //   Alternatives.Terms.Quantifier.Min = 2
-    //
-    //   Alternatives.Terms.Quantifier.Max = 3
-    //
-    //   Alternatives.Terms.Quantifier.Lazy = No
-    //
-    //   Anchor-End = Yes
+    String regexp = "\\u028f{2,3}$";
     
     // When...
+    RegExpGen generator = Parser.parseRegExp( regexp);
 
     // Then...
+    RegExpGen expected =
+      SeqGen.builder()
+      .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+      .add(
+        AnyOfGen.builder()
+        .add( (char) 0x028F)
+        .occurs( 2, 3)
+        .build())
+      .build();
+
+    assertThat( generator, matches( new RegExpGenMatcher( expected)));
     }
 
   /**
@@ -778,57 +726,55 @@ public class ParserTest
   @Test
   public void parse_9()
     {
-    // properties = alternative,bounded,charClass,lookahead,quantifier,term
-
     // Given...
-    //
-    //   Anchor-Start = Yes
-    //
-    //   Alternatives.Count = Many
-    //
-    //   Alternatives.Terms.Count = Many
-    //
-    //   Alternatives.Terms.Look-Behind = No
-    //
-    //   Alternatives.Terms.Group = Yes
-    //
-    //   Alternatives.Terms.Char-Class.Count = Many
-    //
-    //   Alternatives.Terms.Char-Class.Excluded = Yes
-    //
-    //   Alternatives.Terms.Char-Class.Range = Yes
-    //
-    //   Alternatives.Terms.Char-Class.Escape.Literal = \
-    //
-    //   Alternatives.Terms.Char-Class.Escape.Class = W
-    //
-    //   Alternatives.Terms.Char-Class.Escape.Char = f
-    //
-    //   Alternatives.Terms.Char-Class.Pattern-Char = Yes
-    //
-    //   Alternatives.Terms.Atom-Escape.Literal = )
-    //
-    //   Alternatives.Terms.Atom-Escape.Char = v
-    //
-    //   Alternatives.Terms.Dot = Yes
-    //
-    //   Alternatives.Terms.Pattern-Char = Yes
-    //
-    //   Alternatives.Terms.Look-Ahead = Yes
-    //
-    //   Alternatives.Terms.Quantifier.Type = Bounded
-    //
-    //   Alternatives.Terms.Quantifier.Min = 2
-    //
-    //   Alternatives.Terms.Quantifier.Max = 2
-    //
-    //   Alternatives.Terms.Quantifier.Lazy = Yes
-    //
-    //   Anchor-End = No
+    String regexp = "\\?|(?:^[^\\\\-z\\W\\f-]\\)\\v+.){2,2}?(?=Suffix)";
     
     // When...
+    RegExpGen generator = Parser.parseRegExp( regexp);
 
     // Then...
+    RegExpGen expected =
+      AlternativeGen.builder()
+      .add(
+        SeqGen.builder()
+        .add(
+          SeqGen.builder()
+          .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+          .add( AnyOfGen.builder().add( '?').build())
+          .build())
+        .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+        .build())
+
+      .add(
+        SeqGen.builder()
+        .add(
+          SeqGen.builder()
+          .add(
+            NoneOfGen.builder()
+            .addAll( '\\', 'z')
+            .addAll( CharClassGen.nonWord())
+            .add( '\f')
+            .add( '-')
+            .build())
+          .add( ")")
+          .add( AnyOfGen.builder().add( (char) 0x000b).occurs( 1, null).build())
+          .add( AnyOfGen.builder().anyPrintable().build())
+          .occurs( 2)
+          .build())
+        .add(
+          SeqGen.builder()
+          .add( "Suffi")
+          .add(
+            SeqGen.builder()
+            .add( AnyOfGen.builder().add( 'x').build())
+            .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+            .build())
+            .build())
+        .build())
+      
+      .build();
+
+    assertThat( generator, matches( new RegExpGenMatcher( expected)));
     }
 
   /**

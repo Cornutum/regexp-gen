@@ -856,12 +856,15 @@ public class Parser
       AlternativeGen alternative = (AlternativeGen) initiated;
       if( !alternative.isAnchoredStartAll())
         {
-        initiated = 
-          new AlternativeGen(
+        initiated =
+          AlternativeGen.builder()
+          .addAll(
             IterableUtils.toList( alternative.getMembers())
             .stream()
             .map( this::withStartGen)
-            .collect( Collectors.toList()));
+            .collect( Collectors.toList()))
+          .occurs( alternative.getOccurrences())
+          .build();
         }
       }
     else if( initiated instanceof SeqGen)
@@ -870,11 +873,14 @@ public class Parser
       if( !seq.isAnchoredStartAll())
         {
         List<RegExpGen> members = IterableUtils.toList( seq.getMembers());
-        initiated = 
-          new SeqGen(
+        initiated =
+          SeqGen.builder()
+          .addAll(
             IntStream.range( 0, members.size())
             .mapToObj( i -> i == 0?  withStartGen( members.get(i)) : members.get(i))
-            .collect( Collectors.toList()));
+            .collect( Collectors.toList()))
+          .occurs( seq.getOccurrences())
+          .build();
         }
       }
     else if( !initiated.isAnchoredStart())
@@ -897,22 +903,28 @@ public class Parser
 
     if( terminated instanceof AlternativeGen && (alternative = (AlternativeGen) terminated).isAnchoredEndAll() == false)
       {
-      terminated = 
-        new AlternativeGen(
+      terminated =
+        AlternativeGen.builder()
+        .addAll(
           IterableUtils.toList( alternative.getMembers())
           .stream()
           .map( this::withEndGen)
-          .collect( Collectors.toList()));
+          .collect( Collectors.toList()))
+        .occurs( alternative.getOccurrences())
+        .build();
       }
     else if( terminated instanceof SeqGen && (seq = (SeqGen) terminated).isAnchoredEndAll() == false && seq.getMaxOccur() <= 1)
       {
       List<RegExpGen> members = IterableUtils.toList( seq.getMembers());
       int last = members.size() - 1;
-      terminated = 
-        new SeqGen(
+      terminated =
+        SeqGen.builder()
+        .addAll(
           IntStream.range( 0, members.size())
           .mapToObj( i -> i == last?  withEndGen( members.get(i)) : members.get(i))
-          .collect( Collectors.toList()));
+          .collect( Collectors.toList()))
+        .occurs( seq.getOccurrences())
+        .build();
       }
     else if( !terminated.isAnchoredEnd())
       {

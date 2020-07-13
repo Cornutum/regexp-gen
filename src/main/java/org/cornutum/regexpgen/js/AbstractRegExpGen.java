@@ -204,5 +204,11 @@ public abstract class AbstractRegExpGen implements RegExpGen
       getAbstractRegExpGen().setOccurrences( occurs, occurs);
       return (T) this;
       }
+
+	public T occurs( Bounds bounds)
+      {
+      getAbstractRegExpGen().setOccurrences( bounds);
+      return (T) this;
+      }
     }
   }

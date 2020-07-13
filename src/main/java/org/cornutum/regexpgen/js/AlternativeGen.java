@@ -205,6 +205,15 @@ public class AlternativeGen extends AbstractRegExpGen
       return this;
       }
 
+	public Builder addAll( Iterable<RegExpGen> members)
+      {
+      for( RegExpGen member : members)
+        {
+        alternative_.add( member);
+        }
+      return this;
+      }
+
     public AlternativeGen build()
       {
       return alternative_;
