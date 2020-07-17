@@ -274,9 +274,13 @@ public class Parser
       Bounds quantifier = getQuantifier();
       if( quantifier != null)
         {
-        if( atom.isAnchoredEnd() && quantifier.getMaxValue() > 1)
+        if( atom.isAnchoredEnd() && quantifier.getMaxValue() > 1 && !atom.isAnchoredEndAll())
           {
           throw error( "End-anchored expression can be matched at most once");
+          }
+        if( atom.isAnchoredStart() && quantifier.getMaxValue() > 1 && !atom.isAnchoredStartAll())
+          {
+          throw error( "Start-anchored expression can be matched at most once");
           }
         atom.setOccurrences( quantifier);
         }
@@ -854,38 +858,32 @@ public class Parser
   private RegExpGen withStartGen( RegExpGen regExpGen)
     {
     AbstractRegExpGen initiated = (AbstractRegExpGen) regExpGen;
+    AlternativeGen alternative;
+    SeqGen seq;
 
-    if( initiated instanceof AlternativeGen)
+    if( initiated instanceof AlternativeGen && (alternative = uninitiated( (AlternativeGen) initiated)) != null)
       {
-      AlternativeGen alternative = (AlternativeGen) initiated;
-      if( !alternative.isAnchoredStartAll())
-        {
-        initiated =
-          AlternativeGen.builder()
-          .addAll(
-            IterableUtils.toList( alternative.getMembers())
-            .stream()
-            .map( this::withStartGen)
-            .collect( Collectors.toList()))
-          .occurs( alternative.getOccurrences())
-          .build();
-        }
+      initiated =
+        AlternativeGen.builder()
+        .addAll(
+          IterableUtils.toList( alternative.getMembers())
+          .stream()
+          .map( this::withStartGen)
+          .collect( Collectors.toList()))
+        .occurs( alternative.getOccurrences())
+        .build();
       }
-    else if( initiated instanceof SeqGen)
+    else if( initiated instanceof SeqGen && (seq = uninitiated( (SeqGen) initiated)) != null)
       {
-      SeqGen seq = (SeqGen) initiated;
-      if( !seq.isAnchoredStartAll())
-        {
-        List<RegExpGen> members = IterableUtils.toList( seq.getMembers());
-        initiated =
-          SeqGen.builder()
-          .addAll(
-            IntStream.range( 0, members.size())
-            .mapToObj( i -> i == 0?  withStartGen( members.get(i)) : members.get(i))
-            .collect( Collectors.toList()))
-          .occurs( seq.getOccurrences())
-          .build();
-        }
+      List<RegExpGen> members = IterableUtils.toList( seq.getMembers());
+      initiated =
+        SeqGen.builder()
+        .addAll(
+          IntStream.range( 0, members.size())
+          .mapToObj( i -> i == 0?  withStartGen( members.get(i)) : members.get(i))
+          .collect( Collectors.toList()))
+        .occurs( seq.getOccurrences())
+        .build();
       }
     else if( !initiated.isAnchoredStart())
       {
@@ -905,7 +903,7 @@ public class Parser
     AlternativeGen alternative;
     SeqGen seq;
 
-    if( terminated instanceof AlternativeGen && (alternative = (AlternativeGen) terminated).isAnchoredEndAll() == false)
+    if( terminated instanceof AlternativeGen && (alternative = unterminated( (AlternativeGen) terminated)) != null)
       {
       terminated =
         AlternativeGen.builder()
@@ -917,7 +915,7 @@ public class Parser
         .occurs( alternative.getOccurrences())
         .build();
       }
-    else if( terminated instanceof SeqGen && (seq = (SeqGen) terminated).isAnchoredEndAll() == false && seq.getMaxOccur() <= 1)
+    else if( terminated instanceof SeqGen && (seq = unterminated( (SeqGen) terminated)) != null)
       {
       List<RegExpGen> members = IterableUtils.toList( seq.getMembers());
       int last = members.size() - 1;
@@ -936,6 +934,30 @@ public class Parser
       }
     
     return terminated;
+    }
+
+  /**
+   * Returns the given regular expression if it may have uninitiated subexpressions.
+   * Otherwise, returns null.
+   */
+  private <T extends AbstractRegExpGen> T uninitiated( T regExpGen)
+    {
+    return
+      regExpGen.isAnchoredStartAll() || regExpGen.getMaxOccur() > 1
+      ? null
+      : regExpGen;
+    }
+
+  /**
+   * Returns the given regular expression if it may have unterminated subexpressions.
+   * Otherwise, returns null.
+   */
+  private <T extends AbstractRegExpGen> T unterminated( T regExpGen)
+    {
+    return
+      regExpGen.isAnchoredEndAll() || regExpGen.getMaxOccur() > 1
+      ? null
+      : regExpGen;
     }
 
   /**

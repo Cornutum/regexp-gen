@@ -729,7 +729,7 @@ public class ParserTest
   public void parse_9()
     {
     // Given...
-    String regexp = "\\?|(?:^[^\\\\-z\\W\\f-]\\)\\v+.){2,2}?(?=Suffix)";
+    String regexp = "\\?|^(?:[^\\\\-z\\W\\f-]\\)\\v+.){2,2}?(?=Suffix)";
     
     // When...
     RegExpGen generator = Parser.parseRegExp( regexp);
@@ -1169,6 +1169,148 @@ public class ParserTest
     }
 
   @Test
+  public void whenAlternativeOccurrences()
+    {
+    // Given...
+    String unanchored = "(cat|dog|turtle)+";
+    
+    // When...
+    RegExpGen generator = Parser.parseRegExp( unanchored);
+
+    // Then...
+    RegExpGen expected =
+      SeqGen.builder()
+      .add(
+        SeqGen.builder()
+        .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+        .add(
+          AlternativeGen.builder()
+          .add( SeqGen.builder().add( "cat").build())
+          .add( SeqGen.builder().add( "dog").build())
+          .add( SeqGen.builder().add( "turtle").build())
+          .occurs( 1, null)
+          .build())
+        .build())
+      .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+      .build();
+
+    assertThat( generator, matches( new RegExpGenMatcher( expected)));
+
+    // Given...
+    String startAnchored = "^(cat|dog|turtle)+";
+    
+    // When...
+    generator = Parser.parseRegExp( startAnchored);
+
+    // Then...
+    expected =
+      SeqGen.builder()
+      .add(
+        AlternativeGen.builder()
+        .add( SeqGen.builder().add( "cat").build())
+        .add( SeqGen.builder().add( "dog").build())
+        .add( SeqGen.builder().add( "turtle").build())
+        .occurs( 1, null)
+        .build())
+      .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+      .build();
+
+    assertThat( generator, matches( new RegExpGenMatcher( expected)));
+
+    // Given...
+    String endAnchored = "(cat|dog|turtle)+$";
+    
+    // When...
+    generator = Parser.parseRegExp( endAnchored);
+
+    // Then...
+    expected =
+      SeqGen.builder()
+      .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+      .add(
+        AlternativeGen.builder()
+        .add( SeqGen.builder().add( "cat").build())
+        .add( SeqGen.builder().add( "dog").build())
+        .add( SeqGen.builder().add( "turtle").build())
+        .occurs( 1, null)
+        .build())
+      .build();
+
+    assertThat( generator, matches( new RegExpGenMatcher( expected)));
+    }
+
+  @Test
+  public void whenSeqOccurrences()
+    {
+    // Given...
+    String unanchored = "(Digit=[\\d],){2}";
+    
+    // When...
+    RegExpGen generator = Parser.parseRegExp( unanchored);
+
+    // Then...
+    RegExpGen expected =
+      SeqGen.builder()
+      .add(
+        SeqGen.builder()
+        .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+        .add(
+          SeqGen.builder()
+          .add( "Digit=")
+          .add( AnyOfGen.builder().addAll( CharClassGen.digit()).build())
+          .add( ",")
+          .occurs( 2)
+          .build())
+        .build())
+      .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+      .build();
+
+    assertThat( generator, matches( new RegExpGenMatcher( expected)));
+
+    // Given...
+    String startAnchored = "^(Digit=[\\d],){2}";
+    
+    // When...
+    generator = Parser.parseRegExp( startAnchored);
+
+    // Then...
+    expected =
+      SeqGen.builder()
+      .add(
+        SeqGen.builder()
+        .add( "Digit=")
+        .add( AnyOfGen.builder().addAll( CharClassGen.digit()).build())
+        .add( ",")
+        .occurs( 2)
+        .build())
+      .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+      .build();
+
+    assertThat( generator, matches( new RegExpGenMatcher( expected)));
+
+    // Given...
+    String endAnchored = "(Digit=[\\d],){2}$";
+    
+    // When...
+    generator = Parser.parseRegExp( endAnchored);
+
+    // Then...
+    expected =
+      SeqGen.builder()
+      .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+      .add(
+        SeqGen.builder()
+        .add( "Digit=")
+        .add( AnyOfGen.builder().addAll( CharClassGen.digit()).build())
+        .add( ",")
+        .occurs( 2)
+        .build())
+      .build();
+
+    assertThat( generator, matches( new RegExpGenMatcher( expected)));
+    }
+
+  @Test
   public void whenAlternativeMissing()
     {
     // Given...
@@ -1360,6 +1502,19 @@ public class ParserTest
       .when( () -> Parser.parseRegExp( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "End-anchored expression can be matched at most once", 7)));
+        });
+    }
+
+  @Test
+  public void whenStartAnchorMultiple()
+    {
+    // Given...
+    String regexp = "(A|^B|C)+";
+
+    expectFailure( IllegalStateException.class)
+      .when( () -> Parser.parseRegExp( regexp))
+      .then( failure -> {
+        assertThat( "Failure", failure.getMessage(), is( errorAt( "Start-anchored expression can be matched at most once", 9)));
         });
     }
 
