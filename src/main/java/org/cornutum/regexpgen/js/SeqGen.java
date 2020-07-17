@@ -8,13 +8,13 @@
 package org.cornutum.regexpgen.js;
 
 import org.cornutum.regexpgen.Bounds;
+import org.cornutum.regexpgen.RandomGen;
 import org.cornutum.regexpgen.RegExpGen;
 import org.cornutum.regexpgen.util.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -87,11 +87,7 @@ public class SeqGen extends AbstractRegExpGen
    */
   public int getMinLength()
     {
-    return
-      IntStream.range( 0, members_.size())
-      .map( i -> members_.get(i).getMinLength())
-      .reduce( Bounds::sumOf)
-      .orElse( 0);
+    return Bounds.productOf( getMinOccur(), getMembersMinLength());
     }
 
   /**
@@ -99,19 +95,97 @@ public class SeqGen extends AbstractRegExpGen
    */
   public int getMaxLength()
     {
+    return Bounds.productOf( getMaxOccur(), getMembersMaxLength());
+    }
+
+  /**
+   * Returns the minimum length for any matching sequence.
+   */
+  protected int getMembersMinLength()
+    {
+    return getRemainingMinLength( 0);
+    }
+
+  /**
+   * Returns the minimum length for any matching subsequence starting with the i-th member
+   */
+  private int getRemainingMinLength( int start)
+    {
+    return
+      IntStream.range( start, members_.size())
+        .map( i -> members_.get(i).getMinLength())
+        .reduce( Bounds::sumOf)
+        .orElse( 0);
+    }
+
+  /**
+   * Returns the maximum length for any matching sequence.
+   */
+  protected int getMembersMaxLength()
+    {
     return
       IntStream.range( 0, members_.size())
-      .map( i -> members_.get(i).getMaxLength())
-      .reduce( Bounds::sumOf)
-      .orElse( 0);
+        .map( i -> members_.get(i).getMaxLength())
+        .reduce( Bounds::sumOf)
+        .orElse( 0);
     }
 
   /**
    * Returns a random string within the given bounds that matches this regular expression.
    */
-  public String generate( Random random, Bounds bounds)
+  protected String generateLength( RandomGen random, Bounds length)
     {
-    return null;
+    StringBuilder matching = new StringBuilder();
+
+    // Given a random target length...
+    int targetLength = random.within( length);
+    if( targetLength > 0 && getMaxLength() > 0)
+      {
+      // ...allowing for a range of occurrences...
+      int memberMin = getMembersMinLength();
+      int memberMax = getMembersMaxLength();
+      int mayOccurMin = Math.max( 1, (targetLength + 1) / memberMax);
+      int mayOccurMax = memberMin==0? targetLength : targetLength / memberMin;
+      Bounds mayOccur =
+        new Bounds( mayOccurMin, mayOccurMax)
+        .clippedTo( "Occurrences", getMinOccur(), getMaxOccur());
+
+      // ...for a random number of occurrences...
+      int targetOccur = random.within( mayOccur);
+      if( targetOccur > 0)
+        {
+        // ...generate a random match for each occurrence
+        int remaining;
+        for( remaining = targetLength;
+             targetOccur > 0 && remaining > 0;
+             targetOccur--, remaining = targetLength - matching.length())
+          {
+          matching.append( generateSeq( random, new Bounds( remaining / targetOccur)));
+          }
+        }
+      }
+
+    return matching.toString();
+    }
+
+  /**
+   * Returns a random string within the given bounds that matches this regular expression.
+   */
+  private String generateSeq( RandomGen random, Bounds length)
+    {
+    StringBuilder matching = new StringBuilder();
+
+    int i;
+    int max;
+    int remaining;
+    for( i = 0, max = length.getMaxValue(), remaining = max;
+         i < members_.size();
+         i++, remaining = max - matching.length())
+      {
+      matching.append( members_.get(i).generate( random, new Bounds( remaining - getRemainingMinLength( i+1))));
+      }
+    
+    return matching.toString();
     }
   
   /**

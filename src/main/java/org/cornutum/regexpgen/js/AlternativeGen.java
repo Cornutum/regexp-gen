@@ -8,12 +8,13 @@
 package org.cornutum.regexpgen.js;
 
 import org.cornutum.regexpgen.Bounds;
+import org.cornutum.regexpgen.RandomGen;
 import org.cornutum.regexpgen.RegExpGen;
 import org.cornutum.regexpgen.util.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -73,6 +74,22 @@ public class AlternativeGen extends AbstractRegExpGen
    */
   public int getMinLength()
     {
+    return Bounds.productOf( getMinOccur(), getMemberMinLength());
+    }
+
+  /**
+   * Returns the maximum length for any matching string.
+   */
+  public int getMaxLength()
+    {
+    return Bounds.productOf( getMaxOccur(), getMemberMaxLength());
+    }
+
+  /**
+   * Returns the minimum length of a string that can match some member.
+   */
+  protected int getMemberMinLength()
+    {
     return
       IntStream.range( 0, members_.size())
       .map( i -> members_.get(i).getMinLength())
@@ -81,9 +98,9 @@ public class AlternativeGen extends AbstractRegExpGen
     }
 
   /**
-   * Returns the maximum length for any matching string.
+   * Returns the maximum length of a string that can match some member.
    */
-  public int getMaxLength()
+  protected int getMemberMaxLength()
     {
     return
       IntStream.range( 0, members_.size())
@@ -95,9 +112,63 @@ public class AlternativeGen extends AbstractRegExpGen
   /**
    * Returns a random string within the given bounds that matches this regular expression.
    */
-  public String generate( Random random, Bounds bounds)
+  protected String generateLength( RandomGen random, Bounds length)
     {
-    return null;
+    StringBuilder matching = new StringBuilder();
+
+    // Given a random target length...
+    int targetLength = random.within( length);
+    if( targetLength > 0 && getMaxLength() > 0)
+      {
+      // ...allowing for a range of occurrences...
+      int memberMin = getMemberMinLength();
+      int memberMax = getMemberMaxLength();
+      int mayOccurMin = Math.max( 1, (targetLength + 1) / memberMax);
+      int mayOccurMax = memberMin==0? targetLength : targetLength / memberMin;
+      Bounds mayOccur =
+        new Bounds( mayOccurMin, mayOccurMax)
+        .clippedTo( "Occurrences", getMinOccur(), getMaxOccur());
+
+      // ...for a random number of occurrences...
+      int targetOccur = random.within( mayOccur);
+      if( targetOccur > 0)
+        {
+        // ...generate a random match for each occurrence
+        int remaining;
+        for( remaining = targetLength;
+             targetOccur > 0 && remaining > 0;
+             targetOccur--, remaining = targetLength - matching.length())
+          {
+          // Can some random member generate the next occurrence?
+          Bounds next = new Bounds( remaining / targetOccur);
+          Optional<RegExpGen> nextMember = memberFeasibleFor( random, next);
+          if( nextMember.isPresent())
+            {
+            // Yes, append the next occurrence
+            matching.append( nextMember.get().generate( random, next));
+            }
+          else
+            {
+            // No, no more occurrences are possible now
+            targetLength = matching.length();
+            }
+          }
+        }
+      }
+
+    return matching.toString();
+    }
+
+  /**
+   * Returns a member that can generate a string within the given bounds.
+   */
+  private Optional<RegExpGen> memberFeasibleFor( RandomGen random, Bounds length)
+    {
+    return
+      random.shuffle( members_)
+      .stream()
+      .filter( member -> member.isFeasibleLength( length))
+      .findFirst();
     }
   
   /**

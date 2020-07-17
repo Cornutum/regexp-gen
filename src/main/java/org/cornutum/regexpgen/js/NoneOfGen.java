@@ -7,9 +7,12 @@
 
 package org.cornutum.regexpgen.js;
 
-import java.util.Random;
-
 import org.cornutum.regexpgen.Bounds;
+import org.cornutum.regexpgen.RandomGen;
+
+import org.apache.commons.lang3.ArrayUtils;
+
+import java.util.stream.IntStream;
 
 /**
  * Generates a sequence containing any <EM>except</EM> a given set of characters.
@@ -52,9 +55,28 @@ public class NoneOfGen extends CharClassGen
   /**
    * Returns a random string within the given bounds that matches this regular expression.
    */
-  public String generate( Random random, Bounds bounds)
+  protected String generateLength( RandomGen random, Bounds length)
     {
-    return null;
+    StringBuilder matching = new StringBuilder();
+
+    IntStream.range( 0, random.within( length))
+        .forEach( i -> matching.append( notExcluded( random)));
+    
+    return matching.toString();
+    }
+
+  /**
+   * Returns a random character not excluded by this regular expression. 
+   */
+  private Character notExcluded( RandomGen random)
+    {
+    Character[] excluded = getChars();
+    String anyPrintable = anyPrintable();
+
+    Character c;
+    while( ArrayUtils.indexOf( excluded, (c = anyPrintable.charAt( random.below( anyPrintable.length())))) >= 0);
+
+    return c;
     }
 
   /**

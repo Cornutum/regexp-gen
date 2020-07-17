@@ -52,6 +52,42 @@ public class Bounds
     }
 
   /**
+   * Returns a new {@link Bounds} instance for the intersection of this bounds with the given range.
+   * Throws an exception if this bounds lies outside the range.
+   */
+  public Bounds clippedTo( String rangeName, int rangeMin, int rangeMax) throws IllegalArgumentException
+    {
+    if( getMinValue() > rangeMax)
+      {
+      throw new IllegalArgumentException( String.format( "%s cannot be greater than %s", rangeName, rangeMax));
+      }
+
+    if( getMaxValue() < rangeMin)
+      {
+      throw new IllegalArgumentException( String.format( "%s cannot be less than %s", rangeName, rangeMin));
+      }
+
+    return new Bounds( Math.max( getMinValue(), rangeMin), Math.min( getMaxValue(), rangeMax));
+    }
+
+  /**
+   * Returns true if this bounds intersects with the given range.
+   */
+  public boolean intersects( int rangeMin, int rangeMax)
+    {
+    boolean intersects;
+    try
+      {
+      intersects = clippedTo( "", rangeMin, rangeMax) != null;
+      }
+    catch( IllegalArgumentException e)
+      {
+      intersects = false;
+      }
+    return intersects;
+    }    
+
+  /**
    * Returns the minimum value for any matching string.
    */
   public int getMinValue()
@@ -76,7 +112,22 @@ public class Bounds
       {
       return Math.addExact( a, b);
       }
-    catch( Exception e)
+    catch( ArithmeticException e)
+      {
+      return Integer.MAX_VALUE;
+      }
+    }
+
+  /**
+   * Returns the product the given values, avoiding overflow.
+   */
+  public static int productOf( int a, int b)
+    {
+    try
+      {
+      return Math.multiplyExact( a, b);
+      }
+    catch( ArithmeticException e)
       {
       return Integer.MAX_VALUE;
       }

@@ -7,9 +7,10 @@
 
 package org.cornutum.regexpgen.js;
 
-import java.util.Random;
-
 import org.cornutum.regexpgen.Bounds;
+import org.cornutum.regexpgen.RandomGen;
+
+import java.util.stream.IntStream;
 
 /**
  * Generates a sequence containing any of a set of characters.
@@ -43,9 +44,15 @@ public class AnyOfGen extends CharClassGen
   /**
    * Returns a random string within the given bounds that matches this regular expression.
    */
-  public String generate( Random random, Bounds bounds)
+  protected String generateLength( RandomGen random, Bounds length)
     {
-    return null;
+    StringBuilder matching = new StringBuilder();
+
+    Character[] chars = getChars();
+    IntStream.range( 0, random.within( length))
+      .forEach( i -> matching.append( chars[ random.below( chars.length)]));
+    
+    return matching.toString();
     }
 
   /**

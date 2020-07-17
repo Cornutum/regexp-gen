@@ -7,9 +7,6 @@
 
 package org.cornutum.regexpgen;
 
-import java.util.Optional;
-import java.util.Random;
-
 /**
  * Generates strings that match a regular expression.
  */
@@ -28,14 +25,33 @@ public interface RegExpGen
   /**
    * Returns a random string within the given bounds that matches this regular expression.
    */
-  public String generate( Random random, Bounds length);
+  public String generate( RandomGen random, Bounds length);
 
   /**
    * Returns a random string that matches this regular expression.
    */
-  default String generate( Random random)
+  default String generate( RandomGen random)
     {
     return generate( random, new Bounds());
+    }
+
+  /**
+   * Returns false if no string matching this regular expression can satisfy the given bounds.
+   */
+  default boolean isFeasibleLength( Bounds bounds)
+    {
+    boolean feasible;
+    try
+      {
+      effectiveLength( bounds);
+      feasible = true;
+      }
+    catch( IllegalArgumentException e)
+      {
+      feasible = false;
+      }
+
+    return feasible;
     }
 
   /**
@@ -44,18 +60,6 @@ public interface RegExpGen
    */
   default Bounds effectiveLength( Bounds bounds) throws IllegalArgumentException
     {
-    int minLength = Optional.ofNullable( bounds).map( Bounds::getMinValue).orElse( 0);
-    if( minLength > getMaxLength())
-      {
-      throw new IllegalArgumentException( String.format( "No matching string can be longer than %s", getMaxLength()));
-      }
-
-    int maxLength = Optional.ofNullable( bounds).map( Bounds::getMaxValue).orElse( Integer.MAX_VALUE);
-    if( maxLength < getMinLength())
-      {
-      throw new IllegalArgumentException( String.format( "No matching string can be shorter than %s", getMinLength()));
-      }
-
-    return new Bounds( Math.max( minLength, getMinLength()), Math.min( maxLength, getMaxLength()));
+    return bounds.clippedTo( "Length", getMinLength(), getMaxLength());
     }
   }

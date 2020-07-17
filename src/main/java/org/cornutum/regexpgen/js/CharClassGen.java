@@ -7,10 +7,13 @@
 
 package org.cornutum.regexpgen.js;
 
-import java.util.HashSet;
-import java.util.Set;
 import org.cornutum.regexpgen.util.ToString;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.IntStream;
 import static java.util.stream.Collectors.joining;
 
 /**
@@ -50,6 +53,7 @@ public abstract class CharClassGen extends AbstractRegExpGen
   public void add( char c) 
     {
     chars_.add( c);
+    charArray_ = null;
     }
 
   /**
@@ -99,7 +103,12 @@ public abstract class CharClassGen extends AbstractRegExpGen
    */
   public Character[] getChars()
     {
-    return chars_.stream().toArray( Character[]::new);
+    if( charArray_ == null)
+      {
+      charArray_ = chars_.stream().toArray( Character[]::new);
+      }
+    
+    return charArray_;
     }
 
   /**
@@ -235,7 +244,40 @@ public abstract class CharClassGen extends AbstractRegExpGen
     return new NoneOfGen( space());
     }
 
+  /**
+   * Returns the set of all printable characters.
+   */
+  public static String anyPrintable()
+    {
+    return anyPrintable_;
+    }
+
   private Set<Character> chars_ = new HashSet<Character>();
+  private Character[] charArray_ = null;
+  private static String anyPrintable_;
+
+  /**
+   * Return true if the character with the given code point is printable.
+   */
+  private static boolean isPrintable( int codePoint)
+    {
+    return
+      Character.toChars( codePoint)[0] == ' '
+      || !(Character.isSpaceChar( codePoint) || notVisible_.contains( Character.getType( codePoint))) ;
+    }
+
+  private static final List<Integer> notVisible_ =
+    Arrays.asList(
+      (int) Character.CONTROL,
+      (int) Character.SURROGATE,
+      (int) Character.UNASSIGNED);
+
+  static
+    {
+    StringBuilder allChars = new StringBuilder();
+    IntStream.range( 0, 256).filter( CharClassGen::isPrintable).forEach( codePoint -> allChars.appendCodePoint( codePoint));
+    anyPrintable_ = allChars.toString();
+    }
 
   /**
    * Builds a {@link CharClassGen} instance.

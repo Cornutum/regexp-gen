@@ -7,11 +7,12 @@
 
 package org.cornutum.regexpgen.js;
 
-import java.util.stream.Stream;
-
 import org.cornutum.regexpgen.Bounds;
+import org.cornutum.regexpgen.RandomGen;
 import org.cornutum.regexpgen.RegExpGen;
 import org.cornutum.regexpgen.util.ToString;
+
+import java.util.stream.Stream;
 
 /**
  * Base class for {@link RegExpGen} implementations.
@@ -81,6 +82,19 @@ public abstract class AbstractRegExpGen implements RegExpGen
     {
     return occurrences_.getMaxValue();
     }
+
+  /**
+   * Returns a random string within the given bounds that matches this regular expression.
+   */
+  public String generate( RandomGen random, Bounds bounds)
+    {
+    return generateLength( random, effectiveLength( bounds));
+    }
+
+  /**
+   * Returns a random string within the given bounds that matches this regular expression.
+   */
+  protected abstract String generateLength( RandomGen random, Bounds length);
   
   /**
    * Returns if any part of this regular expression must match the start of a string.
