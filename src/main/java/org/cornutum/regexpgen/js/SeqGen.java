@@ -144,8 +144,8 @@ public class SeqGen extends AbstractRegExpGen
       // ...allowing for a range of occurrences...
       int memberMin = getMembersMinLength();
       int memberMax = getMembersMaxLength();
-      int mayOccurMin = Math.max( 1, (targetLength + 1) / memberMax);
-      int mayOccurMax = memberMin==0? targetLength : targetLength / memberMin;
+      int mayOccurMin = Math.max( 1, targetLength / memberMax);
+      int mayOccurMax = memberMin==0? targetLength : Math.max( 1, targetLength / memberMin);
       Bounds mayOccur =
         new Bounds( mayOccurMin, mayOccurMax)
         .clippedTo( "Occurrences", getMinOccur(), getMaxOccur());
@@ -176,18 +176,48 @@ public class SeqGen extends AbstractRegExpGen
     StringBuilder matching = new StringBuilder();
 
     int i;
-    int max;
     int remaining;
-    for( i = 0, max = length.getMaxValue(), remaining = max;
-         i < members_.size();
-         i++, remaining = max - matching.length())
+    Bounds nextBounds;
+    int max = length.getMaxValue();
+    for( i = 0, 
+           remaining = max,
+           nextBounds = getNextBounds( remaining, i);
+         
+         i < members_.size()
+           && nextBounds != null
+           && members_.get(i).isFeasibleLength( nextBounds);
+         
+         i++,
+           remaining = max - matching.length(),
+           nextBounds = getNextBounds( remaining, i))
       {
-      matching.append( members_.get(i).generate( random, new Bounds( remaining - getRemainingMinLength( i+1))));
+      matching.append( members_.get(i).generate( random, nextBounds));
       }
-    
-    return matching.toString();
+
+    return
+      // Match generated for full sequence?
+      i < members_.size()
+
+      // No, empty string is the only possible match
+      ? ""
+
+      // Yes, return complete match
+      : matching.toString();
     }
-  
+
+  /**
+   * Returns the bounds for a match for the i-th member of this sequence, given the specified number
+   * of chars remaining for a complete match. Return null if a match for this member is no longer possible.
+   */
+  private Bounds getNextBounds( int remaining, int i)
+    {
+    int next = remaining - getRemainingMinLength( i+1);
+    return
+      next >= 0
+      ? new Bounds( next)
+      : null;
+    }
+
   /**
    * Returns if any part of this regular expression must match the start of a string.
    */
