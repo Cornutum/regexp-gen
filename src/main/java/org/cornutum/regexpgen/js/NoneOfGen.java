@@ -7,11 +7,6 @@
 
 package org.cornutum.regexpgen.js;
 
-import org.cornutum.regexpgen.Bounds;
-import org.cornutum.regexpgen.RandomGen;
-
-import org.apache.commons.lang3.ArrayUtils;
-
 import java.util.stream.IntStream;
 
 /**
@@ -53,30 +48,16 @@ public class NoneOfGen extends CharClassGen
     }
 
   /**
-   * Returns a random string within the given bounds that matches this regular expression.
+   * Creates an array containing the characters in this class
    */
-  protected String generateLength( RandomGen random, Bounds length)
+  protected Character[] makeChars()
     {
-    StringBuilder matching = new StringBuilder();
-
-    IntStream.range( 0, random.within( length))
-        .forEach( i -> matching.append( notExcluded( random)));
-    
-    return matching.toString();
-    }
-
-  /**
-   * Returns a random character not excluded by this regular expression. 
-   */
-  private Character notExcluded( RandomGen random)
-    {
-    Character[] excluded = getChars();
     String anyPrintable = anyPrintable();
-
-    Character c;
-    while( ArrayUtils.indexOf( excluded, (c = anyPrintable.charAt( random.below( anyPrintable.length())))) >= 0);
-
-    return c;
+    return
+      IntStream.range( 0, anyPrintable.length())
+      .mapToObj( i -> anyPrintable.charAt(i))
+      .filter( c -> !getCharSet().contains( c))
+      .toArray( Character[]::new);
     }
 
   /**

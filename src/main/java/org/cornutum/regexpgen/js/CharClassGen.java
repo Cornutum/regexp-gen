@@ -7,6 +7,8 @@
 
 package org.cornutum.regexpgen.js;
 
+import org.cornutum.regexpgen.Bounds;
+import org.cornutum.regexpgen.RandomGen;
 import org.cornutum.regexpgen.util.ToString;
 
 import java.util.Arrays;
@@ -52,7 +54,7 @@ public abstract class CharClassGen extends AbstractRegExpGen
    */
   public void add( char c) 
     {
-    chars_.add( c);
+    getCharSet().add( c);
     charArray_ = null;
     }
 
@@ -91,7 +93,7 @@ public abstract class CharClassGen extends AbstractRegExpGen
     {
     if( charClass != null)
       {
-      for( Character c : charClass.chars_)
+      for( Character c : charClass.getChars())
         {
         add( c);
         }
@@ -105,10 +107,26 @@ public abstract class CharClassGen extends AbstractRegExpGen
     {
     if( charArray_ == null)
       {
-      charArray_ = chars_.stream().toArray( Character[]::new);
+      charArray_ = makeChars();
       }
     
     return charArray_;
+    }
+
+  /**
+   * Returns the set of characters that define this class.
+   */
+  protected Set<Character> getCharSet()
+    {
+    return chars_;
+    }
+
+  /**
+   * Creates an array containing the characters in this class
+   */
+  protected Character[] makeChars()
+    {
+    return getCharSet().stream().toArray( Character[]::new);
     }
 
   /**
@@ -116,7 +134,7 @@ public abstract class CharClassGen extends AbstractRegExpGen
    */
   public boolean isEmpty()
     {
-    return chars_.isEmpty();
+    return getCharSet().isEmpty();
     }
 
   /**
@@ -135,11 +153,25 @@ public abstract class CharClassGen extends AbstractRegExpGen
     return getMaxOccur();
     }
 
+  /**
+   * Returns a random string within the given bounds that matches this regular expression.
+   */
+  protected String generateLength( RandomGen random, Bounds length)
+    {
+    StringBuilder matching = new StringBuilder();
+
+    Character[] chars = getChars();
+    IntStream.range( 0, random.within( length))
+      .forEach( i -> matching.append( chars[ random.below( chars.length)]));
+    
+    return matching.toString();
+    }
+
   public String toString()
     {
     return
       ToString.getBuilder( this)
-      .append( "chars", charsString())
+      .append( "chars", charSetString())
       .appendSuper( super.toString())
       .toString();
     }
@@ -154,24 +186,24 @@ public abstract class CharClassGen extends AbstractRegExpGen
     return
       other != null
       && super.equals( other)
-      && other.chars_.equals( chars_);
+      && other.getCharSet().equals( getCharSet());
     }
 
   public int hashCode()
     {
     return
       super.hashCode()
-      ^ chars_.hashCode();
+      ^ getCharSet().hashCode();
     }
 
   /**
-   * Returns a string representation of the characters in this class.
+   * Returns a string representation of the characters that define this class.
    */
-  private String charsString()
+  private String charSetString()
     {
     StringBuilder chars = new StringBuilder();
     chars.append( '[');
-    chars.append( chars_.stream().sorted().map( Object::toString).collect( joining( "")));
+    chars.append( getCharSet().stream().sorted().map( Object::toString).collect( joining( "")));
     chars.append( ']');
     return chars.toString();
     }
