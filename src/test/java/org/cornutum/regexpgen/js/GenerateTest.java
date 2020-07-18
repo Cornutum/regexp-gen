@@ -21,8 +21,6 @@ import static org.hamcrest.Matchers.*;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import static java.util.stream.Collectors.toList;
 
@@ -32,16 +30,114 @@ import static java.util.stream.Collectors.toList;
 public class GenerateTest
   {
   @Test
-  public void whenAlternative()
+  public void whenAlternativeOccurrences()
+    {
+    verifyMatchesFor( "(cat|dog|turtle)+");
+    verifyMatchesFor( "^(cat|dog|turtle)+");
+    verifyMatchesFor( "(cat|dog|turtle)+$");
+    }
+
+  @Test
+  public void whenSeqOccurrences()
+    {
+    verifyMatchesFor( "(Digit=[\\d],){2}");
+    verifyMatchesFor( "^(Digit=[\\d],){2}");
+    verifyMatchesFor( "(Digit=[\\d],){2}$");
+    }
+
+  @Test
+  public void whenLookAhead()
+    {
+    verifyMatchesFor( "^\\((Copyright[-: ]+2020)?[\\\\\\d\\t]? K(?=ornutum)\\)|@Copyright|@Trademark");
+    }
+
+  @Test
+  public void whenAlternativesMultiple()
+    {
+    verifyMatchesFor( "-+|\\([^\\0-]*?\\0\\)|-");
+    }
+
+  @Test
+  public void whenEscapeCharUnicode()
+    {
+    verifyMatchesFor( "([^\\sA-Z\\uABCD@]\\n)+|X\\\\=.{0,2}(?=Suffix)");
+    }
+
+  @Test
+  public void whenAnchorStartEnd()
+    {
+    verifyMatchesFor( "^[\\b]\\\\+?\\f$");
+    }
+
+  @Test
+  public void whenOptionalLazy()
+    {
+    verifyMatchesFor( "\\rX|^\\r??$|[^\\r]");
+    }
+
+  @Test
+  public void whenBoundedLazy()
+    {
+    verifyMatchesFor( "([\\S@X-Z\\]\\v]\\(\\x6A.z\\))*?$");
+    }
+
+  @Test
+  public void whenUnbounded()
+    {
+    verifyMatchesFor( "(^(A|B))([^\\cC]*\\\\\\t)+(?=Z$|D)|(Z|D$)");
+    }
+
+  @Test
+  public void whenBoundedMinMax()
+    {
+    verifyMatchesFor( "\\u028f{2,3}$");
+    }
+
+  @Test
+  public void whenBoundedMinMaxSame()
+    {
+    verifyMatchesFor( "\\?|^(?:[^\\\\-z\\W\\f-]\\)\\v+.){2,2}?(?=Suffix)");
+    }
+
+  @Test
+  public void whenBoundedMinOnly()
+    {
+    verifyMatchesFor( "\\\\{3}[\\n]\\??\\0{2,}$");
+    }
+
+  @Test
+  public void whenBoundedMinZero()
+    {
+    verifyMatchesFor( "^\\{|\\cb{0,3}?(?=C|D|E$)|\\{{1,2}?");
+    }
+
+  @Test
+  public void whenEscapeChar()
+    {
+    verifyMatchesFor( "^[-\\[\\r\\--\\-\\]\\D].\\\\(?:x+yz$)?");
+    }
+
+  @Test
+  public void whenEscapeCharHex()
+    {
+    verifyMatchesFor( "^[^\\xA2]\\xc5+\\n*?(?=\\f)|(Z$)");
+    }
+
+  @Test
+  public void whenEscapeCharWord()
+    {
+    verifyMatchesFor( "\\*[\\]A-Z.\\w\\t]+$");
+    }
+
+  private void verifyMatchesFor( String regexp)
     {
     // Given...
-    String regexp = "(cat|dog|bird)+";
     RegExpGen generator = Parser.parseRegExp( regexp);
     RandomGen random = getRandomGen();
     
     // When...
     List<String> matches =
-      IntStream.range( 0, 100)
+      IntStream.range( 0, getGeneratorCount())
       .mapToObj( i -> {
           try
             {
@@ -49,14 +145,24 @@ public class GenerateTest
             }
           catch( Exception e)
             {
-            throw new RuntimeException( String.format( "Can't generate match[%s]", i), e);
+            throw new RuntimeException( String.format( "Can't generate match[%s], regexp=%s", i, regexp), e);
             }
         })
       .collect( toList());
     
     // Then...
-    matches.stream()
-      .forEach( text -> assertThat( String.format( "%s -> %s", regexp, text), matches( text, regexp), is( true)));
+    IntStream.range( 0, matches.size())
+      .forEach( i -> {
+        String text = matches.get(i);
+        if( printResults())
+          {
+          System.out.println( String.format( "[%s] %s -> %s = %s", i, regexp, text, matches( text, regexp)));
+          }
+        else
+          {
+          assertThat( String.format( "[%s] %s -> %s", i, regexp, text), matches( text, regexp), is( true));
+          }
+        });
     }
 
   /**
@@ -87,15 +193,17 @@ public class GenerateTest
    */
   private String stringLiteral( String value)
     {
-    Matcher escapeMatcher = literalEscaped_.matcher( value);
-    StringBuffer escaped = new StringBuffer();
-    while( escapeMatcher.find())
-      {
-      escapeMatcher.appendReplacement( escaped, String.format( "\\\\%s", Matcher.quoteReplacement( escapeMatcher.group())));
-      }
-    escapeMatcher.appendTail( escaped);
-
-    return escaped.toString();
+    return
+      value
+      .replace( "\\", "\\\\")
+      .replace( "'", "\\'")
+      .replace( "\f", "\\f")
+      .replace( "\n", "\\n")
+      .replace( "\r", "\\r")
+      .replace( "\t", "\\t")
+      .replace( "\13", "\\v")
+      .replace( "\0", "\\x00")
+      ;
     }
 
   /**
@@ -106,9 +214,23 @@ public class GenerateTest
     return new RandomBoundsGen( new Random( randomSeed_));
     }
 
+  /**
+   * Returns the number of matches to generate for each regular expression.
+   */
+  private int getGeneratorCount()
+    {
+    return Optional.ofNullable( System.getProperty( "count")).map( Integer::valueOf).orElse( 100);
+    }
+
+  /**
+   * Returns true if printing results instead of asserting expectations.
+   */
+  private boolean printResults()
+    {
+    return Optional.ofNullable( System.getProperty( "printResults")).map( Boolean::valueOf).orElse( false);
+    }
+
   private static long randomSeed_;
-  private static final Pattern literalEscaped_ = Pattern.compile( "[\\\\']");
-  
   static
     {
     randomSeed_ =
