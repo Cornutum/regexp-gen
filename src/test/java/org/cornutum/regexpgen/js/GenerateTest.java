@@ -48,7 +48,7 @@ public class GenerateTest
   @Test
   public void whenLookAhead()
     {
-    verifyMatchesFor( "^\\((Copyright[-: ]+2020)?[\\\\\\d\\t]? K(?=ornutum)\\)|@Copyright|@Trademark");
+    verifyMatchesFor( "^\\((Copyright[-: ]+2020)?[\\\\\\d\\t]? K(?=ornutum\\))|@Copyright|@Trademark");
     }
 
   @Test
@@ -151,18 +151,30 @@ public class GenerateTest
       .collect( toList());
     
     // Then...
+    if( printResults())
+      {
+      System.out.println( String.format( "\n%s", regexp));
+      }
     IntStream.range( 0, matches.size())
       .forEach( i -> {
         String text = matches.get(i);
         if( printResults())
           {
-          System.out.println( String.format( "[%s] %s -> %s = %s", i, regexp, text, matches( text, regexp)));
+          System.out.println( String.format( "  [%s] %s %s", i, matches( text, regexp)? "T" : "F", text));
           }
         else
           {
           assertThat( String.format( "[%s] %s -> %s", i, regexp, text), matches( text, regexp), is( true));
           }
         });
+    if( printResults())
+      {
+      long distinct = matches.stream().distinct().count();
+      int minLength = matches.stream().mapToInt( String::length).min().orElse(0);
+      int maxLength = matches.stream().mapToInt( String::length).max().orElse(0);
+      long avgLength = Math.round( matches.stream().mapToInt( String::length).average().orElse(0.0));
+      System.out.println( String.format( "  Distinct=%s, MinLength=%s, AvgLength=%s, MaxLength=%s", distinct, minLength, avgLength, maxLength));
+      }
     }
 
   /**
