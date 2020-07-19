@@ -140,7 +140,9 @@ public class AlternativeGen extends AbstractRegExpGen
              targetOccur--, remaining = targetLength - matching.length())
           {
           // Can some random member generate the next occurrence?
-          Bounds next = new Bounds( remaining / targetOccur);
+          int nextMin = targetOccur == 1? Math.max( 0, length.getMinValue() - matching.length()) : 0;
+          int nextMax = remaining / targetOccur;
+          Bounds next = new Bounds( nextMin, nextMax);
           Optional<RegExpGen> nextMember = memberFeasibleFor( random, next);
           if( nextMember.isPresent())
             {

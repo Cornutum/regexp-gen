@@ -7,11 +7,11 @@
 
 package org.cornutum.regexpgen.js;
 
-import org.apache.commons.lang3.StringUtils;
+import org.cornutum.regexpgen.Bounds;
 import org.cornutum.regexpgen.RandomGen;
 import org.cornutum.regexpgen.RegExpGen;
 import org.cornutum.regexpgen.random.RandomBoundsGen;
-
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
@@ -129,11 +129,28 @@ public class GenerateTest
     verifyMatchesFor( "\\*[\\]A-Z.\\w\\t]+$");
     }
 
+  @Test
+  public void whenLengthValid()
+    {
+    verifyMatchesFor( "^They say( No[?!]+,)+ but I say( (Yes[?!]|What?),)+ OK\\?$", 35, 40);
+    }
+
   private void verifyMatchesFor( String regexp)
+    {
+    verifyMatchesFor( regexp, null);
+    }
+
+  private void verifyMatchesFor( String regexp, Integer lengthMax)
+    {
+    verifyMatchesFor( regexp, 0, lengthMax);
+    }
+  
+  private void verifyMatchesFor( String regexp, Integer lengthMin, Integer lengthMax)
     {
     // Given...
     RegExpGen generator = Parser.parseRegExp( regexp);
     RandomGen random = getRandomGen();
+    Bounds length = new Bounds( lengthMin, lengthMax);
     
     // When...
     List<String> matches =
@@ -141,11 +158,11 @@ public class GenerateTest
       .mapToObj( i -> {
           try
             {
-            return generator.generate( random);
+              return generator.generate( random, length);
             }
           catch( Exception e)
             {
-            throw new RuntimeException( String.format( "Can't generate match[%s], regexp=%s", i, regexp), e);
+            throw new RuntimeException( String.format( "Can't generate match[%s] for length=%s, regexp=%s", i, length, regexp), e);
             }
         })
       .collect( toList());
@@ -165,6 +182,9 @@ public class GenerateTest
         else
           {
           assertThat( String.format( "[%s] %s -> %s", i, regexp, text), matches( text, regexp), is( true));
+          assertThat( String.format( "[%s] %s -> %s, length", i, regexp, text), text.length(), greaterThanOrEqualTo( generator.getMinLength()));
+          assertThat( String.format( "[%s] %s -> %s, length", i, regexp, text), text.length(), lessThanOrEqualTo( generator.getMaxLength()));
+          assertThat( String.format( "[%s] %s -> %s, length", i, regexp, text), text.length(), lessThanOrEqualTo( length.getMaxValue()));
           }
         });
     if( printResults())
@@ -173,7 +193,14 @@ public class GenerateTest
       int minLength = matches.stream().mapToInt( String::length).min().orElse(0);
       int maxLength = matches.stream().mapToInt( String::length).max().orElse(0);
       long avgLength = Math.round( matches.stream().mapToInt( String::length).average().orElse(0.0));
-      System.out.println( String.format( "  Distinct=%s, MinLength=%s, AvgLength=%s, MaxLength=%s", distinct, minLength, avgLength, maxLength));
+      System.out.println(
+        String.format(
+          "  Bounds=%s, Distinct=%s, MinLength=%s, AvgLength=%s, MaxLength=%s",
+          length,
+          distinct,
+          minLength,
+          avgLength,
+          maxLength));
       }
     }
 

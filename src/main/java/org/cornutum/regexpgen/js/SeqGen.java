@@ -160,7 +160,10 @@ public class SeqGen extends AbstractRegExpGen
              targetOccur > 0 && remaining > 0;
              targetOccur--, remaining = targetLength - matching.length())
           {
-          matching.append( generateSeq( random, new Bounds( remaining / targetOccur)));
+          int nextMin = targetOccur == 1? Math.max( 0, length.getMinValue() - matching.length()) : 0;
+          int nextMax = remaining / targetOccur;
+          Bounds next = new Bounds( nextMin, nextMax);
+          matching.append( generateSeq( random, next));
           }
         }
       }
@@ -207,7 +210,7 @@ public class SeqGen extends AbstractRegExpGen
 
   /**
    * Returns the bounds for a match for the i-th member of this sequence, given the specified number
-   * of chars remaining for a complete match. Return null if a match for this member is no longer possible.
+   * of chars remaining for a complete match. Returns null if a match for this member is no longer possible.
    */
   private Bounds getNextBounds( int remaining, int i)
     {
