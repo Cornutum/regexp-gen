@@ -11,10 +11,12 @@ import org.cornutum.regexpgen.Bounds;
 import org.cornutum.regexpgen.RandomGen;
 import org.cornutum.regexpgen.RegExpGen;
 import org.cornutum.regexpgen.random.RandomBoundsGen;
+
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
+import static org.cornutum.hamcrest.ExpectedFailure.expectFailure;
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
 
@@ -133,6 +135,27 @@ public class GenerateTest
   public void whenLengthValid()
     {
     verifyMatchesFor( "^They say( No[?!]+,)+ but I say( (Yes[?!]|What?),)+ OK\\?$", 35, 40);
+    }
+
+  @Test
+  public void whenLengthInvalid()
+    {
+    // Given...
+    String regexp = "^They say( No[?!],){1,3} but I say( (Yes[?!]|What?),){1,3} OK\\?$";
+    RegExpGen generator = Parser.parseRegExp( regexp);
+    RandomGen random = getRandomGen();
+
+    expectFailure( IllegalArgumentException.class)
+      .when( () -> generator.generate( random, new Bounds( 0, generator.getMinLength() - 1)))
+      .then( failure -> {
+        assertThat( "Failure", failure.getMessage(), is( "Length cannot be less than 32"));
+        });
+
+    expectFailure( IllegalArgumentException.class)
+      .when( () -> generator.generate( random, new Bounds( generator.getMaxLength() + 1, null)))
+      .then( failure -> {
+        assertThat( "Failure", failure.getMessage(), is( "Length cannot be greater than 55"));
+        });
     }
 
   private void verifyMatchesFor( String regexp)
