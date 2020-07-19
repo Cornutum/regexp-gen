@@ -30,7 +30,7 @@ public class RandomBoundsGen implements RandomGen
    */
   public RandomBoundsGen( Random random)
     {
-    this( random, 4);
+    this( random, 16);
     }
   
   /**
