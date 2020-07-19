@@ -250,6 +250,7 @@ public abstract class CharClassGen extends AbstractRegExpGen
   public static CharClassGen space()
     {
     AnyOfGen space = new AnyOfGen();
+    space.add( ' ');
     space.add( '\f');
     space.add( '\n');
     space.add( '\r');
