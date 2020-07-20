@@ -1169,6 +1169,93 @@ public class ParserTest
     }
 
   @Test
+  public void whenDetachedAnchor()
+    {
+    // Given...
+    String detachedStart = "( fat | bad |^)cat\\.$";
+    
+    // When...
+    RegExpGen generator = Parser.parseRegExp( detachedStart);
+
+    // Then...
+    RegExpGen expected =
+      SeqGen.builder()
+      .add(
+        AlternativeGen.builder()
+        .add(
+          SeqGen.builder()
+          .add(
+            SeqGen.builder()
+            .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+            .add( AnyOfGen.builder().add( ' ').build())
+            .build())
+          .add( "fat ")
+          .build())
+        .add(
+          SeqGen.builder()
+          .add(
+            SeqGen.builder()
+            .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+            .add( AnyOfGen.builder().add( ' ').build())
+            .build())
+          .add( "bad ")
+          .build())
+        .add( AnyOfGen.builder().anyPrintable().occurs(0).build())
+        .build())
+      .add( "cat.")
+      .build();
+
+    assertThat( generator, matches( new RegExpGenMatcher( expected)));
+
+    // Given...
+    String detachedEnd = "^Cats are bad( company |$| pets )";
+    
+    // When...
+    generator = Parser.parseRegExp( detachedEnd);
+
+    // Then...
+    expected =
+      SeqGen.builder()
+      .add( "Cats are bad")
+      .add(
+        AlternativeGen.builder()
+        .add(
+          SeqGen.builder()
+          .add( " company")
+          .add(
+            SeqGen.builder()
+            .add( AnyOfGen.builder().add( ' ').build())
+            .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+            .build())
+          .build())
+        .add( AnyOfGen.builder().anyPrintable().occurs( 0).build())
+        .add(
+          SeqGen.builder()
+          .add( " pets")
+          .add(
+            SeqGen.builder()
+            .add( AnyOfGen.builder().add( ' ').build())
+            .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+            .build())
+          .build())
+        .build())
+      .build();
+
+    assertThat( generator, matches( new RegExpGenMatcher( expected)));
+
+    // Given...
+    String empty = "^$";
+    
+    // When...
+    generator = Parser.parseRegExp( empty);
+
+    // Then...
+    expected = AnyOfGen.builder().anyPrintable().occurs(0).build();
+
+    assertThat( generator, matches( new RegExpGenMatcher( expected)));
+    }
+
+  @Test
   public void whenAlternativeOccurrences()
     {
     // Given...
@@ -1436,7 +1523,7 @@ public class ParserTest
     expectFailure( IllegalStateException.class)
       .when( () -> Parser.parseRegExp( regexp))
       .then( failure -> {
-        assertThat( "Failure", failure.getMessage(), is( errorAt( "Missing regular expression", 7)));
+        assertThat( "Failure", failure.getMessage(), is( errorAt( "Missing regular expression for look-behind assertion", 7)));
         });
     }
 

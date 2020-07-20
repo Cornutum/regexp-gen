@@ -132,6 +132,24 @@ public class GenerateTest
     }
 
   @Test
+  public void whenDetachedAnchorStart()
+    {
+    verifyMatchesFor( "( fat | bad |^)cat\\.$");
+    }
+
+  @Test
+  public void whenDetachedAnchorEnd()
+    {
+    verifyMatchesFor( "^Cats are bad( company |$| pets )");
+    }
+
+  @Test
+  public void whenDetachedAnchorsEmpty()
+    {
+    verifyMatchesFor( "^$");
+    }
+
+  @Test
   public void whenLengthValid()
     {
     verifyMatchesFor( "^They say( No[?!]+,)+ but I say( (Yes[?!]|What?),)+ OK\\?$", 35, 40);

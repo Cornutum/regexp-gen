@@ -153,19 +153,20 @@ public class Parser
     List<AbstractRegExpGen> termExpr = new ArrayList<AbstractRegExpGen>();
     
     // Get any start assertion
-    if( "\\b".equalsIgnoreCase( peek(2)))
-      {
-      throw error( "Unsupported word boundary assertion");
-      }
-    if( "(?<!".equals( peek(4)))
-      {
-      throw error( "Unsupported negative look-behind assertion");
-      }
-
     AbstractRegExpGen prefix = null;
     boolean anchoredStart = false;
     for( boolean assertionFound = true; assertionFound; )
       {
+      if( "\\b".equalsIgnoreCase( peek(2)))
+        {
+        throw error( "Unsupported word boundary assertion");
+        }
+
+      if( "(?<!".equals( peek(4)))
+        {
+        throw error( "Unsupported negative look-behind assertion");
+        }
+
       if( (assertionFound = "(?<=".equals( peek(4))))
         {
         advance(4);
@@ -193,68 +194,85 @@ public class Parser
 
     // Get atomic expression
     AbstractRegExpGen quantified = getQuantified();
-    if( quantified == null && (prefix != null || anchoredStart))
+    if( quantified == null && prefix != null)
       {
-      throw error( "Missing regular expression");
+      throw error( "Missing regular expression for look-behind assertion");
       }
-    else if( quantified != null)
+
+    // Get any end assertion
+    AbstractRegExpGen suffix = null;
+    boolean anchoredEnd = false;
+    for( boolean assertionFound = true; assertionFound; )
       {
-      // Apply start assertion
-      if( prefix != null)
+      if( "\\b".equalsIgnoreCase( peek(2)))
         {
-        termExpr.add( prefix);
+        throw error( "Unsupported word boundary assertion");
         }
-      else if( anchoredStart)
-        {
-        quantified.setAnchoredStart( true);
-        }
-
-      termExpr.add( quantified);
-
-      // Get any end assertion
       if( "(?!".equals( peek(3)))
         {
         throw error( "Unsupported negative look-ahead assertion");
         }
-
-      AbstractRegExpGen suffix = null;
-      boolean anchoredEnd = false;
-      for( boolean assertionFound = true; assertionFound; )
+      if( (assertionFound = "(?=".equals( peek(3))))
         {
-        if( (assertionFound = "(?=".equals( peek(3))))
+        if( quantified == null)
           {
-          advance(3);
-
-          suffix =
-            Optional.ofNullable( getNext())
-            .orElseThrow( () -> error( "Missing look-ahead expression"));
-
-          if( peekc() != ')')
-            {
-            throw error( "Missing ')'");
-            }
-          advance(1);
+          throw error( "Missing regular expression for look-ahead assertion");
           }
-        else if( (assertionFound = peekc() == '$'))
-          {
-          anchoredEnd = true;
-          advance(1);
-          } 
-        }
-      if( suffix != null && anchoredEnd)
-        {
-        throw error( "End assertion is inconsistent with look-ahead assertion");
-        }
+        advance(3);
 
-      // Apply end assertion
-      if( suffix != null)
-        {
-        termExpr.add( suffix);
+        suffix =
+          Optional.ofNullable( getNext())
+          .orElseThrow( () -> error( "Missing look-ahead expression"));
+
+        if( peekc() != ')')
+          {
+          throw error( "Missing ')'");
+          }
+        advance(1);
         }
-      else if( anchoredEnd)
+      else if( (assertionFound = peekc() == '$'))
+        {
+        anchoredEnd = true;
+        advance(1);
+        } 
+      }
+    if( suffix != null && anchoredEnd)
+      {
+      throw error( "End assertion is inconsistent with look-ahead assertion");
+      }
+
+    // Accumulate all expressions for this term
+    if( prefix != null)
+      {
+      termExpr.add( prefix);
+      }
+
+    if( quantified != null)
+      {
+      termExpr.add( quantified);
+      if( anchoredStart)
+        {
+        quantified.setAnchoredStart( true);
+        }
+      if( anchoredEnd)
         {
         quantified.setAnchoredEnd( true);
         }
+      }
+    else if( anchoredStart || anchoredEnd)
+      {
+      termExpr.add(
+        AnyOfGen.builder()
+        .anyPrintable()
+        .anchoredStart( anchoredStart)
+        .anchoredEnd( anchoredEnd)
+        .occurs(0)
+        .build());
+      }
+    
+    if( suffix != null)
+      {
+      termExpr.add( suffix);
       }
 
     return

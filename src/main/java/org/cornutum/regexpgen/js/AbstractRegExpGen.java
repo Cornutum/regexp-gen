@@ -224,5 +224,27 @@ public abstract class AbstractRegExpGen implements RegExpGen
       getAbstractRegExpGen().setOccurrences( bounds);
       return (T) this;
       }
+
+	public T anchoredStart( boolean anchored)
+      {
+      getAbstractRegExpGen().setAnchoredStart( anchored);
+      return (T) this;
+      }
+
+	public T anchoredStart()
+      {
+      return anchoredStart( true);
+      }
+
+	public T anchoredEnd( boolean anchored)
+      {
+      getAbstractRegExpGen().setAnchoredEnd( anchored);
+      return (T) this;
+      }
+
+	public T anchoredEnd()
+      {
+      return anchoredEnd( true);
+      }
     }
   }
