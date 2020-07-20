@@ -32,6 +32,14 @@ public class RandomBoundsGen implements RandomGen
     {
     this( random, 16);
     }
+
+  /**
+   * Creates a new RandomBoundsGen instance. 
+   */
+  public RandomBoundsGen( int lambda)
+    {
+    this( new Random(), lambda);
+    }
   
   /**
    * Creates a new RandomBoundsGen instance. When no upper bound is defined, uses a Poisson distribution with
