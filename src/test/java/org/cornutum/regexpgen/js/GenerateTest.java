@@ -23,6 +23,8 @@ import static org.hamcrest.Matchers.*;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.function.BiFunction;
+import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import static java.util.stream.Collectors.toList;
 
@@ -51,6 +53,12 @@ public class GenerateTest
   public void whenLookAhead()
     {
     verifyMatchesFor( "^\\((Copyright[-: ]+2020)?[\\\\\\d\\t]? K(?=ornutum\\))|@Copyright|@Trademark");
+    }
+
+  @Test
+  public void whenLookBehind()
+    {
+    verifyJavaMatchesFor( "(?<=(^Gronk| cat| dog))( is an animal)$");
     }
 
   @Test
@@ -188,6 +196,26 @@ public class GenerateTest
   
   private void verifyMatchesFor( String regexp, Integer lengthMin, Integer lengthMax)
     {
+    verifyMatchesFor( regexp, lengthMin, lengthMax, this::matchesJavaScript);
+    }
+
+  private void verifyJavaMatchesFor( String regexp)
+    {
+    verifyJavaMatchesFor( regexp, null);
+    }
+
+  private void verifyJavaMatchesFor( String regexp, Integer lengthMax)
+    {
+    verifyJavaMatchesFor( regexp, 0, lengthMax);
+    }
+  
+  private void verifyJavaMatchesFor( String regexp, Integer lengthMin, Integer lengthMax)
+    {
+    verifyMatchesFor( regexp, lengthMin, lengthMax, this::matchesJava);
+    }
+  
+  private void verifyMatchesFor( String regexp, Integer lengthMin, Integer lengthMax, BiFunction<String,String,Boolean> matchCheck)
+    {
     // Given...
     RegExpGen generator = Parser.parseRegExp( regexp);
     RandomGen random = getRandomGen();
@@ -218,11 +246,11 @@ public class GenerateTest
         String text = matches.get(i);
         if( printResults())
           {
-          System.out.println( String.format( "  [%s] %s %s", i, matches( text, regexp)? "T" : "F", text));
+          System.out.println( String.format( "  [%s] %s %s", i, matchCheck.apply( text, regexp)? "T" : "F", text));
           }
         else
           {
-          assertThat( String.format( "[%s] %s -> %s", i, regexp, text), matches( text, regexp), is( true));
+          assertThat( String.format( "[%s] %s -> %s", i, regexp, text), matchCheck.apply( text, regexp), is( true));
           assertThat( String.format( "[%s] %s -> %s, length", i, regexp, text), text.length(), greaterThanOrEqualTo( generator.getMinLength()));
           assertThat( String.format( "[%s] %s -> %s, length", i, regexp, text), text.length(), lessThanOrEqualTo( generator.getMaxLength()));
           assertThat( String.format( "[%s] %s -> %s, length", i, regexp, text), text.length(), lessThanOrEqualTo( length.getMaxValue()));
@@ -246,9 +274,9 @@ public class GenerateTest
     }
 
   /**
-   * Returns true if the given text matches the given regular expression.
+   * Returns true if the given text matches the given JavaScript regular expression.
    */
-  private Boolean matches( String text, String regexp)
+  private Boolean matchesJavaScript( String text, String regexp)
     {
     Context cx = Context.enter();
     String script = null;
@@ -266,6 +294,14 @@ public class GenerateTest
       {
       Context.exit();
       }
+    }
+
+  /**
+   * Returns true if the given text matches the given Java regular expression.
+   */
+  private Boolean matchesJava( String text, String regexp)
+    {
+    return Pattern.compile( regexp).matcher( text).find();
     }
 
   /**
