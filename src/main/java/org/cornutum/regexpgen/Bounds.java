@@ -85,15 +85,6 @@ public class Bounds
       intersects = false;
       }
     return intersects;
-    }    
-
-  /**
-   * If the given value is {@link #UNBOUNDED}, returns<CODE>Optional.empty()</CODE>.
-   * Otherwise, returns <CODE>Optional.of( value)</CODE>.
-   */
-  public Optional<Integer> bounded( int value)
-    {
-    return value==UNBOUNDED? Optional.empty() : Optional.of( value);
     }
 
   /**
@@ -110,6 +101,15 @@ public class Bounds
   public int getMaxValue()
     {
     return maxValue_;
+    }    
+
+  /**
+   * If the given value is {@link #UNBOUNDED}, returns<CODE>Optional.empty()</CODE>.
+   * Otherwise, returns <CODE>Optional.of( value)</CODE>.
+   */
+  public static Optional<Integer> bounded( int value)
+    {
+    return value==UNBOUNDED? Optional.empty() : Optional.of( value);
     }
 
   /**
@@ -149,6 +149,15 @@ public class Bounds
       {
       return UNBOUNDED;
       }
+    }
+
+  /**
+   * If <CODE>b</CODE> is 0, returns {@link #UNBOUNDED}.
+   * Otherwise returns <CODE>a / b</CODE>
+   */
+  public static int dividedBy( int a, int b)
+    {
+    return b == 0? UNBOUNDED : a / b;
     }
 
   public String toString()

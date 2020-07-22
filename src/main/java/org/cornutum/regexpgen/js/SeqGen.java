@@ -12,6 +12,8 @@ import org.cornutum.regexpgen.RandomGen;
 import org.cornutum.regexpgen.RegExpGen;
 import org.cornutum.regexpgen.util.ToString;
 import static org.cornutum.regexpgen.Bounds.UNBOUNDED;
+import static org.cornutum.regexpgen.Bounds.bounded;
+import static org.cornutum.regexpgen.Bounds.dividedBy;
 import static org.cornutum.regexpgen.Bounds.productOf;
 import static org.cornutum.regexpgen.Bounds.reduceBy;
 
@@ -162,14 +164,14 @@ public class SeqGen extends AbstractRegExpGen
       int memberMin = getMembersMinLength();
       int memberMax = getMembersMaxLength();
       int mayOccurMin = Math.max( 1, lengthMin / memberMax);
-      int mayOccurMax = memberMin==0 || lengthMax==UNBOUNDED? UNBOUNDED : Math.max( 1, lengthMax / memberMin);
+      int mayOccurMax = bounded( lengthMax).map( max -> Math.max( 1, dividedBy( max, memberMin))).orElse( UNBOUNDED);
       Bounds mayOccur =
         new Bounds( mayOccurMin, mayOccurMax)
         .clippedTo( "Occurrences", getMinOccur(), getMaxOccur());
 
       // ...for a random number of occurrences...
       int targetOccur = random.within( mayOccur);
-      int targetLength = lengthMax==UNBOUNDED? targetOccur * random.within( memberMin, memberMax) : lengthMax;
+      int targetLength = bounded( lengthMax).orElse( targetOccur * random.within( memberMin, memberMax));
 
       // ...generate a random match for each occurrence
       int remaining;
