@@ -141,29 +141,61 @@ public class AlternativeGen extends AbstractRegExpGen
 
       // ...generate a random match for each occurrence
       int remaining;
-      for( remaining = targetLength;
-           targetOccur > 0 && remaining > 0;
-           targetOccur--, remaining = targetLength - matching.length())
+      int needed;
+      for( remaining = targetLength,
+             needed = lengthMin;
+           
+           targetOccur > 0
+             && remaining > 0;
+           
+           targetOccur--,
+             remaining = targetLength - matching.length(),
+             needed = lengthMin - matching.length())
         {
         // Can some random member generate the next occurrence?
-        int nextMin = targetOccur == 1? Math.max( 0, length.getMinValue() - matching.length()) : 0;
+        int nextMin = needed / targetOccur;
         int nextMax = remaining / targetOccur;
-        Bounds next = new Bounds( nextMin, nextMax);
-        Optional<RegExpGen> nextMember = memberFeasibleFor( random, next);
-        if( nextMember.isPresent())
+        String alternativeMatch = completeAlternative( random, nextMin, nextMax);
+        if( alternativeMatch != null)
           {
           // Yes, append the next occurrence
-          matching.append( nextMember.get().generate( random, next));
+          matching.append( alternativeMatch);
           }
         else
           {
           // No, no more occurrences are possible now
-          targetLength = matching.length();
+          targetOccur = 0;
           }
         }
       }
 
     return matching.toString();
+    }
+
+  /**
+   * Completes a random string with the given range that matches some alternative.
+   */
+  private String completeAlternative( RandomGen random, int needed, int remaining)
+    {
+    String memberMatch;
+    int nextMin;
+    for( memberMatch = null, 
+           nextMin = needed;
+
+         memberMatch == null
+           && nextMin >= 0;
+
+         nextMin--)
+      {
+      Bounds nextBounds= new Bounds( nextMin, remaining);
+
+      memberMatch =
+        memberFeasibleFor( random, nextBounds)
+        .map( member -> member.generate( random, nextBounds))
+        .orElse( null);
+      }
+
+    return memberMatch;
     }
 
   /**

@@ -175,22 +175,29 @@ public class SeqGen extends AbstractRegExpGen
 
       // ...generate a random match for each occurrence
       int remaining;
-      for( remaining = targetLength;
-           targetOccur > 0 && remaining > 0;
-           targetOccur--, remaining = targetLength - matching.length())
+      int needed;
+      for( remaining = targetLength,
+             needed = lengthMin;
+           
+           targetOccur > 0
+             && remaining > 0;
+           
+           targetOccur--,
+             remaining = targetLength - matching.length(),
+             needed = lengthMin - matching.length())
         {
         // Next occurrence match complete?
-        int nextMin = targetOccur == 1? Math.max( 0, length.getMinValue() - matching.length()) : 0;
+        int nextMin = needed / targetOccur;
         int nextMax = remaining / targetOccur;
         String seqMatch = completeSeq( random, 0, nextMin, nextMax);
         if( seqMatch != null)
           {
-          // Yes, continue to next occurrence
+          // Yes, append the next occurrence
           matching.append( seqMatch);
           }
         else
           {
-          // No, no more occurrences are possible
+          // No, no more occurrences are possible now
           targetOccur = 0;
           }
         }
@@ -200,7 +207,7 @@ public class SeqGen extends AbstractRegExpGen
     }
 
   /**
-   * Completes a random string that matches this sequence starting with the i'th member.
+   * Completes a random string with the given range that matches this sequence starting with the i'th member.
    */
   private String completeSeq( RandomGen random, int i, int needed, int remaining)
     {
