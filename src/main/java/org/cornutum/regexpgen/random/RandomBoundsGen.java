@@ -60,7 +60,7 @@ public class RandomBoundsGen implements RandomGen
       max - min <= 0?
       min :
 
-      max < Integer.MAX_VALUE?
+      max < Bounds.UNBOUNDED?
       min + random_.nextInt( max - min) :
 
       min + extra_.next();

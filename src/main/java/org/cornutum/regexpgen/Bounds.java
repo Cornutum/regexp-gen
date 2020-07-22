@@ -19,7 +19,7 @@ public class Bounds
    */
   public Bounds()
     {
-    this( 0, Integer.MAX_VALUE);
+    this( 0, UNBOUNDED);
     }
 
   /**
@@ -36,7 +36,7 @@ public class Bounds
   public Bounds( Integer minValue, Integer maxValue)
     {
     int min = Optional.ofNullable( minValue).orElse( 0);
-    int max = Optional.ofNullable( maxValue).orElse( Integer.MAX_VALUE);
+    int max = Optional.ofNullable( maxValue).orElse( UNBOUNDED);
     
     if( min < 0)
       {
@@ -88,6 +88,15 @@ public class Bounds
     }    
 
   /**
+   * If the given value is {@link #UNBOUNDED}, returns<CODE>Optional.empty()</CODE>.
+   * Otherwise, returns <CODE>Optional.of( value)</CODE>.
+   */
+  public Optional<Integer> bounded( int value)
+    {
+    return value==UNBOUNDED? Optional.empty() : Optional.of( value);
+    }
+
+  /**
    * Returns the minimum value for any matching string.
    */
   public int getMinValue()
@@ -114,8 +123,17 @@ public class Bounds
       }
     catch( ArithmeticException e)
       {
-      return Integer.MAX_VALUE;
+      return UNBOUNDED;
       }
+    }
+
+  /**
+   * If <CODE>b</CODE> is greater than <CODE>a</CODE>, returns 0.
+   * Otherwise, returns the result subtracting <CODE>b</CODE> from <CODE>a</CODE>.
+   */
+  public static int reduceBy( int a, int b)
+    {
+    return b > a? 0 : a - b;
     }
 
   /**
@@ -129,7 +147,7 @@ public class Bounds
       }
     catch( ArithmeticException e)
       {
-      return Integer.MAX_VALUE;
+      return UNBOUNDED;
       }
     }
 
@@ -140,7 +158,7 @@ public class Bounds
       .append( '[')
       .append( getMinValue())
       .append( ',')
-      .append( Optional.of( getMaxValue()).filter( max -> max < Integer.MAX_VALUE).orElse( null))
+      .append( Optional.of( getMaxValue()).filter( max -> max < UNBOUNDED).orElse( null))
       .append( ']')
       .toString();
     }
@@ -165,6 +183,11 @@ public class Bounds
       ^ getMinValue()
       ^ getMaxValue();
     }
+
+  /**
+   * Designates an unbounded maximum value.
+   */
+  public static final int UNBOUNDED = Integer.MAX_VALUE;
   
   private final int minValue_;
   private final int maxValue_;
