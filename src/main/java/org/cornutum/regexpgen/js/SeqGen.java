@@ -11,6 +11,9 @@ import org.cornutum.regexpgen.Bounds;
 import org.cornutum.regexpgen.RandomGen;
 import org.cornutum.regexpgen.RegExpGen;
 import org.cornutum.regexpgen.util.ToString;
+import static org.cornutum.regexpgen.Bounds.UNBOUNDED;
+import static org.cornutum.regexpgen.Bounds.productOf;
+import static org.cornutum.regexpgen.Bounds.reduceBy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -87,7 +90,7 @@ public class SeqGen extends AbstractRegExpGen
    */
   public int getMinLength()
     {
-    return Bounds.productOf( getMinOccur(), getMembersMinLength());
+    return productOf( getMinOccur(), getMembersMinLength());
     }
 
   /**
@@ -95,7 +98,7 @@ public class SeqGen extends AbstractRegExpGen
    */
   public int getMaxLength()
     {
-    return Bounds.productOf( getMaxOccur(), getMembersMaxLength());
+    return productOf( getMaxOccur(), getMembersMaxLength());
     }
 
   /**
@@ -119,6 +122,18 @@ public class SeqGen extends AbstractRegExpGen
     }
 
   /**
+   * Returns the maximum length for any matching subsequence starting with the i-th member
+   */
+  private int getRemainingMaxLength( int start)
+    {
+    return
+      IntStream.range( start, members_.size())
+        .map( i -> members_.get(i).getMaxLength())
+        .reduce( Bounds::sumOf)
+        .orElse( 0);
+    }
+
+  /**
    * Returns the maximum length for any matching sequence.
    */
   protected int getMembersMaxLength()
@@ -137,33 +152,44 @@ public class SeqGen extends AbstractRegExpGen
     {
     StringBuilder matching = new StringBuilder();
 
-    // Given a random target length...
-    int targetLength = random.within( length);
-    if( targetLength > 0 && getMaxLength() > 0)
+    if( getMaxLength() > 0)
       {
+      // Given a range of lengths...
+      int lengthMin = length.getMinValue();
+      int lengthMax = length.getMaxValue();
+      
       // ...allowing for a range of occurrences...
       int memberMin = getMembersMinLength();
       int memberMax = getMembersMaxLength();
-      int mayOccurMin = Math.max( 1, targetLength / memberMax);
-      int mayOccurMax = memberMin==0? targetLength : Math.max( 1, targetLength / memberMin);
+      int mayOccurMin = Math.max( 1, lengthMin / memberMax);
+      int mayOccurMax = memberMin==0 || lengthMax==UNBOUNDED? UNBOUNDED : Math.max( 1, lengthMax / memberMin);
       Bounds mayOccur =
         new Bounds( mayOccurMin, mayOccurMax)
         .clippedTo( "Occurrences", getMinOccur(), getMaxOccur());
 
       // ...for a random number of occurrences...
       int targetOccur = random.within( mayOccur);
-      if( targetOccur > 0)
+      int targetLength = lengthMax==UNBOUNDED? targetOccur * random.within( memberMin, memberMax) : lengthMax;
+
+      // ...generate a random match for each occurrence
+      int remaining;
+      for( remaining = targetLength;
+           targetOccur > 0 && remaining > 0;
+           targetOccur--, remaining = targetLength - matching.length())
         {
-        // ...generate a random match for each occurrence
-        int remaining;
-        for( remaining = targetLength;
-             targetOccur > 0 && remaining > 0;
-             targetOccur--, remaining = targetLength - matching.length())
+        // Next occurrence match complete?
+        int nextMin = targetOccur == 1? Math.max( 0, length.getMinValue() - matching.length()) : 0;
+        int nextMax = remaining / targetOccur;
+        String seqMatch = completeSeq( random, 0, nextMin, nextMax);
+        if( seqMatch != null)
           {
-          int nextMin = targetOccur == 1? Math.max( 0, length.getMinValue() - matching.length()) : 0;
-          int nextMax = remaining / targetOccur;
-          Bounds next = new Bounds( nextMin, nextMax);
-          matching.append( generateSeq( random, next));
+          // Yes, continue to next occurrence
+          matching.append( seqMatch);
+          }
+        else
+          {
+          // No, no more occurrences are possible
+          targetOccur = 0;
           }
         }
       }
@@ -172,53 +198,40 @@ public class SeqGen extends AbstractRegExpGen
     }
 
   /**
-   * Returns a random string within the given bounds that matches this regular expression.
+   * Completes a random string that matches this sequence starting with the i'th member.
    */
-  private String generateSeq( RandomGen random, Bounds length)
+  private String completeSeq( RandomGen random, int i, int needed, int remaining)
     {
-    StringBuilder matching = new StringBuilder();
+    RegExpGen member = members_.get(i);
+    int memberMin = member.getMinLength();
+    int memberMax = member.getMaxLength();
 
-    int i;
-    int remaining;
-    Bounds nextBounds;
-    int max = length.getMaxValue();
-    for( i = 0, 
-           remaining = max,
-           nextBounds = getNextBounds( remaining, i);
+    String matching;
+    int memberMatchMin; 
+    int memberMatchMax;
+    for( matching = null,
+           memberMatchMax = remaining - getRemainingMinLength( i+1),
+           memberMatchMin = Math.min( memberMax, Math.max( memberMin, reduceBy( needed, getRemainingMaxLength( i+1))));
          
-         i < members_.size()
-           && nextBounds != null
-           && members_.get(i).isFeasibleLength( nextBounds);
-         
-         i++,
-           remaining = max - matching.length(),
-           nextBounds = getNextBounds( remaining, i))
+         matching == null
+           && memberMatchMax >= memberMatchMin
+           && memberMatchMin >= memberMin;
+
+         memberMatchMin--)
       {
-      matching.append( members_.get(i).generate( random, nextBounds));
+      String memberMatch = members_.get(i).generate( random, new Bounds( memberMatchMin, memberMatchMax));
+
+      matching =
+        memberMatch != null && i+1 < members_.size()?
+        
+        Optional.ofNullable( completeSeq( random, i+1, needed - memberMatch.length(), remaining - memberMatch.length()))
+        .map( remainingMatch -> memberMatch + remainingMatch)
+        .orElse( null) :
+
+        memberMatch;
       }
 
-    return
-      // Match generated for full sequence?
-      i < members_.size()
-
-      // No, empty string is the only possible match
-      ? ""
-
-      // Yes, return complete match
-      : matching.toString();
-    }
-
-  /**
-   * Returns the bounds for a match for the i-th member of this sequence, given the specified number
-   * of chars remaining for a complete match. Returns null if a match for this member is no longer possible.
-   */
-  private Bounds getNextBounds( int remaining, int i)
-    {
-    int next = remaining - getRemainingMinLength( i+1);
-    return
-      next >= 0
-      ? new Bounds( next)
-      : null;
+    return matching;
     }
 
   /**
