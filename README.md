@@ -163,6 +163,18 @@ matches will always lie between the given limits. Instead, `RegExpGen` makes a s
 
 ## FAQs ##
 
+  * **How do I add this as a dependency to my Maven project?**
+
+    Add this to your project POM:
+
+    ```xml
+    <dependency>
+      <groupId>org.cornutum.regexp</groupId>
+      <artifactId>regexp-gen</artifactId>
+      <version>...</version>
+    </dependency>
+    ```
+
   * **How can I run some examples?**
 
     Try running the [ExampleTest](https://github.com/Cornutum/regexp-gen/blob/master/src/test/java/org/cornutum/regexpgen/examples/ExampleTest.java).
