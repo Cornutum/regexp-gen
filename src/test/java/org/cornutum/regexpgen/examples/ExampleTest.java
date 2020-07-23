@@ -83,6 +83,46 @@ public class ExampleTest
       }
     }
 
+  @Test
+  public void substringMatches()
+    {
+    // Given a JavaScript regular expression...
+    String regexp = regexp( "(Hello|Howdy|Allô), world!");
+
+    // ...and a random number generator...
+    RandomGen random = getRandomGen();
+
+    // ...create a RegExpGen instance...
+    RegExpGen generator = Parser.parseRegExp( regexp);
+
+    System.out.println( String.format( "\n%s [ %s ]:", "substringMatches", regexp));
+    for( int i = 0; i < getGeneratorCount(); i++)
+      {
+      // ...and generate matching strings.
+      System.out.println( generator.generate( random));
+      }
+    }
+
+  @Test
+  public void exactMatches()
+    {
+    // Given a JavaScript regular expression...
+    String regexp = regexp( "(Hello|Howdy|Allô), world!");
+
+    // ...and a random number generator...
+    RandomGen random = getRandomGen();
+
+    // ...create a RegExpGen instance...
+    RegExpGen generator = Parser.parseRegExpExact( regexp);
+
+    System.out.println( String.format( "\n%s [ %s ]:", "exactMatches", regexp));
+    for( int i = 0; i < getGeneratorCount(); i++)
+      {
+      // ...and generate matching strings.
+      System.out.println( generator.generate( random));
+      }
+    }
+
   /**
    * Returns the number of matches to generate for each regular expression.
    */

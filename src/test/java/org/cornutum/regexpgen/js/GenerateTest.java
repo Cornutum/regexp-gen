@@ -216,8 +216,18 @@ public class GenerateTest
   
   private void verifyMatchesFor( String regexp, Integer lengthMin, Integer lengthMax, BiFunction<String,String,Boolean> matchCheck)
     {
+    verifyMatchesFor( false, regexp, lengthMin, lengthMax, matchCheck);
+    verifyMatchesFor( true, regexp, lengthMin, lengthMax, matchCheck);
+    }
+
+  private void verifyMatchesFor( boolean exact, String regexp, Integer lengthMin, Integer lengthMax, BiFunction<String,String,Boolean> matchCheck)
+    {
     // Given...
-    RegExpGen generator = Parser.parseRegExp( regexp);
+    RegExpGen generator =
+      exact
+      ? Parser.parseRegExpExact( regexp)
+      : Parser.parseRegExp( regexp);
+
     RandomGen random = getRandomGen();
     Bounds length = new Bounds( lengthMin, lengthMax);
     
@@ -239,7 +249,7 @@ public class GenerateTest
     // Then...
     if( printResults())
       {
-      System.out.println( String.format( "\n%s", regexp));
+      System.out.println( String.format( "\n%s %s", exact? "Exact" : "Any", regexp));
       }
     IntStream.range( 0, matches.size())
       .forEach( i -> {

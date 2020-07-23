@@ -6,6 +6,7 @@
   * [What Is It?](#what-is-it)
   * [How Does It Work?](#how-does-it-work)
     * [The basics](#the-basics)
+    * [Exact matches vs. substring matches](#exact-matches-vs-substring-matches)
     * [How to create longer matching strings](#how-to-create-longer-matching-strings)
     * [How to generate random matches repeatably](#how-to-generate-random-matches-repeatably)
     * [How to limit match length to a specific range](#how-to-limit-match-length-to-a-specific-range)
@@ -57,6 +58,54 @@ Run this example and you'll see output something like this:
 Regular expressions are hard, but cool!
 Regular expressions are hard, odd, stupid, but cool!
 Regular expressions are odd, odd, but cool!
+```
+
+### Exact matches vs. substring matches ###
+
+What does it mean for a string to match a regular expression? In general, this means "contains at
+least one substring that matches". For example, consider what happens when you run the following example.
+
+```java
+...
+// Given a JavaScript regular expression...
+String regexp = "(Hello|Howdy|Allô), world!";
+
+// ...create a RegExpGen instance...
+RegExpGen generator = Parser.parseRegExp( regexp);
+...
+```
+
+In this case, you'll see something like this:
+
+```
+x(©yÚULD+|/7OoÁÇj%_]Hello, world!!U}oñ(eöÛ½fÕõ
+ªâæÎø^üp{/Ã0ßiØ1·AÂø]ýF%hÅµ¦<vËÈàHowdy, world!»¿
+l^È¨ú(¹C³TÂI6ÓQaª}f*Allô, world!p±!éÇ'>aDÙ
+```
+
+These strings contain not only a substring that matches the regular expression, but also some
+extraneous characters before and/or after the match. If the consumer of these strings applies the
+general "substring match", that's exactly what you want to give it.
+
+But what if you need to generate only "exact" matches? In other words, strings containing only the matching characters.
+To do that, use `Parser.parseRegExpExact()`.
+
+```java
+...
+// Given a JavaScript regular expression...
+String regexp = "(Hello|Howdy|Allô), world!";
+
+// ...create a RegExpGen instance...
+RegExpGen generator = Parser.parseRegExpExact( regexp);
+...
+```
+
+Run with this change and the result will look like this:
+
+```
+Hello, world!
+Allô, world!
+Howdy, world!
 ```
 
 ### How to create longer matching strings ###
@@ -179,6 +228,10 @@ matches will always lie between the given limits. Instead, `RegExpGen` makes a s
 
     Try running the [ExampleTest](https://github.com/Cornutum/regexp-gen/blob/master/src/test/java/org/cornutum/regexpgen/examples/ExampleTest.java).
 
+  * **I'm getting strings with lots of crazy extra characters. What's the deal?**
+
+    You should read about the difference between ["exact" matches and "substring" matches](#exact-matches-vs-substring-matches).
+    
   * **Where's the Javadoc?**
 
     For full details, see the complete Javadoc [here](http://www.cornutum.org/regexp-gen/apidocs/).
@@ -193,7 +246,6 @@ matches will always lie between the given limits. Instead, `RegExpGen` makes a s
     Note that the syntax for the Java `Pattern` implementation overlaps quite a bit with `RegExp`,
     so this `RegExpGen` implementation can also be used to generate matches for most Java `Pattern`
     instances.
-    
 
   * **Are all possible regular expressions accepted?**
 
