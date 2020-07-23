@@ -14,7 +14,7 @@
 
 ## What's New? ##
 
-  * The latest version ([1.0.0](https://github.com/Cornutum/regexp-gen/releases/tag/release-1.0.0))
+  * The latest version ([1.1.0](https://github.com/Cornutum/regexp-gen/releases/tag/release-1.1.0))
     is now available at the [Maven Central Repository](https://search.maven.org/search?q=regexp-gen).
 
 ## What Is It? ##
@@ -256,5 +256,8 @@ matches will always lie between the given limits. Instead, `RegExpGen` makes a s
     * Word boundary assertions (`\b` and `\B`) are not supported.
 
     * Sequences of multiple consecutive look-ahead/behind assertions are not supported.
+
+    * Back references to capturing groups are not supported. No distinction is made between capturing
+      and non-capturing groups, and group names are ignored.
 
     
