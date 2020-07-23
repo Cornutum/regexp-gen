@@ -22,12 +22,12 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
- * Returns the {@link RegExpGen} represented by a Javascript regular expression.
+ * Returns the {@link RegExpGen} represented by a JavaScript regular expression.
  */
 public class Parser
   {
   /**
-   * Returns the {@link RegExpGen} represented by this Javascript regular expression.
+   * Returns the {@link RegExpGen} represented by this JavaScript regular expression.
    */
   public static RegExpGen parseRegExp( String regexp)
     {
@@ -43,7 +43,7 @@ public class Parser
     }
 
   /**
-   * Returns the {@link RegExpGen} represented by this Javascript regular expression.
+   * Returns the {@link RegExpGen} represented by this JavaScript regular expression.
    */
   private RegExpGen parse()
     {
@@ -62,7 +62,7 @@ public class Parser
     }
 
   /**
-   * Returns the {@link RegExpGen} represented by next element of this Javascript regular expression.
+   * Returns the {@link RegExpGen} represented by next element of this JavaScript regular expression.
    */
   private AbstractRegExpGen getNext()
     {
@@ -91,7 +91,7 @@ public class Parser
     }
 
   /**
-   * Returns the {@link RegExpGen} represented by next alternative of this Javascript regular expression.
+   * Returns the {@link RegExpGen} represented by next alternative of this JavaScript regular expression.
    */
   private AbstractRegExpGen getAlternative()
     {
@@ -146,7 +146,7 @@ public class Parser
     }
 
   /**
-   * Returns the sequence of {@link RegExpGen} instances represented by next term of this Javascript regular expression.
+   * Returns the sequence of {@link RegExpGen} instances represented by next term of this JavaScript regular expression.
    */
   private List<AbstractRegExpGen> getTerm()
     {
@@ -282,7 +282,7 @@ public class Parser
     }
 
   /**
-   * Returns the {@link RegExpGen} represented by next quantified atom of this Javascript regular expression.
+   * Returns the {@link RegExpGen} represented by next quantified atom of this JavaScript regular expression.
    */
   private AbstractRegExpGen getQuantified()
     {
@@ -308,7 +308,7 @@ public class Parser
     }
 
   /**
-   * Returns the {@link Bounds} represented by the next quantifier in this Javascript regular expression.
+   * Returns the {@link Bounds} represented by the next quantifier in this JavaScript regular expression.
    */
   private Bounds getQuantifier()
     {
@@ -387,7 +387,7 @@ public class Parser
     }
 
   /**
-   * Returns the next decimal integer from this Javascript regular expression.
+   * Returns the next decimal integer from this JavaScript regular expression.
    */
   private Integer getDecimal()
     {
@@ -412,7 +412,7 @@ public class Parser
     }
 
   /**
-   * Returns the {@link RegExpGen} represented by next atom of this Javascript regular expression.
+   * Returns the {@link RegExpGen} represented by next atom of this JavaScript regular expression.
    */
   private AbstractRegExpGen getAtom()
     {
