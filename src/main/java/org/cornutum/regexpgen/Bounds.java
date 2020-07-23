@@ -15,7 +15,8 @@ import java.util.Optional;
 public class Bounds
   {
   /**
-   * Creates a new Bounds instance.
+   * Creates a new Bounds with a minimum of 0 (inclusive) and a
+   * maximum of {@link #UNBOUNDED}.
    */
   public Bounds()
     {
@@ -23,7 +24,8 @@ public class Bounds
     }
 
   /**
-   * Creates a new Bounds instance.
+   * Creates a new Bounds with a minimum of 0 (inclusive) and a
+   * maximum of <CODE>maxValue</CODE> (exclusive).
    */
   public Bounds( int maxValue)
     {
@@ -31,7 +33,10 @@ public class Bounds
     }
 
   /**
-   * Creates a new Bounds instance.
+   * Creates a new Bounds with a minimum of <CODE>minValue</CODE> (inclusive) and a
+   * maximum of <CODE>maxValue</CODE> (exclusive). If <CODE>minValue</CODE> is null,
+   * the default is 0. If <CODE>maxValue</CODE> is null,
+   * the default is {@link #UNBOUNDED}. 
    */
   public Bounds( Integer minValue, Integer maxValue)
     {
@@ -88,7 +93,7 @@ public class Bounds
     }
 
   /**
-   * Returns the minimum value for any matching string.
+   * Returns the minimum value (inclusive) for any matching string.
    */
   public int getMinValue()
     {
@@ -96,7 +101,7 @@ public class Bounds
     }
 
   /**
-   * Returns the maximum value for any matching string.
+   * Returns the maximum value (exclusive) for any matching string.
    */
   public int getMaxValue()
     {
@@ -104,8 +109,8 @@ public class Bounds
     }    
 
   /**
-   * If the given value is {@link #UNBOUNDED}, returns<CODE>Optional.empty()</CODE>.
-   * Otherwise, returns <CODE>Optional.of( value)</CODE>.
+   * If the given value is {@link #UNBOUNDED}, returns <CODE>Optional.empty()</CODE>;
+   * otherwise, returns <CODE>Optional.of( value)</CODE>.
    */
   public static Optional<Integer> bounded( int value)
     {
@@ -113,7 +118,7 @@ public class Bounds
     }
 
   /**
-   * Returns the sum the given values, avoiding overflow.
+   * Returns the sum of the given values, avoiding overflow.
    */
   public static int sumOf( int a, int b)
     {
@@ -128,8 +133,8 @@ public class Bounds
     }
 
   /**
-   * If <CODE>b</CODE> is greater than <CODE>a</CODE>, returns 0.
-   * Otherwise, returns the result subtracting <CODE>b</CODE> from <CODE>a</CODE>.
+   * If <CODE>b</CODE> is greater than <CODE>a</CODE>, returns 0;
+   * otherwise, returns the result of subtracting <CODE>b</CODE> from <CODE>a</CODE>.
    */
   public static int reduceBy( int a, int b)
     {
@@ -137,7 +142,7 @@ public class Bounds
     }
 
   /**
-   * Returns the product the given values, avoiding overflow.
+   * Returns the product of the given values, avoiding overflow.
    */
   public static int productOf( int a, int b)
     {
@@ -152,8 +157,8 @@ public class Bounds
     }
 
   /**
-   * If <CODE>b</CODE> is 0, returns {@link #UNBOUNDED}.
-   * Otherwise returns <CODE>a / b</CODE>
+   * If <CODE>b</CODE> is 0, returns {@link #UNBOUNDED};
+   * otherwise, returns <CODE>a / b</CODE>
    */
   public static int dividedBy( int a, int b)
     {
