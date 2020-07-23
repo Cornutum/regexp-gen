@@ -129,8 +129,8 @@ public class AlternativeGen extends AbstractRegExpGen
       // ...allowing for a range of occurrences...
       int memberMin = getMemberMinLength();
       int memberMax = getMemberMaxLength();
-      int mayOccurMin = Math.max( 1, lengthMin / memberMax);
-      int mayOccurMax = bounded( lengthMax).map( max -> Math.max( 1, dividedBy( max, memberMin))).orElse( UNBOUNDED);
+      int mayOccurMin = lengthMin / memberMax;
+      int mayOccurMax = bounded( lengthMax).map( max -> dividedBy( max, memberMin)).orElse( UNBOUNDED);
       Bounds mayOccur =
         new Bounds( mayOccurMin, mayOccurMax)
         .clippedTo( "Occurrences", getMinOccur(), getMaxOccur());
