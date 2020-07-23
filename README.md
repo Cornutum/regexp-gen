@@ -84,7 +84,7 @@ l^È¨ú(¹C³TÂI6ÓQaª}f*Allô, world!p±!éÇ'>aDÙ
 ```
 
 These strings contain not only a substring that matches the regular expression, but also some
-extraneous characters before and/or after the match. If the consumer of these strings applies the
+extraneous characters before and/or after the match. If the consumer of these strings recognizes a
 general "substring match", that's exactly what you want to give it.
 
 But what if you need to generate only "exact" matches? In other words, strings containing only the matching characters.
@@ -114,7 +114,7 @@ For any regular expression, there is always a miniumum length for any matching s
 matches are also limited to some maximum length. `RegExpGen` generates matches of random length that
 always lie within the minimum and maximum bounds for the regular expression.
 
-But for many regular expressions, like the one in the previous example, there is no upper bound on
+But for many regular expressions, like the one in [the basic example above](#the-basics), there is no upper bound on
 the length of a matching string. Nevertheless, as a practical matter, some kind of upper bound is
 usually helpful.  What to do?
 
