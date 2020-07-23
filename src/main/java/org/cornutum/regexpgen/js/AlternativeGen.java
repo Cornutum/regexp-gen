@@ -137,7 +137,7 @@ public class AlternativeGen extends AbstractRegExpGen
 
       // ...for a random number of occurrences...
       int targetOccur = random.within( mayOccur);
-      int targetLength = bounded( lengthMax).orElse( targetOccur * random.within( memberMin, memberMax));
+      int targetLength = bounded( lengthMax).orElse( targetOccur * random.within( new Bounds( memberMin, memberMax)));
 
       // ...generate a random match for each occurrence
       int remaining;
