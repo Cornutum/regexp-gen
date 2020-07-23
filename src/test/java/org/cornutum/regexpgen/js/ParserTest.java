@@ -1256,6 +1256,39 @@ public class ParserTest
     }
 
   @Test
+  public void whenNamedCharClass()
+    {
+    // Given...
+    String regexp = "\\w+@\\w+(\\.\\w+)*\\.(com|net|org)";
+    
+    // When...
+    RegExpGen generator = Parser.parseRegExpExact( regexp);
+
+    // Then...
+    RegExpGen expected =
+      SeqGen.builder()
+      .add( AnyOfGen.builder().addAll( CharClassGen.word()).occurs( 1, null).build())
+      .add( "@")
+      .add( AnyOfGen.builder().addAll( CharClassGen.word()).occurs( 1, null).build())
+      .add(
+        SeqGen.builder()
+        .add( ".")
+        .add( AnyOfGen.builder().addAll( CharClassGen.word()).occurs( 1, null).build())
+        .occurs( 0, null)
+        .build())
+      .add( ".")
+      .add(
+        AlternativeGen.builder()
+        .add( SeqGen.builder().add( "com").build())
+        .add( SeqGen.builder().add( "net").build())
+        .add( SeqGen.builder().add( "org").build())
+        .build())
+      .build();
+
+    assertThat( generator, matches( new RegExpGenMatcher( expected)));
+    }
+
+  @Test
   public void whenAlternativeOccurrences()
     {
     // Given...
@@ -1440,12 +1473,12 @@ public class ParserTest
   public void whenWordBoundaryStart()
     {
     // Given...
-    String regexp = "Matchy \\bMatchy";
+    String regexp = "Matchy (\\bMatchy)";
 
     expectFailure( IllegalStateException.class)
       .when( () -> Parser.parseRegExp( regexp))
       .then( failure -> {
-        assertThat( "Failure", failure.getMessage(), is( errorAt( "Unsupported word boundary assertion", 7)));
+        assertThat( "Failure", failure.getMessage(), is( errorAt( "Unsupported word boundary assertion", 8)));
         });
     }
 

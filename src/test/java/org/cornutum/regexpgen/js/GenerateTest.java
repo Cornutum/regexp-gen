@@ -158,6 +158,12 @@ public class GenerateTest
     }
 
   @Test
+  public void whenNamedCharClass()
+    {
+    verifyMatchesFor( "\\w+@\\w+(\\.\\w+)*\\.(com|net|org)");
+    }
+
+  @Test
   public void whenLengthValid()
     {
     verifyMatchesFor( "^They say( No[?!]+,)+ but I say( (Yes[?!]|What?),)+ OK\\?$", 35, 40);
