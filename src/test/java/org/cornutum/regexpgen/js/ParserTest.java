@@ -1769,6 +1769,32 @@ public class ParserTest
         });
     }
 
+  @Test
+  public void whenBackReferenceNumber()
+    {
+    // Given...
+    String regexp = "<([a-z]+)>(.*?)</\\1>";
+
+    expectFailure( IllegalStateException.class)
+      .when( () -> Parser.parseRegExp( regexp))
+      .then( failure -> {
+        assertThat( "Failure", failure.getMessage(), is( errorAt( "Unsupported back reference to capturing group", 18)));
+        });
+    }
+
+  @Test
+  public void whenBackReferenceName()
+    {
+    // Given...
+    String regexp = "<([a-z]+)>(?<tag>.*?)</\\k<tag>>";
+
+    expectFailure( IllegalStateException.class)
+      .when( () -> Parser.parseRegExp( regexp))
+      .then( failure -> {
+        assertThat( "Failure", failure.getMessage(), is( errorAt( "Unsupported back reference to named group", 24)));
+        });
+    }
+
   private String errorAt( String message, int position)
     {
     return String.format( "%s at position=%s", message, position);

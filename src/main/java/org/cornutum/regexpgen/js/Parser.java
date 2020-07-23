@@ -761,6 +761,14 @@ public class Parser
         }
       default:
         {
+        if( Character.isDigit( id))
+          {
+          throw error( "Unsupported back reference to capturing group");
+          }
+        if( id == 'k')
+          {
+          throw error( "Unsupported back reference to named group");
+          }
         escapeClass = null;
         break;
         }
