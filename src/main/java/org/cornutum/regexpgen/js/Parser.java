@@ -27,11 +27,21 @@ import java.util.stream.IntStream;
 public class Parser
   {
   /**
-   * Returns the {@link RegExpGen} represented by this JavaScript regular expression.
+   * Returns a {@link RegExpGen} that generates strings containing characters that match the given
+   * JavaScript regular expression.
    */
   public static RegExpGen parseRegExp( String regexp)
     {
-    return new Parser( regexp).parse();
+    return new Parser( regexp).parse( false);
+    }
+  
+  /**
+   * Returns a {@link RegExpGen} that generates strings containing only characters that match the
+   * given JavaScript regular expression.
+   */
+  public static RegExpGen parseRegExpExact( String regexp)
+    {
+    return new Parser( regexp).parse( true);
     }
 
   /**
@@ -44,8 +54,11 @@ public class Parser
 
   /**
    * Returns the {@link RegExpGen} represented by this JavaScript regular expression.
+   * If <CODE>exact</CODE> is true, the result generates strings containin only
+   * characters matching this regular expression. Otherwise, the result generates strings
+   * that may contain other characters surrounding the matching characters.
    */
-  private RegExpGen parse()
+  private RegExpGen parse( boolean exact)
     {
     RegExpGen regExpGen = getNext();
 
@@ -57,7 +70,7 @@ public class Parser
     
     return
       Optional.ofNullable( regExpGen)
-      .map( r -> withStartGen( withEndGen( r)))
+      .map( r -> exact? r : withStartGen( withEndGen( r)))
       .orElse( null);
     }
 
