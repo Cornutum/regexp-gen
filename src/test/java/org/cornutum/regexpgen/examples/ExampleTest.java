@@ -25,7 +25,7 @@ public class ExampleTest
   public void simple()
     {
     // Given a JavaScript regular expression...
-    String regexp = "^Regular expressions are ((odd|hard|stupid), )+but cool!$";
+    String regexp = regexp( "^Regular expressions are ((odd|hard|stupid), )+but cool!$");
 
     // ...and a random number generator...
     RandomGen random = getRandomGen();
@@ -33,7 +33,7 @@ public class ExampleTest
     // ...create a RegExpGen instance...
     RegExpGen generator = Parser.parseRegExp( regexp);
 
-    System.out.println( String.format( "\n%s:", "simple"));
+    System.out.println( String.format( "\n%s [ %s ]:", "simple", regexp));
     for( int i = 0; i < getGeneratorCount(); i++)
       {
       // ...and generate matching strings.
@@ -45,7 +45,7 @@ public class ExampleTest
   public void longMatches()
     {
     // Given a JavaScript regular expression...
-    String regexp = "^Regular expressions are ((odd|hard|stupid), )+but cool!$";
+    String regexp = regexp( "^Regular expressions are ((odd|hard|stupid), )+but cool!$");
 
     // ...and a random number generator that limits the length of unbounded matches to
     // to an average of minimum + 64 ..
@@ -54,7 +54,7 @@ public class ExampleTest
     // ...create a RegExpGen instance...
     RegExpGen generator = Parser.parseRegExp( regexp);
 
-    System.out.println( String.format( "\n%s:", "longMatches"));
+    System.out.println( String.format( "\n%s [ %s ]:", "longMatches", regexp));
     for( int i = 0; i < getGeneratorCount(); i++)
       {
       // ...and generate matching strings.
@@ -66,7 +66,7 @@ public class ExampleTest
   public void bounded()
     {
     // Given a JavaScript regular expression...
-    String regexp = "^Regular expressions are ((odd|hard|stupid), )+but cool!$";
+    String regexp = regexp( "^Regular expressions are ((odd|hard|stupid), )+but cool!$");
 
     // ...and a random number generator...
     RandomGen random = getRandomGen();
@@ -74,7 +74,7 @@ public class ExampleTest
     // ...create a RegExpGen instance...
     RegExpGen generator = Parser.parseRegExp( regexp);
 
-    System.out.println( String.format( "\n%s:", "bounded"));
+    System.out.println( String.format( "\n%s [ %s ]:", "bounded", regexp));
     Bounds bounds = new Bounds( getMinLength(), getMaxLength());
     for( int i = 0; i < getGeneratorCount(); i++)
       {
@@ -121,6 +121,14 @@ public class ExampleTest
   private RandomGen getRandomGen()
     {
     return new RandomBoundsGen( new Random( randomSeed_));
+    }
+
+  /**
+   * If system property="regexp" is defined, returns its value; otherwise, returns the given string.
+   */
+  private String regexp( String regexp)
+    {
+    return Optional.ofNullable( StringUtils.trimToNull( System.getProperty( "regexp"))).orElse( regexp);
     }
 
   private static long randomSeed_;
