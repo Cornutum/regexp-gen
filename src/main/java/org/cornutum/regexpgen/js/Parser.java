@@ -494,9 +494,10 @@ public class Parser
       {
       advance(1);
 
-      escapeClass =
-        Optional.ofNullable( getCharClassEscape())
-        .orElse( getCharEscape());
+      if( (escapeClass = getCharClassEscape()) == null)
+        {
+        escapeClass = getCharEscape();
+        }
       }
 
     return escapeClass;
