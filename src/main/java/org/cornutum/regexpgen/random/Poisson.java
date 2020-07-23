@@ -7,6 +7,8 @@
 
 package org.cornutum.regexpgen.random;
 
+import org.cornutum.regexpgen.util.ToString;
+
 import java.util.Random;
 
 /**
@@ -26,6 +28,15 @@ public class Poisson
 
     L = Math.exp( -lambda);
     this.random = random;
+    this.lambda = lambda;
+    }
+
+  /**
+   * Returns the lambda parameter for this Poisson distribution.
+   */
+  public int getLambda()
+    {
+    return lambda;
     }
 
   /**
@@ -38,6 +49,15 @@ public class Poisson
     return k;      
     }
 
+  public String toString()
+    {
+    return
+      ToString.getBuilder( this)
+      .append( lambda)
+      .toString();
+    }
+  
   private final Random random;
+  private final int lambda;
   private final double L;
   }

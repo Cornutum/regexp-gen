@@ -9,6 +9,7 @@ package org.cornutum.regexpgen.random;
 
 import org.cornutum.regexpgen.Bounds;
 import org.cornutum.regexpgen.RandomGen;
+import org.cornutum.regexpgen.util.ToString;
 
 import java.util.Random;
 
@@ -64,6 +65,14 @@ public class RandomBoundsGen implements RandomGen
       min + random_.nextInt( max - min) :
 
       min + extra_.next();
+    }
+
+  public String toString()
+    {
+    return
+      ToString.getBuilder( this)
+      .append( extra_.getLambda())
+      .toString();
     }
 
   private final Random random_;
