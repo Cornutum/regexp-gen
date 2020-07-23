@@ -316,7 +316,7 @@ public abstract class CharClassGen extends AbstractRegExpGen
    * Builds a {@link CharClassGen} instance.
    */
   @SuppressWarnings("unchecked")
-  public static abstract class CharClassGenBuilder<T extends CharClassGenBuilder<T>> extends BaseBuilder<T>
+  protected static abstract class CharClassGenBuilder<T extends CharClassGenBuilder<T>> extends BaseBuilder<T>
     {
     /**
      * Returns the {@link CharClassGen} instance for this builder.

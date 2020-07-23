@@ -200,7 +200,7 @@ public abstract class AbstractRegExpGen implements RegExpGen
    * Builds an {@link AbstractRegExpGen} instance.
    */
   @SuppressWarnings("unchecked")
-  public static abstract class BaseBuilder<T extends BaseBuilder<T>>
+  protected static abstract class BaseBuilder<T extends BaseBuilder<T>>
     {
     /**
      * Returns the {@link AbstractRegExpGen} instance for this builder.
