@@ -7,6 +7,7 @@
   * [How Does It Work?](#how-does-it-work)
     * [The basics](#the-basics)
     * [Exact matches vs. substring matches](#exact-matches-vs-substring-matches)
+    * [What matches "dot"?](#what-matches-dot)
     * [How to create longer matching strings](#how-to-create-longer-matching-strings)
     * [How to generate random matches repeatably](#how-to-generate-random-matches-repeatably)
     * [How to limit match length to a specific range](#how-to-limit-match-length-to-a-specific-range)
@@ -84,7 +85,7 @@ l^È¨ú(¹C³TÂI6ÓQaª}f*Allô, world!p±!éÇ'>aDÙ
 ```
 
 These strings contain not only a substring that matches the regular expression, but also some
-extraneous characters before and/or after the match. If the consumer of these strings recognizes a
+[extraneous characters](#what-matches-dot) before and/or after the match. If the consumer of these strings recognizes a
 general "substring match", that's exactly what you want to give it.
 
 But what if you need to generate only "exact" matches? In other words, strings containing only the matching characters.
@@ -107,6 +108,47 @@ Hello, world!
 Allô, world!
 Howdy, world!
 ```
+
+### What matches "dot"? ###
+
+What matches the regular expression `.`? In general, any printable character. For a `RegExpGen`, by default, that means "any printable character
+from the Latin-1 basic and supplemental Unicode blocks". But what if that includes characters that your application is not designed to handle?
+You can define exactly what "any printable character" means using the `GenOptions` for a `RegExpGen`.
+
+For example, you could make a ridiculously narrow definition like this:
+
+```java
+...
+// Given a JavaScript regular expression...
+String regexp = regexp( "<< My secret is [^\\d\\s]{8,32} >>");
+
+// ...and a random number generator...
+RandomGen random = getRandomGen();
+
+// ...create a RegExpGen instance...
+RegExpGen generator = Parser.parseRegExp( regexp);
+
+// ...matching "." with specific characters...
+generator.getOptions().setAnyPrintableChars( "1001 Anagrams!");
+...
+```
+
+Run this example and the result will be something like this:
+
+```
+Aag<< My secret is sgnggag!amm! >>s!Ag
+s11aa0Agra<< My secret is rsm!!nA!!Aanmnsgmmr >>m
+0m1ra! !n1gr 1<< My secret is mangAmr!!!m >>
+```
+
+Notice how the implicit `.*` expressions that generate the beginning and ending of [substring
+matches](#exact-matches-vs-substring-matches) draw only from the characters specified by
+`GenOptions.setAnyPrintableChars()`. And notice something else: the definition of "any printable"
+also affects how matches are generated for exclusionary character classes of the form `[^...]`.
+That's because these classes are interpreted to mean "any printable char *except* for...".
+
+For convenience, `GenOptions` defines some common candidates for "any printable", such as
+`GenOptions.ANY_LATIN_1` and `GenOptions.ANY_ASCII`.
 
 ### How to create longer matching strings ###
 
@@ -231,6 +273,7 @@ matches will always lie between the given limits. Instead, `RegExpGen` makes a s
   * **I'm getting strings with lots of crazy extra characters. What's the deal?**
 
     You should read about the difference between ["exact" matches and "substring" matches](#exact-matches-vs-substring-matches).
+    And if that's too crazy for you, try changing the definition of [what matches "dot"](#what-matches-dot).
     
   * **Where's the Javadoc?**
 

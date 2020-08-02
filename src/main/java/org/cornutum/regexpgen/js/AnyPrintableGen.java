@@ -7,6 +7,9 @@
 
 package org.cornutum.regexpgen.js;
 
+import java.util.Set;
+
+import org.cornutum.regexpgen.GenOptions;
 import org.cornutum.regexpgen.util.ToString;
 
 /**
@@ -15,30 +18,45 @@ import org.cornutum.regexpgen.util.ToString;
 public class AnyPrintableGen extends AnyOfGen
   {
   /**
-   * Creates a new AnyGen instance.
+   * Creates a new AnyPrintableGen instance.
    */
-  public AnyPrintableGen()
+  public AnyPrintableGen( GenOptions options)
     {
-    super();
-    addAll( CharClassGen.anyPrintable());
+    super( options);
     }
   
   /**
-   * Creates a new AnyGen instance.
+   * Creates a new AnyPrintableGen instance.
    */
-  public AnyPrintableGen( int length)
+  public AnyPrintableGen( GenOptions options, int length)
     {
-    this();
+    this( options);
     setOccurrences( length, length);
     }
   
   /**
-   * Creates a new AnyGen instance.
+   * Creates a new AnyPrintableGen instance.
    */
-  public AnyPrintableGen( Integer minOccur, Integer maxOccur)
+  public AnyPrintableGen( GenOptions options, Integer minOccur, Integer maxOccur)
     {
-    this();
+    this( options);
     setOccurrences( minOccur, maxOccur);
+    }
+
+  /**
+   * Returns the set of characters that define this class.
+   */
+  protected Set<Character> getCharSet()
+    {
+    return getOptions().getAnyPrintableChars();
+    }
+
+  /**
+   * Returns the characters in this class.
+   */
+  public Character[] getChars()
+    {
+    return makeChars();
     }
 
   /**

@@ -104,6 +104,29 @@ public class ExampleTest
     }
 
   @Test
+  public void withAnyPrintable()
+    {
+    // Given a JavaScript regular expression...
+    String regexp = regexp( "<< My secret is [^\\d\\s]{8,32} >>");
+
+    // ...and a random number generator...
+    RandomGen random = getRandomGen();
+
+    // ...create a RegExpGen instance...
+    RegExpGen generator = Parser.parseRegExp( regexp);
+
+    // ...matching "." with specific characters...
+    generator.getOptions().setAnyPrintableChars( "1001 Anagrams!");
+
+    System.out.println( String.format( "\n%s [ %s ]:", "withAnyPrintable", regexp));
+    for( int i = 0; i < getGeneratorCount(); i++)
+      {
+      // ...and generate matching strings.
+      System.out.println( generator.generate( random));
+      }
+    }
+
+  @Test
   public void exactMatches()
     {
     // Given a JavaScript regular expression...
