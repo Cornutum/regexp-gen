@@ -8,12 +8,11 @@
 package org.cornutum.regexpgen.js;
 
 import org.cornutum.regexpgen.Bounds;
+import org.cornutum.regexpgen.GenOptions;
 import org.cornutum.regexpgen.RandomGen;
 import org.cornutum.regexpgen.util.ToString;
 
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.IntStream;
 import static java.util.stream.Collectors.joining;
@@ -26,26 +25,26 @@ public abstract class CharClassGen extends AbstractRegExpGen
   /**
    * Creates a new CharClassGen instance.
    */
-  protected CharClassGen()
+  protected CharClassGen( GenOptions options)
     {
-    super();
+    super( options);
     }
   
   /**
    * Creates a new CharClassGen instance.
    */
-  protected CharClassGen( char c)
+  protected CharClassGen( GenOptions options, char c)
     {
-    super();
+    super( options);
     add( c);
     }
   
   /**
    * Creates a new CharClassGen instance.
    */
-  protected CharClassGen( char first, char last)
+  protected CharClassGen( GenOptions options, char first, char last)
     {
-    super();
+    super( options);
     addAll( first, last);
     }
 
@@ -208,109 +207,8 @@ public abstract class CharClassGen extends AbstractRegExpGen
     return chars.toString();
     }
 
-  /**
-   * Returns the character class represented by "/d"
-   */
-  public static CharClassGen digit()
-    {
-    return new AnyOfGen( '0', '9');
-    }
-
-  /**
-   * Returns the character class represented by "/D"
-   */
-  public static CharClassGen nonDigit()
-    {
-    return new NoneOfGen( digit());
-    }
-
-  /**
-   * Returns the character class represented by "/w"
-   */
-  public static CharClassGen word()
-    {
-    AnyOfGen word = new AnyOfGen( '0', '9');
-    word.addAll( 'A', 'Z');
-    word.addAll( 'a', 'z');
-    word.add( '_');
-    return word;
-    }
-
-  /**
-   * Returns the character class represented by "/W"
-   */
-  public static CharClassGen nonWord()
-    {
-    return new NoneOfGen( word());
-    }
-
-  /**
-   * Returns the character class represented by "/s"
-   */
-  public static CharClassGen space()
-    {
-    AnyOfGen space = new AnyOfGen();
-    space.add( ' ');
-    space.add( '\f');
-    space.add( '\n');
-    space.add( '\r');
-    space.add( '\t');
-    space.add( (char) 0x000b);
-    space.add( (char) 0x00a0);
-    space.add( (char) 0x1680);
-    space.add( (char) 0x2028);
-    space.add( (char) 0x2029);
-    space.add( (char) 0x202f);
-    space.add( (char) 0x205f);
-    space.add( (char) 0x3000);
-    space.add( (char) 0xfeff);
-    space.addAll( (char) 0x2000, (char) 0x200a);
-
-    return space;
-    }
-
-  /**
-   * Returns the character class represented by "/S"
-   */
-  public static CharClassGen nonSpace()
-    {
-    return new NoneOfGen( space());
-    }
-
-  /**
-   * Returns the set of all printable characters.
-   */
-  public static String anyPrintable()
-    {
-    return anyPrintable_;
-    }
-
   private Set<Character> chars_ = new HashSet<Character>();
   private Character[] charArray_ = null;
-  private static String anyPrintable_;
-
-  /**
-   * Return true if the character with the given code point is printable.
-   */
-  private static boolean isPrintable( int codePoint)
-    {
-    return
-      Character.toChars( codePoint)[0] == ' '
-      || !(Character.isSpaceChar( codePoint) || notVisible_.contains( Character.getType( codePoint))) ;
-    }
-
-  private static final List<Integer> notVisible_ =
-    Arrays.asList(
-      (int) Character.CONTROL,
-      (int) Character.SURROGATE,
-      (int) Character.UNASSIGNED);
-
-  static
-    {
-    StringBuilder allChars = new StringBuilder();
-    IntStream.range( 0, 256).filter( CharClassGen::isPrintable).forEach( codePoint -> allChars.appendCodePoint( codePoint));
-    anyPrintable_ = allChars.toString();
-    }
 
   /**
    * Builds a {@link CharClassGen} instance.
@@ -357,38 +255,40 @@ public abstract class CharClassGen extends AbstractRegExpGen
 
     public T digit() 
       {
-      getCharClassGen().addAll( CharClassGen.digit());
+      getCharClassGen().addAll( charClasses_.digit());
       return (T) this;
       }
 
     public T nonDigit() 
       {
-      getCharClassGen().addAll( CharClassGen.nonDigit());
+      getCharClassGen().addAll( charClasses_.nonDigit());
       return (T) this;
       }
 
     public T word() 
       {
-      getCharClassGen().addAll( CharClassGen.word());
+      getCharClassGen().addAll( charClasses_.word());
       return (T) this;
       }
 
     public T nonWord() 
       {
-      getCharClassGen().addAll( CharClassGen.nonWord());
+      getCharClassGen().addAll( charClasses_.nonWord());
       return (T) this;
       }
 
     public T space() 
       {
-      getCharClassGen().addAll( CharClassGen.space());
+      getCharClassGen().addAll( charClasses_.space());
       return (T) this;
       }
 
     public T nonSpace() 
       {
-      getCharClassGen().addAll( CharClassGen.nonSpace());
+      getCharClassGen().addAll( charClasses_.nonSpace());
       return (T) this;
       }
+
+    private CharClasses charClasses_ = new CharClasses( BUILDER_OPTIONS);
     }
   }

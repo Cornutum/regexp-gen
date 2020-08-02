@@ -7,7 +7,7 @@
 
 package org.cornutum.regexpgen.js;
 
-import java.util.stream.IntStream;
+import org.cornutum.regexpgen.GenOptions;
 
 /**
  * Generates a sequence containing any <EM>except</EM> a given set of characters.
@@ -17,25 +17,25 @@ public class NoneOfGen extends CharClassGen
   /**
    * Creates a new NoneOfGen instance.
    */
-  public NoneOfGen()
+  public NoneOfGen( GenOptions options)
     {
-    super();
+    super( options);
     }
   
   /**
    * Creates a new NoneOfGen instance.
    */
-  protected NoneOfGen( char c)
+  protected NoneOfGen( GenOptions options, char c)
     {
-    super( c);
+    super( options, c);
     }
   
   /**
    * Creates a new NoneOfGen instance.
    */
-  protected NoneOfGen( char first, char last)
+  protected NoneOfGen( GenOptions options, char first, char last)
     {
-    super( first, last);
+    super( options, first, last);
     }
   
   /**
@@ -43,8 +43,16 @@ public class NoneOfGen extends CharClassGen
    */
   public NoneOfGen( CharClassGen charClass)
     {
-    super();
+    super( charClass.getOptions());
     addAll( charClass);
+    }
+
+  /**
+   * Returns the characters in this class.
+   */
+  public Character[] getChars()
+    {
+    return makeChars();
     }
 
   /**
@@ -52,10 +60,8 @@ public class NoneOfGen extends CharClassGen
    */
   protected Character[] makeChars()
     {
-    String anyPrintable = anyPrintable();
     return
-      IntStream.range( 0, anyPrintable.length())
-      .mapToObj( i -> anyPrintable.charAt(i))
+      getOptions().getAnyPrintableChars().stream()
       .filter( c -> !getCharSet().contains( c))
       .toArray( Character[]::new);
     }
@@ -94,10 +100,28 @@ public class NoneOfGen extends CharClassGen
     }
 
   /**
+   * Returns an {@link NoneOfGen} builder.
+   */
+  public static Builder builder( GenOptions options)
+    {
+    return new Builder( options);
+    }
+
+  /**
    * Builds a {@link NoneOfGen} instance.
    */
   public static class Builder extends CharClassGenBuilder<Builder>
     {
+    public Builder()
+      {
+      this( BUILDER_OPTIONS);
+      }
+
+    public Builder( GenOptions options)
+      {
+      noneOf_ = new NoneOfGen( options);
+      }
+    
     /**
      * Returns the {@link CharClassGen} instance for this builder.
      */
@@ -111,6 +135,6 @@ public class NoneOfGen extends CharClassGen
       return noneOf_;
       }
       
-    private NoneOfGen noneOf_ = new NoneOfGen();
+    private NoneOfGen noneOf_ ;
     }
   }

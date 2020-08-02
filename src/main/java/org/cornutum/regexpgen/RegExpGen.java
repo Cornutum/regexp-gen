@@ -23,6 +23,11 @@ public interface RegExpGen
   public int getMaxLength();
 
   /**
+   * Returns the {@link GenOptions options} for this generator.
+   */
+  public GenOptions getOptions();
+
+  /**
    * Returns a random string within the given bounds that matches this regular expression.
    */
   public String generate( RandomGen random, Bounds length);

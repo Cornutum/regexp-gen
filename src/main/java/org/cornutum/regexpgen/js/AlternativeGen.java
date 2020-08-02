@@ -8,6 +8,7 @@
 package org.cornutum.regexpgen.js;
 
 import org.cornutum.regexpgen.Bounds;
+import org.cornutum.regexpgen.GenOptions;
 import org.cornutum.regexpgen.RandomGen;
 import org.cornutum.regexpgen.RegExpGen;
 import org.cornutum.regexpgen.util.ToString;
@@ -30,16 +31,17 @@ public class AlternativeGen extends AbstractRegExpGen
   /**
    * Creates a new AlternativeGen instance.
    */
-  public AlternativeGen()
+  public AlternativeGen( GenOptions options)
     {
-    super();
+    super( options);
     }
   
   /**
    * Creates a new AlternativeGen instance.
    */
-  public AlternativeGen( RegExpGen... members)
+  public AlternativeGen( GenOptions options, RegExpGen... members)
     {
+    this( options);
     for( RegExpGen member : members)
       {
       add( member);
@@ -49,8 +51,9 @@ public class AlternativeGen extends AbstractRegExpGen
   /**
    * Creates a new AlternativeGen instance.
    */
-  public <T extends RegExpGen> AlternativeGen( Iterable<T> members)
+  public <T extends RegExpGen> AlternativeGen( GenOptions options, Iterable<T> members)
     {
+    this( options);
     for( RegExpGen member : members)
       {
       add( member);
@@ -262,6 +265,14 @@ public class AlternativeGen extends AbstractRegExpGen
     return new Builder();
     }
 
+  /**
+   * Returns an {@link AlternativeGen} builder.
+   */
+  public static Builder builder( GenOptions options)
+    {
+    return new Builder( options);
+    }
+
   public String toString()
     {
     return
@@ -298,6 +309,16 @@ public class AlternativeGen extends AbstractRegExpGen
    */
   public static class Builder extends BaseBuilder<Builder>
     {
+    public Builder()
+      {
+      this( BUILDER_OPTIONS);
+      }
+
+    public Builder( GenOptions options)
+      {
+      alternative_ = new AlternativeGen( options);
+      }
+    
     /**
      * Returns the {@link AbstractRegExpGen} instance for this builder.
      */
@@ -329,6 +350,6 @@ public class AlternativeGen extends AbstractRegExpGen
       return alternative_;
       }
       
-    private AlternativeGen alternative_ = new AlternativeGen();
+    private AlternativeGen alternative_; 
     }
   }

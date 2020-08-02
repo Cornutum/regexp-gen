@@ -8,6 +8,7 @@
 package org.cornutum.regexpgen.js;
 
 import org.cornutum.regexpgen.Bounds;
+import org.cornutum.regexpgen.GenOptions;
 import org.cornutum.regexpgen.RandomGen;
 import org.cornutum.regexpgen.RegExpGen;
 import org.cornutum.regexpgen.util.ToString;
@@ -31,16 +32,17 @@ public class SeqGen extends AbstractRegExpGen
   /**
    * Creates a new SeqGen instance.
    */
-  public SeqGen()
+  public SeqGen( GenOptions options)
     {
-    super();
+    super( options);
     }
   
   /**
    * Creates a new SeqGen instance.
    */
-  public SeqGen( RegExpGen... members)
+  public SeqGen( GenOptions options, RegExpGen... members)
     {
+    this( options);
     for( RegExpGen member : members)
       {
       add( member);
@@ -50,8 +52,9 @@ public class SeqGen extends AbstractRegExpGen
   /**
    * Creates a new SeqGen instance.
    */
-  public <T extends RegExpGen> SeqGen( Iterable<T> members)
+  public <T extends RegExpGen> SeqGen( GenOptions options, Iterable<T> members)
     {
+    this( options);
     for( RegExpGen member : members)
       {
       add( member);
@@ -76,7 +79,7 @@ public class SeqGen extends AbstractRegExpGen
     {
     Stream.of( Optional.ofNullable( chars).orElse( ""))
       .flatMap( s -> IntStream.range( 0, s.length()).mapToObj( i -> new Character( s.charAt(i))))
-      .forEach( c -> add( new AnyOfGen( c)));
+      .forEach( c -> add( new AnyOfGen( getOptions(), c)));
     }
 
   /**
@@ -301,6 +304,14 @@ public class SeqGen extends AbstractRegExpGen
     return new Builder();
     }
 
+  /**
+   * Returns an {@link SeqGen} builder.
+   */
+  public static Builder builder( GenOptions options)
+    {
+    return new Builder( options);
+    }
+
   public String toString()
     {
     return
@@ -337,6 +348,16 @@ public class SeqGen extends AbstractRegExpGen
    */
   public static class Builder extends BaseBuilder<Builder>
     {
+    public Builder()
+      {
+      this( BUILDER_OPTIONS);
+      }
+
+    public Builder( GenOptions options)
+      {
+      seq_ = new SeqGen( options);
+      }
+    
     /**
      * Returns the {@link AbstractRegExpGen} instance for this builder.
      */
@@ -374,6 +395,6 @@ public class SeqGen extends AbstractRegExpGen
       return seq_;
       }
       
-    private SeqGen seq_ = new SeqGen();
+    private SeqGen seq_;
     }  
   }

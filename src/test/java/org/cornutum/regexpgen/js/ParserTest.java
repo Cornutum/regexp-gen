@@ -76,7 +76,7 @@ public class ParserTest
         .add(
           AnyOfGen.builder()
           .add( '\\')
-          .addAll( CharClassGen.digit())
+          .digit()
           .add( '\t')
           .occurs( 0, 1)
           .build())
@@ -322,7 +322,7 @@ public class ParserTest
             SeqGen.builder()
             .add(
               NoneOfGen.builder()
-              .addAll( CharClassGen.space())
+              .space()
               .addAll( 'A', 'Z')
               .add( (char) 0xABCD)
               .add( '@')
@@ -533,7 +533,7 @@ public class ParserTest
         SeqGen.builder()
         .add(
           AnyOfGen.builder()
-          .addAll( CharClassGen.nonSpace())
+          .nonSpace()
           .add( '@')
           .addAll( 'X', 'Z')
           .add( ']')
@@ -754,7 +754,7 @@ public class ParserTest
           .add(
             NoneOfGen.builder()
             .addAll( '\\', 'z')
-            .addAll( CharClassGen.nonWord())
+            .nonWord()
             .add( '\f')
             .add( '-')
             .build())
@@ -972,7 +972,7 @@ public class ParserTest
         .add( '\r')
         .addAll( '-', '-')
         .add( ']')
-        .addAll( CharClassGen.nonDigit())
+        .nonDigit()
         .build())
 
       .add( AnyOfGen.builder().anyPrintable().build())
@@ -1114,7 +1114,7 @@ public class ParserTest
         .add( ']')
         .addAll( 'A', 'Z')
         .add( '.')
-        .addAll( CharClassGen.word())
+        .word()
         .add( '\t')
         .occurs( 1, null)
         .build())
@@ -1267,13 +1267,13 @@ public class ParserTest
     // Then...
     RegExpGen expected =
       SeqGen.builder()
-      .add( AnyOfGen.builder().addAll( CharClassGen.word()).occurs( 1, null).build())
+      .add( AnyOfGen.builder().word().occurs( 1, null).build())
       .add( "@")
-      .add( AnyOfGen.builder().addAll( CharClassGen.word()).occurs( 1, null).build())
+      .add( AnyOfGen.builder().word().occurs( 1, null).build())
       .add(
         SeqGen.builder()
         .add( ".")
-        .add( AnyOfGen.builder().addAll( CharClassGen.word()).occurs( 1, null).build())
+        .add( AnyOfGen.builder().word().occurs( 1, null).build())
         .occurs( 0, null)
         .build())
       .add( ".")
@@ -1377,7 +1377,7 @@ public class ParserTest
         .add(
           SeqGen.builder()
           .add( "Digit=")
-          .add( AnyOfGen.builder().addAll( CharClassGen.digit()).build())
+          .add( AnyOfGen.builder().digit().build())
           .add( ",")
           .occurs( 2)
           .build())
@@ -1399,7 +1399,7 @@ public class ParserTest
       .add(
         SeqGen.builder()
         .add( "Digit=")
-        .add( AnyOfGen.builder().addAll( CharClassGen.digit()).build())
+        .add( AnyOfGen.builder().digit().build())
         .add( ",")
         .occurs( 2)
         .build())
@@ -1421,7 +1421,7 @@ public class ParserTest
       .add(
         SeqGen.builder()
         .add( "Digit=")
-        .add( AnyOfGen.builder().addAll( CharClassGen.digit()).build())
+        .add( AnyOfGen.builder().digit().build())
         .add( ",")
         .occurs( 2)
         .build())

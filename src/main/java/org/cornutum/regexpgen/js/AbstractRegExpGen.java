@@ -8,6 +8,7 @@
 package org.cornutum.regexpgen.js;
 
 import org.cornutum.regexpgen.Bounds;
+import org.cornutum.regexpgen.GenOptions;
 import org.cornutum.regexpgen.RandomGen;
 import org.cornutum.regexpgen.RegExpGen;
 import org.cornutum.regexpgen.util.ToString;
@@ -22,24 +23,25 @@ public abstract class AbstractRegExpGen implements RegExpGen
   /**
    * Creates a new AbstractRegExpGen instance.
    */
-  protected AbstractRegExpGen()
+  protected AbstractRegExpGen( GenOptions options)
     {
-    this( 1);
+    this( options, 1);
     }
   
   /**
    * Creates a new AbstractRegExpGen instance.
    */
-  protected AbstractRegExpGen( int length)
+  protected AbstractRegExpGen( GenOptions options, int length)
     {
-    this( length, length);
+    this( options, length, length);
     }
   
   /**
    * Creates a new AbstractRegExpGen instance.
    */
-  protected AbstractRegExpGen( Integer minOccur, Integer maxOccur)
+  protected AbstractRegExpGen( GenOptions options, Integer minOccur, Integer maxOccur)
     {
+    options_ = options;
     setOccurrences( minOccur, maxOccur);
     }
   
@@ -81,6 +83,14 @@ public abstract class AbstractRegExpGen implements RegExpGen
   public int getMaxOccur()
     {
     return occurrences_.getMaxValue();
+    }
+
+  /**
+   * Returns the {@link GenOptions options} for this generator.
+   */
+  public GenOptions getOptions()
+    {
+    return options_;
     }
 
   /**
@@ -195,7 +205,10 @@ public abstract class AbstractRegExpGen implements RegExpGen
   private Bounds occurrences_;
   private boolean anchoredStart_ = false;
   private boolean anchoredEnd_ = false;
+  private final GenOptions options_;
 
+  public static final GenOptions BUILDER_OPTIONS = new GenOptions();
+  
   /**
    * Builds an {@link AbstractRegExpGen} instance.
    */

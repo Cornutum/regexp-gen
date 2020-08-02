@@ -8,6 +8,7 @@
 package org.cornutum.regexpgen.js;
 
 import org.cornutum.regexpgen.Bounds;
+import org.cornutum.regexpgen.GenOptions;
 import org.cornutum.regexpgen.RegExpGen;
 import org.cornutum.regexpgen.util.ToString;
 
@@ -50,6 +51,8 @@ public class Parser
   private Parser( String regexp)
     {
     chars_ = regexp;
+    options_ = new GenOptions();
+    charClasses_ = new CharClasses( options_);
     }
 
   /**
@@ -98,7 +101,7 @@ public class Parser
       null :
 
       alternatives.size() > 1?
-      new AlternativeGen( alternatives) :
+      new AlternativeGen( options(), alternatives) :
 
       alternatives.get(0);
     }
@@ -137,7 +140,7 @@ public class Parser
       null :
 
       terms.size() > 1?
-      new SeqGen( terms) :
+      new SeqGen( options(), terms) :
       
       terms.get(0);      
     }
@@ -275,7 +278,7 @@ public class Parser
     else if( anchoredStart || anchoredEnd)
       {
       termExpr.add(
-        AnyOfGen.builder()
+        AnyOfGen.builder( options())
         .anyPrintable()
         .anchoredStart( anchoredStart)
         .anchoredEnd( anchoredEnd)
@@ -491,7 +494,7 @@ public class Parser
     if( peekc() == '.')
       {
       advance(1);
-      anyOne = new AnyPrintableGen(1);
+      anyOne = new AnyPrintableGen( options(),1);
       }
 
     return anyOne;
@@ -529,11 +532,11 @@ public class Parser
       if( peekc() == '^')
         {
         advance(1);
-        charClass = new NoneOfGen();
+        charClass = new NoneOfGen( options());
         }
       else
         {
-        charClass = new AnyOfGen();
+        charClass = new AnyOfGen( options());
         }
 
       char c;
@@ -568,7 +571,7 @@ public class Parser
         else
           {
           // Include single char in this class
-          prevClass = new AnyOfGen( c);
+          prevClass = new AnyOfGen( options(), c);
           advance(1);
           }
 
@@ -587,7 +590,7 @@ public class Parser
             .map( end -> end[0])
             .orElseThrow( () -> error( "Character range must end with a specific character"));
 
-          prevClass = new AnyOfGen( first, last);
+          prevClass = new AnyOfGen( options(), first, last);
           }
         }
       
@@ -637,7 +640,7 @@ public class Parser
     if( peekc() == 'b')
       {
       advance(1);
-      escapeClass = new AnyOfGen( '\b');
+      escapeClass = new AnyOfGen( options(), '\b');
       }
     
     return escapeClass;
@@ -655,32 +658,32 @@ public class Parser
       {
       case 'd':
         {
-        escapeClass = CharClassGen.digit();
+        escapeClass = charClasses().digit();
         break;
         }
       case 'D':
         {
-        escapeClass = CharClassGen.nonDigit();
+        escapeClass = charClasses().nonDigit();
         break;
         }
       case 'w':
         {
-        escapeClass = CharClassGen.word();
+        escapeClass = charClasses().word();
         break;
         }
       case 'W':
         {
-        escapeClass = CharClassGen.nonWord();
+        escapeClass = charClasses().nonWord();
         break;
         }
       case 's':
         {
-        escapeClass = CharClassGen.space();
+        escapeClass = charClasses().space();
         break;
         }
       case 'S':
         {
-        escapeClass = CharClassGen.nonSpace();
+        escapeClass = charClasses().nonSpace();
         break;
         }
       default:
@@ -731,32 +734,32 @@ public class Parser
       {
       case 't':
         {
-        escapeClass = new AnyOfGen( '\t');
+        escapeClass = new AnyOfGen( options(), '\t');
         break;
         }
       case 'r':
         {
-        escapeClass = new AnyOfGen( '\r');
+        escapeClass = new AnyOfGen( options(), '\r');
         break;
         }
       case 'n':
         {
-        escapeClass = new AnyOfGen( '\n');
+        escapeClass = new AnyOfGen( options(), '\n');
         break;
         }
       case 'f':
         {
-        escapeClass = new AnyOfGen( '\f');
+        escapeClass = new AnyOfGen( options(), '\f');
         break;
         }
       case 'v':
         {
-        escapeClass = new AnyOfGen( (char) 0x000b);
+        escapeClass = new AnyOfGen( options(), (char) 0x000b);
         break;
         }
       case '0':
         {
-        escapeClass = new AnyOfGen( (char) 0);
+        escapeClass = new AnyOfGen( options(), (char) 0);
         break;
         }
       default:
@@ -801,7 +804,7 @@ public class Parser
         }
       advance(1);
 
-      escapeClass = new AnyOfGen( (char) (0x0001 + controlChar));
+      escapeClass = new AnyOfGen( options(), (char) (0x0001 + controlChar));
       }
     
     return escapeClass;
@@ -826,7 +829,7 @@ public class Parser
         }
       advance(2);
 
-      escapeClass = new AnyOfGen( (char) Integer.parseInt( digits, 16));
+      escapeClass = new AnyOfGen( options(), (char) Integer.parseInt( digits, 16));
       }
     
     return escapeClass;
@@ -851,7 +854,7 @@ public class Parser
         }
       advance(4);
 
-      escapeClass = new AnyOfGen( (char) Integer.parseInt( digits, 16));
+      escapeClass = new AnyOfGen( options(), (char) Integer.parseInt( digits, 16));
       }
     
     return escapeClass;
@@ -866,7 +869,7 @@ public class Parser
       Optional.of( peekc())
       .filter( c -> c != EOS)
       .map( c -> {
-        CharClassGen literal = new AnyOfGen( c);
+        CharClassGen literal = new AnyOfGen( options(), c);
         advance(1);
         return literal;
         })
@@ -884,7 +887,7 @@ public class Parser
       Optional.of( peekc())
       .filter( c -> c != EOS && syntaxChars.indexOf( c) < 0)
       .map( c -> {
-        CharClassGen patternChar = new AnyOfGen( c);
+        CharClassGen patternChar = new AnyOfGen( options(), c);
         advance(1);
         return patternChar;
         })
@@ -904,7 +907,7 @@ public class Parser
     if( initiated instanceof AlternativeGen && (alternative = uninitiated( (AlternativeGen) initiated)) != null)
       {
       initiated =
-        AlternativeGen.builder()
+        AlternativeGen.builder( options())
         .addAll(
           IterableUtils.toList( alternative.getMembers())
           .stream()
@@ -917,7 +920,7 @@ public class Parser
       {
       List<RegExpGen> members = IterableUtils.toList( seq.getMembers());
       initiated =
-        SeqGen.builder()
+        SeqGen.builder( options())
         .addAll(
           IntStream.range( 0, members.size())
           .mapToObj( i -> i == 0?  withStartGen( members.get(i)) : members.get(i))
@@ -927,7 +930,7 @@ public class Parser
       }
     else if( !initiated.isAnchoredStart())
       {
-      initiated = new SeqGen( new AnyPrintableGen( 0, null), initiated);
+      initiated = new SeqGen( options(), new AnyPrintableGen( options(), 0, null), initiated);
       }
     
     return initiated;
@@ -946,7 +949,7 @@ public class Parser
     if( terminated instanceof AlternativeGen && (alternative = unterminated( (AlternativeGen) terminated)) != null)
       {
       terminated =
-        AlternativeGen.builder()
+        AlternativeGen.builder( options())
         .addAll(
           IterableUtils.toList( alternative.getMembers())
           .stream()
@@ -960,7 +963,7 @@ public class Parser
       List<RegExpGen> members = IterableUtils.toList( seq.getMembers());
       int last = members.size() - 1;
       terminated =
-        SeqGen.builder()
+        SeqGen.builder( options())
         .addAll(
           IntStream.range( 0, members.size())
           .mapToObj( i -> i == last?  withEndGen( members.get(i)) : members.get(i))
@@ -970,7 +973,7 @@ public class Parser
       }
     else if( !terminated.isAnchoredEnd())
       {
-      terminated = new SeqGen( terminated, new AnyPrintableGen( 0, null));
+      terminated = new SeqGen( options(), terminated, new AnyPrintableGen( options(), 0, null));
       }
     
     return terminated;
@@ -1021,6 +1024,22 @@ public class Parser
     }
 
   /**
+   * Returns the {@link GenOptions options} for {@link RegExpGen} instances created by this parser.
+   */
+  private GenOptions options()
+    {
+    return options_;
+    }
+
+  /**
+   * Returns the {@link CharClasses} for this parser.
+   */
+  private CharClasses charClasses()
+    {
+    return charClasses_;
+    }
+
+  /**
    * Returns the next character.
    */
   private char peekc()
@@ -1063,6 +1082,8 @@ public class Parser
     }
   
   private final String chars_;
+  private final GenOptions options_;
+  private final CharClasses charClasses_;
   private int cursor_ = 0;
 
   private static final char EOS = (char) -1;
