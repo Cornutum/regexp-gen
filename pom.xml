@@ -7,7 +7,7 @@
     <groupId>org.cornutum.regexp</groupId>
     <artifactId>regexp-gen</artifactId>
     <packaging>jar</packaging>
-    <version>1.2.1-SNAPSHOT</version>
+    <version>1.2.1</version>
 
     <name>RegExpGen</name>
     <description>Generates strings that match a regular expression</description>
