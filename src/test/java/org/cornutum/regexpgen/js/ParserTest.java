@@ -1436,7 +1436,7 @@ public class ParserTest
     // Given...
     String regexp = "A||C";
 
-    expectFailure( IllegalStateException.class)
+    expectFailure( IllegalArgumentException.class)
       .when( () -> Parser.parseRegExp( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Alternative missing", 2)));
@@ -1449,7 +1449,7 @@ public class ParserTest
     // Given...
     String regexp = "^A(B|^C)";
 
-    expectFailure( IllegalStateException.class)
+    expectFailure( IllegalArgumentException.class)
       .when( () -> Parser.parseRegExp( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Start-anchored expression can be matched at most once", 8)));
@@ -1462,7 +1462,7 @@ public class ParserTest
     // Given...
     String regexp = "(ABC$)(DEF)";
 
-    expectFailure( IllegalStateException.class)
+    expectFailure( IllegalArgumentException.class)
       .when( () -> Parser.parseRegExp( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Extra expressions not allowed after $ anchor", 11)));
@@ -1475,7 +1475,7 @@ public class ParserTest
     // Given...
     String regexp = "Matchy (\\bMatchy)";
 
-    expectFailure( IllegalStateException.class)
+    expectFailure( IllegalArgumentException.class)
       .when( () -> Parser.parseRegExp( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Unsupported word boundary assertion", 8)));
@@ -1488,7 +1488,7 @@ public class ParserTest
     // Given...
     String regexp = "Matchy\\B Matchy";
 
-    expectFailure( IllegalStateException.class)
+    expectFailure( IllegalArgumentException.class)
       .when( () -> Parser.parseRegExp( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Unsupported word boundary assertion", 6)));
@@ -1501,7 +1501,7 @@ public class ParserTest
     // Given...
     String regexp = "(?<!ABC)D";
 
-    expectFailure( IllegalStateException.class)
+    expectFailure( IllegalArgumentException.class)
       .when( () -> Parser.parseRegExp( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Unsupported negative look-behind assertion", 0)));
@@ -1514,7 +1514,7 @@ public class ParserTest
     // Given...
     String regexp = "(?<=)ABC";
 
-    expectFailure( IllegalStateException.class)
+    expectFailure( IllegalArgumentException.class)
       .when( () -> Parser.parseRegExp( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Missing look-behind expression", 4)));
@@ -1527,7 +1527,7 @@ public class ParserTest
     // Given...
     String regexp = "(?<=XYZ";
 
-    expectFailure( IllegalStateException.class)
+    expectFailure( IllegalArgumentException.class)
       .when( () -> Parser.parseRegExp( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Missing ')'", 7)));
@@ -1540,7 +1540,7 @@ public class ParserTest
     // Given...
     String regexp = "(?<=A)^Z";
 
-    expectFailure( IllegalStateException.class)
+    expectFailure( IllegalArgumentException.class)
       .when( () -> Parser.parseRegExp( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Start assertion is inconsistent with look-behind assertion", 7)));
@@ -1553,7 +1553,7 @@ public class ParserTest
     // Given...
     String regexp = "A(?<=B)";
 
-    expectFailure( IllegalStateException.class)
+    expectFailure( IllegalArgumentException.class)
       .when( () -> Parser.parseRegExp( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Missing regular expression for look-behind assertion", 7)));
@@ -1566,7 +1566,7 @@ public class ParserTest
     // Given...
     String regexp = "ABC(?!D)";
 
-    expectFailure( IllegalStateException.class)
+    expectFailure( IllegalArgumentException.class)
       .when( () -> Parser.parseRegExp( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Unsupported negative look-ahead assertion", 3)));
@@ -1579,7 +1579,7 @@ public class ParserTest
     // Given...
     String regexp = "(ABC)(?=)Z";
 
-    expectFailure( IllegalStateException.class)
+    expectFailure( IllegalArgumentException.class)
       .when( () -> Parser.parseRegExp( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Missing look-ahead expression", 8)));
@@ -1592,7 +1592,7 @@ public class ParserTest
     // Given...
     String regexp = "ABC(?=DEF";
 
-    expectFailure( IllegalStateException.class)
+    expectFailure( IllegalArgumentException.class)
       .when( () -> Parser.parseRegExp( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Missing ')'", 9)));
@@ -1605,7 +1605,7 @@ public class ParserTest
     // Given...
     String regexp = "ABC$(?=DEF)";
 
-    expectFailure( IllegalStateException.class)
+    expectFailure( IllegalArgumentException.class)
       .when( () -> Parser.parseRegExp( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "End assertion is inconsistent with look-ahead assertion", 11)));
@@ -1618,7 +1618,7 @@ public class ParserTest
     // Given...
     String regexp = "(ABC$)+";
 
-    expectFailure( IllegalStateException.class)
+    expectFailure( IllegalArgumentException.class)
       .when( () -> Parser.parseRegExp( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "End-anchored expression can be matched at most once", 7)));
@@ -1631,7 +1631,7 @@ public class ParserTest
     // Given...
     String regexp = "(A|^B|C)+";
 
-    expectFailure( IllegalStateException.class)
+    expectFailure( IllegalArgumentException.class)
       .when( () -> Parser.parseRegExp( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Start-anchored expression can be matched at most once", 9)));
@@ -1644,7 +1644,7 @@ public class ParserTest
     // Given...
     String regexp = "X{}";
 
-    expectFailure( IllegalStateException.class)
+    expectFailure( IllegalArgumentException.class)
       .when( () -> Parser.parseRegExp( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Missing number", 2)));
@@ -1657,7 +1657,7 @@ public class ParserTest
     // Given...
     String regexp = "A{1,2BC";
 
-    expectFailure( IllegalStateException.class)
+    expectFailure( IllegalArgumentException.class)
       .when( () -> Parser.parseRegExp( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Missing '}'", 5)));
@@ -1670,7 +1670,7 @@ public class ParserTest
     // Given...
     String regexp = "A()B";
 
-    expectFailure( IllegalStateException.class)
+    expectFailure( IllegalArgumentException.class)
       .when( () -> Parser.parseRegExp( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Incomplete group expression", 2)));
@@ -1683,7 +1683,7 @@ public class ParserTest
     // Given...
     String regexp = "(A|B";
 
-    expectFailure( IllegalStateException.class)
+    expectFailure( IllegalArgumentException.class)
       .when( () -> Parser.parseRegExp( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Missing ')'", 4)));
@@ -1696,7 +1696,7 @@ public class ParserTest
     // Given...
     String regexp = "[\\w-Z]";
 
-    expectFailure( IllegalStateException.class)
+    expectFailure( IllegalArgumentException.class)
       .when( () -> Parser.parseRegExp( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Character range must begin with a specific character", 5)));
@@ -1709,7 +1709,7 @@ public class ParserTest
     // Given...
     String regexp = "[d-\\S]";
 
-    expectFailure( IllegalStateException.class)
+    expectFailure( IllegalArgumentException.class)
       .when( () -> Parser.parseRegExp( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Character range must end with a specific character", 5)));
@@ -1722,7 +1722,7 @@ public class ParserTest
     // Given...
     String regexp = "AB[CD";
 
-    expectFailure( IllegalStateException.class)
+    expectFailure( IllegalArgumentException.class)
       .when( () -> Parser.parseRegExp( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Missing ']'", 5)));
@@ -1735,7 +1735,7 @@ public class ParserTest
     // Given...
     String regexp = "A[^]Z";
 
-    expectFailure( IllegalStateException.class)
+    expectFailure( IllegalArgumentException.class)
       .when( () -> Parser.parseRegExp( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Empty character class", 3)));
@@ -1748,7 +1748,7 @@ public class ParserTest
     // Given...
     String regexp = "\\c9";
 
-    expectFailure( IllegalStateException.class)
+    expectFailure( IllegalArgumentException.class)
       .when( () -> Parser.parseRegExp( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Invalid control escape character='9'", 2)));
@@ -1761,7 +1761,7 @@ public class ParserTest
     // Given...
     String regexp = "\\x1G";
 
-    expectFailure( IllegalStateException.class)
+    expectFailure( IllegalArgumentException.class)
       .when( () -> Parser.parseRegExp( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Invalid hex character='1G'", 2)));
@@ -1774,7 +1774,7 @@ public class ParserTest
     // Given...
     String incomplete = "\\u123";
 
-    expectFailure( IllegalStateException.class)
+    expectFailure( IllegalArgumentException.class)
       .when( () -> Parser.parseRegExp( incomplete))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Invalid Unicode character='123'", 2)));
@@ -1782,7 +1782,7 @@ public class ParserTest
 
     String nonHex = "\\u123X";
 
-    expectFailure( IllegalStateException.class)
+    expectFailure( IllegalArgumentException.class)
       .when( () -> Parser.parseRegExp( nonHex))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Invalid Unicode character='123X'", 2)));
@@ -1795,7 +1795,7 @@ public class ParserTest
     // Given...
     String regexp = "ABC^DEF";
 
-    expectFailure( IllegalStateException.class)
+    expectFailure( IllegalArgumentException.class)
       .when( () -> Parser.parseRegExp( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Extra expressions not allowed preceding ^ anchor", 5)));
@@ -1808,7 +1808,7 @@ public class ParserTest
     // Given...
     String regexp = "<([a-z]+)>(.*?)</\\1>";
 
-    expectFailure( IllegalStateException.class)
+    expectFailure( IllegalArgumentException.class)
       .when( () -> Parser.parseRegExp( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Unsupported back reference to capturing group", 18)));
@@ -1821,7 +1821,7 @@ public class ParserTest
     // Given...
     String regexp = "<([a-z]+)>(?<tag>.*?)</\\k<tag>>";
 
-    expectFailure( IllegalStateException.class)
+    expectFailure( IllegalArgumentException.class)
       .when( () -> Parser.parseRegExp( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Unsupported back reference to named group", 24)));

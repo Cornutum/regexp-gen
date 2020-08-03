@@ -31,7 +31,7 @@ public class Parser
    * Returns a {@link RegExpGen} that generates strings containing characters that match the given
    * JavaScript regular expression.
    */
-  public static RegExpGen parseRegExp( String regexp)
+  public static RegExpGen parseRegExp( String regexp) throws IllegalArgumentException
     {
     return new Parser( regexp).parse( false);
     }
@@ -40,7 +40,7 @@ public class Parser
    * Returns a {@link RegExpGen} that generates strings containing only characters that match the
    * given JavaScript regular expression.
    */
-  public static RegExpGen parseRegExpExact( String regexp)
+  public static RegExpGen parseRegExpExact( String regexp) throws IllegalArgumentException
     {
     return new Parser( regexp).parse( true);
     }
@@ -57,11 +57,11 @@ public class Parser
 
   /**
    * Returns the {@link RegExpGen} represented by this JavaScript regular expression.
-   * If <CODE>exact</CODE> is true, the result generates strings containin only
+   * If <CODE>exact</CODE> is true, the result generates strings containing only
    * characters matching this regular expression. Otherwise, the result generates strings
    * that may contain other characters surrounding the matching characters.
    */
-  private RegExpGen parse( boolean exact)
+  private RegExpGen parse( boolean exact) throws IllegalArgumentException
     {
     RegExpGen regExpGen = getNext();
 
@@ -1020,7 +1020,7 @@ public class Parser
    */
   private RuntimeException error( String reason)
     {
-    return new IllegalStateException( String.format( "%s at position=%s", reason, cursor_));
+    return new IllegalArgumentException( String.format( "%s at position=%s", reason, cursor_));
     }
 
   /**
