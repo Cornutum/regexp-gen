@@ -210,16 +210,14 @@ RandomGen random = new RandomBoundsGen( new Random( mySeed));
 Maybe you need to generate random match strings with a length that lies within a specific range. Is
 that possible? Yes, albeit with certain caveats.
 
-To limit the match length, you need to provide a `Bounds` instance to the `RegExpGen`, like this:
+To limit the match length, you need to provide minimum and maximum values to the `RegExpGen`, like this:
 
 ```java
-import org.cornutum.regexpgen.Bounds;
 ...
-Bounds bounds = new Bounds( 42, 52);
 for( int i = 0; i < 3; i++)
   {
   // ... and generate matching strings with length between 42 (inclusive) and 52 (inclusive)
-  System.out.println( generator.generate( random, bounds));
+  System.out.println( generator.generate( random, 42, 52));
   }
 ```
 
