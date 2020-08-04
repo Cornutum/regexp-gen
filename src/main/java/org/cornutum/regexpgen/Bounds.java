@@ -25,7 +25,7 @@ public class Bounds
 
   /**
    * Creates a new Bounds with a minimum of 0 (inclusive) and a
-   * maximum of <CODE>maxValue</CODE> (exclusive).
+   * maximum of <CODE>maxValue</CODE> (inclusive).
    */
   public Bounds( int maxValue)
     {
@@ -34,7 +34,7 @@ public class Bounds
 
   /**
    * Creates a new Bounds with a minimum of <CODE>minValue</CODE> (inclusive) and a
-   * maximum of <CODE>maxValue</CODE> (exclusive). If <CODE>minValue</CODE> is null,
+   * maximum of <CODE>maxValue</CODE> (inclusive). If <CODE>minValue</CODE> is null,
    * the default is 0. If <CODE>maxValue</CODE> is null,
    * the default is {@link #UNBOUNDED}. 
    */
@@ -101,7 +101,7 @@ public class Bounds
     }
 
   /**
-   * Returns the maximum value (exclusive) for any matching string.
+   * Returns the maximum value (inclusive) for any matching string.
    */
   public int getMaxValue()
     {
