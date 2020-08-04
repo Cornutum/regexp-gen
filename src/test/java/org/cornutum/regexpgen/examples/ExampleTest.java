@@ -7,7 +7,6 @@
 
 package org.cornutum.regexpgen.examples;
 
-import org.cornutum.regexpgen.Bounds;
 import org.cornutum.regexpgen.RandomGen;
 import org.cornutum.regexpgen.RegExpGen;
 import org.cornutum.regexpgen.js.Parser;
@@ -75,11 +74,10 @@ public class ExampleTest
     RegExpGen generator = Parser.parseRegExp( regexp);
 
     System.out.println( String.format( "\n%s [ %s ]:", "bounded", regexp));
-    Bounds bounds = new Bounds( getMinLength(), getMaxLength());
     for( int i = 0; i < getGeneratorCount(); i++)
       {
       // ...and generate matching strings.
-      System.out.println( generator.generate( random, bounds));
+      System.out.println( generator.generate( random, getMinLength(), getMaxLength()));
       }
     }
 

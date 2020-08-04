@@ -41,6 +41,14 @@ public interface RegExpGen
     }
 
   /**
+   * Returns a random string within the given bounds that matches this regular expression.
+   */
+  default String generate( RandomGen random, Integer minLength, Integer maxLength)
+    {
+    return generate( random, new Bounds( minLength, maxLength));
+    }
+
+  /**
    * Returns false if no string matching this regular expression can satisfy the given bounds.
    */
   default boolean isFeasibleLength( Bounds bounds)
