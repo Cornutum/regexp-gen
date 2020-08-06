@@ -12,7 +12,7 @@ import java.util.Optional;
 /**
  * Defines length constraints for strings matching a regular expression.
  */
-public class Bounds
+public class Bounds implements Comparable<Bounds>
   {
   /**
    * Creates a new Bounds with a minimum of 0 (inclusive) and a
@@ -165,6 +165,32 @@ public class Bounds
     return b == 0? UNBOUNDED : a / b;
     }
 
+  /**
+   * Compares {@link Bounds} instances in order of increasing range of of values.
+   */
+  public int compareTo( Bounds other)
+    {
+    int min1 = getMinValue();
+    int max1 = getMaxValue();
+    Integer range1 = bounded( max1).map( max -> max - min1).orElse( null);
+
+    int min2 = other.getMinValue();
+    int max2 = other.getMaxValue();
+    Integer range2 = bounded( max2).map( max -> max - min2).orElse( null);
+
+    return
+      range1 != null && range2 != null?
+      range1 - range2 :
+
+      range1 != null?
+      -1 :
+
+      range2 != null?
+      1 :
+
+      min2 - min1;
+    }
+  
   public String toString()
     {
     return

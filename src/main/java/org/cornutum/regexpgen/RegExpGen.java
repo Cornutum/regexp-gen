@@ -10,7 +10,7 @@ package org.cornutum.regexpgen;
 /**
  * Generates strings that match a regular expression.
  */
-public interface RegExpGen
+public interface RegExpGen extends Comparable<RegExpGen>
   {
   /**
    * Returns the minimum length for any matching string.
@@ -21,6 +21,14 @@ public interface RegExpGen
    * Returns the maximum length for any matching string.
    */
   public int getMaxLength();
+
+  /**
+   * Returns the length bounds for any matching string.
+   */
+  default Bounds getLength()
+    {
+    return new Bounds( getMinLength(), getMaxLength());
+    }
 
   /**
    * Returns the {@link GenOptions options} for this generator.
@@ -74,5 +82,13 @@ public interface RegExpGen
   default Bounds effectiveLength( Bounds bounds) throws IllegalArgumentException
     {
     return bounds.clippedTo( "Length", getMinLength(), getMaxLength());
+    }
+
+  /**
+   * Compares {@link RegExpGen} instances in order of increasing range of {@link #getLength matching lengths}.
+   */
+  default int compareTo( RegExpGen other)
+    {
+    return getLength().compareTo( other.getLength());
     }
   }
