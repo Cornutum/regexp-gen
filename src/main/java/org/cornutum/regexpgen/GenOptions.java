@@ -23,11 +23,21 @@ import static java.util.stream.Collectors.toSet;
 public class GenOptions
   {
   /**
-   * Creates a new GenOptions instance.
+   * Creates a new GenOptions instance for generating matches for the given
+   * regular expression.
    */
-  public GenOptions()
+  public GenOptions( String regexp)
     {
+    regexp_ = regexp;
     setAnyPrintableChars( ANY_LATIN_1);
+    }
+
+  /**
+   * Returns the regular expression for which matches are generated.
+   */
+  public String getRegExp()
+    {
+    return regexp_;
     }
 
   /**
@@ -63,7 +73,8 @@ public class GenOptions
       ToString.getBuilder( this)
       .toString();
     }
-  
+
+  private final String regexp_;
   private Set<Character> anyPrintable_;
 
   /**
