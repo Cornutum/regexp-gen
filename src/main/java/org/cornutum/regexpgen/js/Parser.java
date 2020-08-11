@@ -51,7 +51,7 @@ public class Parser
   private Parser( String regexp)
     {
     chars_ = regexp;
-    options_ = new GenOptions();
+    options_ = new GenOptions( regexp);
     charClasses_ = new CharClasses( options_);
     }
 

@@ -207,7 +207,7 @@ public abstract class AbstractRegExpGen implements RegExpGen
   private boolean anchoredEnd_ = false;
   private final GenOptions options_;
 
-  public static final GenOptions BUILDER_OPTIONS = new GenOptions();
+  public static final GenOptions BUILDER_OPTIONS = new GenOptions( null);
   
   /**
    * Builds an {@link AbstractRegExpGen} instance.
