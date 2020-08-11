@@ -304,3 +304,8 @@ matches will always lie between the given limits. Instead, `RegExpGen` makes a s
   * **Now that I've created a `RegExpGen`, how do I know the regular expression it's generating matches for?**
 
     Easy -- just call `RegExpGen.getOptions().getRegExp()`.
+
+  * **Hey, what happened to release version 1.2.2?**
+
+    Due to a deployment error, version 1.2.2 is defunct, deprecated, and definitely non-grata. Although it
+    cannot be removed from the Maven Central repository, you should NOT use that version.
