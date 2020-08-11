@@ -15,7 +15,7 @@
 
 ## What's New? ##
 
-  * The latest version ([1.2.1](https://github.com/Cornutum/regexp-gen/releases/tag/release-1.2.1))
+  * The latest version ([1.2.3](https://github.com/Cornutum/regexp-gen/releases/tag/release-1.2.3))
     is now available at the [Maven Central Repository](https://search.maven.org/search?q=regexp-gen).
 
 ## What Is It? ##
