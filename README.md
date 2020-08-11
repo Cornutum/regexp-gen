@@ -301,4 +301,6 @@ matches will always lie between the given limits. Instead, `RegExpGen` makes a s
     * Back references to capturing groups are not supported. No distinction is made between capturing
       and non-capturing groups, and group names are ignored.
 
-    
+  * **Now that I've created a `RegExpGen`, how do I know the regular expression it's generating matches for?**
+
+    Easy -- just call `RegExpGen.getOptions().getRegExp()`.
