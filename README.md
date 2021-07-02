@@ -1,5 +1,8 @@
 # rexexp-gen
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.cornutum.regexp/regexp-gen/badge.svg?style=plastic)](https://maven-badges.herokuapp.com/maven-central/org.cornutum.regexp/regexp-gen)
+[![javadoc](https://javadoc.io/badge2/org.cornutum.regexp/regexp-gen/javadoc.svg?style=plastic)](https://javadoc.io/doc/org.cornutum.regexp/regexp-gen)
+
 ## Contents ##
 
   * [What's New?](#whats-new)
