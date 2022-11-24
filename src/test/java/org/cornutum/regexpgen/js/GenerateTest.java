@@ -174,7 +174,7 @@ public class GenerateTest
     {
     // Given...
     String regexp = "^They say( No[?!],){1,3} but I say( (Yes[?!]|What?),){1,3} OK\\?$";
-    RegExpGen generator = Parser.parseRegExp( regexp);
+    RegExpGen generator = Provider.forEcmaScript().matching( regexp);
     RandomGen random = getRandomGen();
 
     expectFailure( IllegalArgumentException.class)
@@ -231,8 +231,8 @@ public class GenerateTest
     // Given...
     RegExpGen generator =
       exact
-      ? Parser.parseRegExpExact( regexp)
-      : Parser.parseRegExp( regexp);
+      ? Provider.forEcmaScript().matchingExact( regexp)
+      : Provider.forEcmaScript().matching( regexp);
 
     RandomGen random = getRandomGen();
     Bounds length = new Bounds( lengthMin, lengthMax);

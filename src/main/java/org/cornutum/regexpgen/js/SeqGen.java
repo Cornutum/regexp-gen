@@ -10,7 +10,6 @@ package org.cornutum.regexpgen.js;
 import org.cornutum.regexpgen.Bounds;
 import org.cornutum.regexpgen.GenOptions;
 import org.cornutum.regexpgen.RandomGen;
-import org.cornutum.regexpgen.RegExpGen;
 import org.cornutum.regexpgen.util.ToString;
 import static org.cornutum.regexpgen.Bounds.UNBOUNDED;
 import static org.cornutum.regexpgen.Bounds.bounded;
@@ -40,10 +39,10 @@ public class SeqGen extends AbstractRegExpGen
   /**
    * Creates a new SeqGen instance.
    */
-  public SeqGen( GenOptions options, RegExpGen... members)
+  public SeqGen( GenOptions options, AbstractRegExpGen... members)
     {
     this( options);
-    for( RegExpGen member : members)
+    for( AbstractRegExpGen member : members)
       {
       add( member);
       }
@@ -52,10 +51,10 @@ public class SeqGen extends AbstractRegExpGen
   /**
    * Creates a new SeqGen instance.
    */
-  public <T extends RegExpGen> SeqGen( GenOptions options, Iterable<T> members)
+  public <T extends AbstractRegExpGen> SeqGen( GenOptions options, Iterable<T> members)
     {
     this( options);
-    for( RegExpGen member : members)
+    for( AbstractRegExpGen member : members)
       {
       add( member);
       }
@@ -64,7 +63,7 @@ public class SeqGen extends AbstractRegExpGen
   /**
    * Adds a regular expression to this sequence.
    */
-  public void add( RegExpGen member)
+  public void add( AbstractRegExpGen member)
     {
     if( member != null)
       {
@@ -85,7 +84,7 @@ public class SeqGen extends AbstractRegExpGen
   /**
    * Returns the members of this sequence.
    */
-  public Iterable<RegExpGen> getMembers()
+  public Iterable<AbstractRegExpGen> getMembers()
     {
     return members_;
     }
@@ -214,7 +213,7 @@ public class SeqGen extends AbstractRegExpGen
    */
   private String completeSeq( RandomGen random, int i, int needed, int remaining)
     {
-    RegExpGen member = members_.get(i);
+    AbstractRegExpGen member = members_.get(i);
     int memberMin = member.getMinLength();
     int memberMax = member.getMaxLength();
 
@@ -274,7 +273,7 @@ public class SeqGen extends AbstractRegExpGen
     return
       members_.isEmpty()?
       Stream.empty() :
-      ((AbstractRegExpGen) members_.get(0)).getStartAlternatives();
+      members_.get(0).getStartAlternatives();
     }
 
   /**
@@ -285,11 +284,11 @@ public class SeqGen extends AbstractRegExpGen
     return
       members_.isEmpty()?
       Stream.empty() :
-      ((AbstractRegExpGen) members_.get( members_.size() - 1)).getEndAlternatives();
+      members_.get( members_.size() - 1).getEndAlternatives();
     }
 
   /**
-   * Implements the Visitor pattern for {@link RegExpGen} implementations.
+   * Implements the Visitor pattern for {@link AbstractRegExpGen} implementations.
    */
   public void accept( RegExpGenVisitor visitor)
     {
@@ -341,7 +340,7 @@ public class SeqGen extends AbstractRegExpGen
       ^ members_.hashCode();
     }
 
-  private List<RegExpGen> members_ = new ArrayList<RegExpGen>();
+  private List<AbstractRegExpGen> members_ = new ArrayList<AbstractRegExpGen>();
 
   /**
    * Builds a {@link SeqGen} instance.
@@ -366,18 +365,18 @@ public class SeqGen extends AbstractRegExpGen
       return seq_;
       }
 
-	public Builder add( RegExpGen... members)
+	public Builder add( AbstractRegExpGen... members)
       {
-      for( RegExpGen member : members)
+      for( AbstractRegExpGen member : members)
         {
         seq_.add( member);
         }
       return this;
       }
 
-	public Builder addAll( Iterable<RegExpGen> members)
+	public Builder addAll( Iterable<AbstractRegExpGen> members)
       {
-      for( RegExpGen member : members)
+      for( AbstractRegExpGen member : members)
         {
         seq_.add( member);
         }
