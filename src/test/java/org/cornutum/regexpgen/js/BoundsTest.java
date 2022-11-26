@@ -37,7 +37,7 @@ public class BoundsTest
       regexps.stream()
       .map( regexp -> Provider.forEcmaScript().matchingExact( regexp))
       .sorted()
-      .map( generator -> generator.getOptions().getRegExp())
+      .map( generator -> generator.getSource())
       .collect( toList());
     
     // Then...

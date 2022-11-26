@@ -172,7 +172,7 @@ public abstract class AbstractRegExpGen implements RegExpGen
     }
 
   /**
-   * Changes the (substring of) top-level regular expression that define this regular expression.
+   * Changes the regular expression string from which this generator was derived.
    */
   void setSource( String source)
     {
@@ -180,8 +180,9 @@ public abstract class AbstractRegExpGen implements RegExpGen
     }
 
   /**
-   * Returns the (substring of) top-level regular expression that define this regular expression.
+   * Returns the regular expression string from which this generator was derived.
    */
+  @Override
   public String getSource()
     {
     return source_;
@@ -225,7 +226,7 @@ public abstract class AbstractRegExpGen implements RegExpGen
   private boolean anchoredEnd_ = false;
   private final GenOptions options_;
 
-  public static final GenOptions BUILDER_OPTIONS = new GenOptions( null);
+  public static final GenOptions BUILDER_OPTIONS = new GenOptions();
   
   /**
    * Builds an {@link AbstractRegExpGen} instance.
