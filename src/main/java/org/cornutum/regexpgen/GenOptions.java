@@ -10,6 +10,7 @@ package org.cornutum.regexpgen;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
 
@@ -45,7 +46,23 @@ public class GenOptions
    */
   public void setAnyPrintableChars( Set<Character> chars)
     {
-    anyPrintable_ = chars;
+    Set<Character> anyPrintable = Optional.ofNullable( chars).orElse( ANY_LATIN_1);
+    if( anyPrintable.isEmpty())
+      {
+      throw new IllegalArgumentException( "Printable character set is empty");
+      }
+    anyPrintable.stream()
+      .filter( GenOptions::isLineTerminator)
+      .findFirst()
+      .ifPresent( lt -> {
+        throw
+          new IllegalArgumentException(
+            String.format(
+              "Printable character set cannot include line terminator=\\u%s",
+              Integer.toHexString( lt.charValue())));
+        });
+    
+    anyPrintable_ = anyPrintable;
     }
 
   /**
@@ -85,6 +102,15 @@ public class GenOptions
     return
       Character.toChars( codePoint)[0] == ' '
       || !(Character.isSpaceChar( codePoint) || notVisible_.contains( Character.getType( codePoint))) ;
+    }
+
+  /**
+   * Return true if the character is a line terminator
+   */
+  private static boolean isLineTerminator( Character character)
+    {
+    char c = character.charValue();
+    return c == '\n' || c == '\r' || c == '\u0085' || c == '\u2028' || c == '\u2029';
     }
 
   private static final List<Integer> notVisible_ =
