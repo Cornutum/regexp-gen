@@ -13,6 +13,7 @@ import org.cornutum.regexpgen.RandomGen;
 import org.cornutum.regexpgen.RegExpGen;
 import org.cornutum.regexpgen.util.ToString;
 
+import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
@@ -171,6 +172,22 @@ public abstract class AbstractRegExpGen implements RegExpGen
     }
 
   /**
+   * Changes the (substring of) top-level regular expression that define this regular expression.
+   */
+  void setSource( String source)
+    {
+    source_ = source;
+    }
+
+  /**
+   * Returns the (substring of) top-level regular expression that define this regular expression.
+   */
+  public String getSource()
+    {
+    return source_;
+    }
+
+  /**
    * Implements the Visitor pattern for {@link RegExpGen} implementations.
    */
   public abstract void accept( RegExpGenVisitor visitor);
@@ -179,7 +196,7 @@ public abstract class AbstractRegExpGen implements RegExpGen
     {
     return
       ToString.getBuilder( this)
-      .append( "occurs", getOccurrences())
+      .append( Objects.toString( getSource(), ""))
       .toString();
     }
 
@@ -201,7 +218,8 @@ public abstract class AbstractRegExpGen implements RegExpGen
       getClass().hashCode()
       ^ getOccurrences().hashCode();
     }
-  
+
+  private String source_;
   private Bounds occurrences_;
   private boolean anchoredStart_ = false;
   private boolean anchoredEnd_ = false;

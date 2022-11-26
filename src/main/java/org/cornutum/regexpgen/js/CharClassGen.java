@@ -10,12 +10,10 @@ package org.cornutum.regexpgen.js;
 import org.cornutum.regexpgen.Bounds;
 import org.cornutum.regexpgen.GenOptions;
 import org.cornutum.regexpgen.RandomGen;
-import org.cornutum.regexpgen.util.ToString;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.IntStream;
-import static java.util.stream.Collectors.joining;
 
 /**
  * Generates a sequence based on a set of characters.
@@ -188,15 +186,6 @@ public abstract class CharClassGen extends AbstractRegExpGen
     return matching.toString();
     }
 
-  public String toString()
-    {
-    return
-      ToString.getBuilder( this)
-      .append( "chars", charSetString())
-      .appendSuper( super.toString())
-      .toString();
-    }
-
   public boolean equals( Object object)
     {
     CharClassGen other =
@@ -215,18 +204,6 @@ public abstract class CharClassGen extends AbstractRegExpGen
     return
       super.hashCode()
       ^ getCharSet().hashCode();
-    }
-
-  /**
-   * Returns a string representation of the characters that define this class.
-   */
-  private String charSetString()
-    {
-    StringBuilder chars = new StringBuilder();
-    chars.append( '[');
-    chars.append( getCharSet().stream().sorted().map( Object::toString).collect( joining( "")));
-    chars.append( ']');
-    return chars.toString();
     }
 
   private Set<Character> chars_ = new HashSet<Character>();

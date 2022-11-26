@@ -10,7 +10,6 @@ package org.cornutum.regexpgen.js;
 import java.util.Set;
 
 import org.cornutum.regexpgen.GenOptions;
-import org.cornutum.regexpgen.util.ToString;
 
 /**
  * Generates a sequence of any printable characters.
@@ -65,13 +64,5 @@ public class AnyPrintableGen extends AnyOfGen
   public void accept( RegExpGenVisitor visitor)
     {
     visitor.visit( this);
-    }
-
-  public String toString()
-    {
-    return
-      ToString.getBuilder( this)
-      .append( "occurs", getOccurrences())
-      .toString();
     }
   }

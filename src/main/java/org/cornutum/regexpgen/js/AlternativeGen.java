@@ -10,7 +10,6 @@ package org.cornutum.regexpgen.js;
 import org.cornutum.regexpgen.Bounds;
 import org.cornutum.regexpgen.GenOptions;
 import org.cornutum.regexpgen.RandomGen;
-import org.cornutum.regexpgen.util.ToString;
 import static org.cornutum.regexpgen.Bounds.UNBOUNDED;
 import static org.cornutum.regexpgen.Bounds.bounded;
 import static org.cornutum.regexpgen.Bounds.dividedBy;
@@ -270,15 +269,6 @@ public class AlternativeGen extends AbstractRegExpGen
   public static Builder builder( GenOptions options)
     {
     return new Builder( options);
-    }
-
-  public String toString()
-    {
-    return
-      ToString.getBuilder( this)
-      .append( "members", members_)
-      .appendSuper( super.toString())
-      .toString();
     }
 
   public boolean equals( Object object)
