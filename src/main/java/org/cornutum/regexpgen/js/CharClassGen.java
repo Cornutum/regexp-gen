@@ -100,6 +100,17 @@ public abstract class CharClassGen extends AbstractRegExpGen
     }
 
   /**
+   * Adds all of the given characters to this class.
+   */
+  public void addAll( Set<Character> chars) 
+    {
+    if( chars != null)
+      {
+      chars.forEach( c -> add( c.charValue()));
+      }
+    }
+
+  /**
    * Returns the characters in this class.
    */
   public Character[] getChars()
@@ -160,7 +171,18 @@ public abstract class CharClassGen extends AbstractRegExpGen
     StringBuilder matching = new StringBuilder();
 
     Character[] chars = getChars();
-    IntStream.range( 0, random.within( length))
+    int generated = random.within( length);
+    if( generated > 0 && chars.length == 0)
+      {
+      throw
+        new IllegalStateException(
+          String.format(
+            "%s: Can't generate string of valid length=%s -- no matching characters available",
+            this,
+            generated));
+      }
+    
+    IntStream.range( 0, generated)
       .forEach( i -> matching.append( chars[ random.below( chars.length)]));
     
     return matching.toString();
@@ -250,6 +272,12 @@ public abstract class CharClassGen extends AbstractRegExpGen
     public T addAll( CharClassGen charClass) 
       {
       getCharClassGen().addAll( charClass);
+      return (T) this;
+      }
+
+    public T addAll( Set<Character> chars) 
+      {
+      getCharClassGen().addAll( chars);
       return (T) this;
       }
 
