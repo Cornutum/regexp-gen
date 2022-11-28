@@ -7,15 +7,13 @@
 
 package org.cornutum.regexpgen;
 
-import java.util.Arrays;
+import org.cornutum.regexpgen.util.CharUtils;
+import org.cornutum.regexpgen.util.ToString;
+
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
-
-import org.cornutum.regexpgen.util.ToString;
-
 import static java.util.stream.Collectors.toSet;
 
 /**
@@ -43,7 +41,7 @@ public class GenOptions
       throw new IllegalArgumentException( "Printable character set is empty");
       }
     anyPrintable.stream()
-      .filter( GenOptions::isLineTerminator)
+      .filter( CharUtils::isLineTerminator)
       .findFirst()
       .ifPresent( lt -> {
         throw
@@ -85,46 +83,18 @@ public class GenOptions
   private Set<Character> anyPrintable_;
 
   /**
-   * Return true if the character with the given code point is printable.
-   */
-  private static boolean isPrintable( int codePoint)
-    {
-    return
-      Character.toChars( codePoint)[0] == ' '
-      || !(Character.isSpaceChar( codePoint) || notVisible_.contains( Character.getType( codePoint))) ;
-    }
-
-  /**
-   * Return true if the character is a line terminator
-   */
-  private static boolean isLineTerminator( Character character)
-    {
-    char c = character.charValue();
-    return c == '\n' || c == '\r' || c == '\u0085' || c == '\u2028' || c == '\u2029';
-    }
-
-  private static final List<Integer> notVisible_ =
-    Arrays.asList(
-      (int) Character.CONTROL,
-      (int) Character.SURROGATE,
-      (int) Character.UNASSIGNED);
-
-  private static Set<Character> printableChars( int startPoint, int endPoint)
-    {
-    return
-      IntStream.range( startPoint, endPoint)
-      .filter( GenOptions::isPrintable)
-      .mapToObj( i -> Character.valueOf( (char) i))
-      .collect( toSet());
-    }
-
-  /**
    * All printable characters in the basic and supplemental Latin-1 code blocks
    */
-  public static final Set<Character> ANY_LATIN_1 = Collections.unmodifiableSet( printableChars( 0, 256));
+  public static final Set<Character> ANY_LATIN_1 =
+    Collections.unmodifiableSet(
+      CharUtils.printableLatin1()
+      .collect( toSet()));
 
   /**
    * All printable characters in the ASCII code block
    */
-  public static final Set<Character> ANY_ASCII = Collections.unmodifiableSet( printableChars( 0, 128));
+  public static final Set<Character> ANY_ASCII = 
+    Collections.unmodifiableSet(
+      CharUtils.printableAscii()
+      .collect( toSet()));
   }
