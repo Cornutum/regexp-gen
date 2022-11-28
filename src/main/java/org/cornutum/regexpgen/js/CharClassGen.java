@@ -11,6 +11,7 @@ import org.cornutum.regexpgen.Bounds;
 import org.cornutum.regexpgen.GenOptions;
 import org.cornutum.regexpgen.RandomGen;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.IntStream;
@@ -44,6 +45,15 @@ public abstract class CharClassGen extends AbstractRegExpGen
     {
     super( options);
     addAll( first, last);
+    }
+  
+  /**
+   * Creates a new CharClassGen instance.
+   */
+  protected CharClassGen( GenOptions options, Set<Character> chars)
+    {
+    super( options);
+    addAll( chars);
     }
 
   /**
@@ -119,6 +129,14 @@ public abstract class CharClassGen extends AbstractRegExpGen
       }
     
     return charArray_;
+    }
+
+  /**
+   * Returns true if the given character belongs to this class.
+   */
+  public boolean contains( Character c)
+    {
+    return Arrays.stream( getChars()).anyMatch( classChar -> c.equals( classChar));
     }
 
   /**
