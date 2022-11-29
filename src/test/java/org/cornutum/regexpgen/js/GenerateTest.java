@@ -23,13 +23,15 @@ import static org.hamcrest.Matchers.*;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
+import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.toList;
 
 /**
- * Runs tests for {@link Generate}.
+ * Runs tests for {@link RegExpGen#generate(RandomGen)}.
  */
 public class GenerateTest
   {
@@ -39,6 +41,10 @@ public class GenerateTest
     verifyMatchesFor( "(cat|dog|turtle)+");
     verifyMatchesFor( "^(cat|dog|turtle)+");
     verifyMatchesFor( "(cat|dog|turtle)+$");
+
+    verifyNotMatchesFor( "(cat|dog|turtle)+");
+    verifyNotMatchesFor( "^(cat|dog|turtle)+");
+    verifyNotMatchesFor( "(cat|dog|turtle)+$");
     }
 
   @Test
@@ -47,120 +53,180 @@ public class GenerateTest
     verifyMatchesFor( "(Digit=[\\d],){2}");
     verifyMatchesFor( "^(Digit=[\\d],){2}");
     verifyMatchesFor( "(Digit=[\\d],){2}$");
+
+    verifyNotMatchesFor( "(Digit=[\\d],){2}");
+    verifyNotMatchesFor( "^(Digit=[\\d],){2}");
+    verifyNotMatchesFor( "(Digit=[\\d],){2}$");
     }
 
   @Test
   public void whenLookAhead()
     {
     verifyMatchesFor( "^\\((Copyright[-: ]+2020)?[\\\\\\d\\t]? K(?=ornutum\\))|@Copyright|@Trademark");
+
+    verifyNotMatchesFor( "^\\((Copyright[-: ]+2020)?[\\\\\\d\\t]? K(?=ornutum\\))|@Copyright|@Trademark");
     }
 
   @Test
   public void whenLookBehind()
     {
     verifyJavaMatchesFor( "(?<=(^Gronk| cat| dog))( is an animal)$");
+
+    verifyJavaNotMatchesFor( "(?<=(^Gronk| cat| dog))( is an animal)$");
     }
 
   @Test
   public void whenAlternativesMultiple()
     {
     verifyMatchesFor( "-+|\\([^\\0-]*?\\0\\)|-");
+
+    verifyNotMatchesFor( "-+|\\([^\\0-]*?\\0\\)|-");
     }
 
   @Test
   public void whenEscapeCharUnicode()
     {
-    verifyMatchesFor( "([^\\sA-Z\\uABCD@]\\n)+|X\\\\=.{0,2}(?=Suffix)");
+    verifyMatchesFor( "([^\\sA-Z\\u00D1@]\\n)+|X\\\\=.{0,2}(?=Suffix)");
+
+    verifyNotMatchesFor( "([^ A-Z\\u00D1@]\\n)+|X\\\\=.{0,2}(?=Suffix)");
     }
 
   @Test
   public void whenAnchorStartEnd()
     {
     verifyMatchesFor( "^[\\b]\\\\+?\\f$");
+
+    verifyNotMatchesFor( "^[\\b]\\\\+?\\f$");
     }
 
   @Test
   public void whenOptionalLazy()
     {
     verifyMatchesFor( "\\rX|^\\r??$|[^\\r]");
+
+    verifyNotMatchesFor( "\\rX|^\\r??$|[^\\r]");
     }
 
   @Test
   public void whenBoundedLazy()
     {
     verifyMatchesFor( "([\\S@X-Z\\]\\v]\\(\\x6A.z\\))*?$");
+
+    verifyNotMatchesNone( "([\\S@X-Z\\]\\v]\\(\\x6A.z\\))*?$");
     }
 
   @Test
   public void whenUnbounded()
     {
     verifyMatchesFor( "(^(A|B))([^\\cC]*\\\\\\t)+(?=Z$|D)|(Z|D$)");
+
+    verifyNotMatchesFor( "(^(A|B))([^\\cC]*\\\\\\t)+(?=Z$|D)|(Z|D$)");
     }
 
   @Test
   public void whenBoundedMinMax()
     {
     verifyMatchesFor( "\\u028f{2,3}$");
+
+    verifyNotMatchesFor( "\\u028f{2,3}$");
     }
 
   @Test
   public void whenBoundedMinMaxSame()
     {
     verifyMatchesFor( "\\?|^(?:[^\\\\-z\\W\\f-]\\)\\v+.){2,2}?(?=Suffix)");
+
+    verifyNotMatchesFor( "\\?|^(?:[^\\\\-z\\W\\f-]\\)\\v+.){2,2}?(?=Suffix)");
     }
 
   @Test
   public void whenBoundedMinOnly()
     {
     verifyMatchesFor( "\\\\{3}[\\n]\\??\\0{2,}$");
+
+    verifyNotMatchesFor( "\\\\{3}[\\n]\\??\\0{2,}$");
     }
 
   @Test
   public void whenBoundedMinZero()
     {
     verifyMatchesFor( "^\\{|\\cb{0,3}?(?=C|D|E$)|\\{{1,2}?");
+
+    verifyNotMatchesFor( "^\\{|\\cb{0,3}?(?=C|D|E$)|\\{{1,2}?");
     }
 
   @Test
   public void whenEscapeChar()
     {
     verifyMatchesFor( "^[-\\[\\r\\--\\-\\]\\D].\\\\(?:x+yz$)?");
+
+    verifyNotMatchesFor( "^[-\\[\\r\\--\\-\\]\\D].\\\\(?:x+yz$)?");
     }
 
   @Test
   public void whenEscapeCharHex()
     {
     verifyMatchesFor( "^[^\\xA2]\\xc5+\\n*?(?=\\f)|(Z$)");
+
+    verifyNotMatchesFor( "^[^\\xA2]\\xc5+\\n*?(?=\\f)|(Z$)");
     }
 
   @Test
   public void whenEscapeCharWord()
     {
     verifyMatchesFor( "\\*[\\]A-Z.\\w\\t]+$");
+
+    verifyNotMatchesFor( "\\*[\\]A-Z.\\w\\t]+$");
     }
 
   @Test
   public void whenDetachedAnchorStart()
     {
     verifyMatchesFor( "( fat | bad |^)cat\\.$");
+
+    verifyNotMatchesFor( "( fat | bad |^)cat\\.$");
     }
 
   @Test
   public void whenDetachedAnchorEnd()
     {
     verifyMatchesFor( "^Cats are bad( company |$| pets )");
+
+    verifyNotMatchesFor( "^Cats are bad( company |$| pets )");
     }
 
   @Test
   public void whenDetachedAnchorsEmpty()
     {
     verifyMatchesFor( "^$");
+
+    verifyNotMatchesFor( "^$");
     }
 
   @Test
   public void whenNamedCharClass()
     {
     verifyMatchesFor( "\\w+@\\w+(\\.\\w+)*\\.(com|net|org)");
+
+    verifyNotMatchesFor( "\\w+@\\w+(\\.\\w+)*\\.(com|net|org)");
+    }
+
+  @Test
+  public void whenOptionalPrefixes()
+    {
+    verifyMatchesFor( ".*\\d*[\\W\\D]|\\D*\\W*@|\\S*[XYZ]*\\d*!");
+
+    verifyNotMatchesFor( ".*\\d*[\\W\\D]|\\D*\\W*@|\\S*[XYZ]*\\d*!");
+    }
+
+  @Test
+  public void whenAnyPrintables()
+    {
+    verifyMatchesFor( "-- Name\\[\\d\\]=\\w+ --");
+    verifyMatchesFor( "-- Name\\[\\d\\]=\\w+ --", singleton( Character.valueOf( '?')));
+
+    verifyNotMatchesFor( "-- Name\\[\\d\\]=\\w+ --");
+    verifyNotMatchesFor( "-- Name\\[\\d\\]=\\w+ --", singleton( Character.valueOf( '?')));
     }
 
   @Test
@@ -190,9 +256,30 @@ public class GenerateTest
         });
     }
 
+  @Test
+  public void whenNoCharsAvailable()
+    {
+    // Given...
+    String regexp = "\\D+";
+    RegExpGen generator = Provider.forEcmaScript().matching( regexp);
+    RandomGen random = getRandomGen();
+
+    generator.getOptions().setAnyPrintableChars( singleton( Character.valueOf( '0')));
+
+    expectFailure( IllegalStateException.class)
+      .when( () -> generator.generate( random))
+      .then( failure -> {
+        assertThat(
+          "Failure",
+          failure.getMessage(),
+          is( "NoneOfGen[\\D+]: "
+              + "Can't generate string of valid length=5 -- no matching characters available"));
+        });
+    }
+
   private void verifyMatchesFor( String regexp)
     {
-    verifyMatchesFor( regexp, null);
+    verifyMatchesFor( regexp, (Integer) null);
     }
 
   private void verifyMatchesFor( String regexp, Integer lengthMax)
@@ -222,11 +309,16 @@ public class GenerateTest
   
   private void verifyMatchesFor( String regexp, Integer lengthMin, Integer lengthMax, BiFunction<String,String,Boolean> matchCheck)
     {
-    verifyMatchesFor( false, regexp, lengthMin, lengthMax, matchCheck);
-    verifyMatchesFor( true, regexp, lengthMin, lengthMax, matchCheck);
+    verifyMatchesFor( false, regexp, null, lengthMin, lengthMax, matchCheck);
+    verifyMatchesFor( true, regexp, null, lengthMin, lengthMax, matchCheck);
     }
 
-  private void verifyMatchesFor( boolean exact, String regexp, Integer lengthMin, Integer lengthMax, BiFunction<String,String,Boolean> matchCheck)
+  private void verifyMatchesFor( String regexp, Set<Character> printable)
+    {
+    verifyMatchesFor( false, regexp, printable, 0, null, this::matchesJavaScript);
+    }
+
+  private void verifyMatchesFor( boolean exact, String regexp, Set<Character> printable, Integer lengthMin, Integer lengthMax, BiFunction<String,String,Boolean> matchCheck)
     {
     // Given...
     RegExpGen generator =
@@ -234,6 +326,9 @@ public class GenerateTest
       ? Provider.forEcmaScript().matchingExact( regexp)
       : Provider.forEcmaScript().matching( regexp);
 
+    Optional.ofNullable( printable)
+      .ifPresent( chars -> generator.getOptions().setAnyPrintableChars( chars));
+    
     RandomGen random = getRandomGen();
     Bounds length = new Bounds( lengthMin, lengthMax);
     
@@ -260,13 +355,25 @@ public class GenerateTest
     IntStream.range( 0, matches.size())
       .forEach( i -> {
         String text = matches.get(i);
+
+        boolean matched;
+        try
+          {
+          matched = matchCheck.apply( text, regexp);
+          }
+        catch( Exception e)
+          {
+          throw new RuntimeException( String.format( "[%s] %s -> %s", i, regexp, text), e);
+          }
+        
+
         if( printResults())
           {
-          System.out.println( String.format( "  [%s] %s %s", i, matchCheck.apply( text, regexp)? "T" : "F", text));
+          System.out.println( String.format( "  [%s] %s %s", i, matched? "T" : "F", text));
           }
         else
           {
-          assertThat( String.format( "[%s] %s -> %s", i, regexp, text), matchCheck.apply( text, regexp), is( true));
+          assertThat( String.format( "[%s] %s -> %s", i, regexp, text), matched, is( true));
           assertThat( String.format( "[%s] %s -> %s, length", i, regexp, text), text.length(), greaterThanOrEqualTo( generator.getMinLength()));
           assertThat( String.format( "[%s] %s -> %s, length", i, regexp, text), text.length(), lessThanOrEqualTo( generator.getMaxLength()));
           assertThat( String.format( "[%s] %s -> %s, length", i, regexp, text), text.length(), lessThanOrEqualTo( length.getMaxValue()));
@@ -287,6 +394,86 @@ public class GenerateTest
           avgLength,
           maxLength));
       }
+    }
+
+  private void verifyNotMatchesFor( String regexp)
+    {
+    verifyNotMatchesFor( regexp, null, this::matchesJavaScript);
+    }
+
+  private void verifyJavaNotMatchesFor( String regexp)
+    {
+    verifyNotMatchesFor( regexp, null, this::matchesJava);
+    }
+
+  private void verifyNotMatchesFor( String regexp, Set<Character> printable)
+    {
+    verifyNotMatchesFor( regexp, printable, this::matchesJavaScript);
+    }
+
+  private void verifyNotMatchesFor( String regexp, Set<Character> printable, BiFunction<String,String,Boolean> matchCheck)
+    {
+    // Given...
+    RegExpGen generator =
+      Provider.forEcmaScript().notMatching( regexp)
+      .orElseThrow( () -> new RuntimeException( String.format( "Can't create not-matching generator for regexp=%s", regexp)));
+    
+    RandomGen random = getRandomGen();
+
+    Optional.ofNullable( printable)
+      .ifPresent( chars -> generator.getOptions().setAnyPrintableChars( chars));
+
+    // When...
+    List<String> matches =
+      IntStream.range( 0, getGeneratorCount())
+      .mapToObj( i -> {
+          try
+            {
+              return generator.generate( random);
+            }
+          catch( Exception e)
+            {
+            throw new RuntimeException( String.format( "Can't generate match[%s] for regexp=%s", i, regexp), e);
+            }
+        })
+      .collect( toList());
+    
+    // Then...
+    if( printResults())
+      {
+      System.out.println( String.format( "\nNot %s", regexp));
+      }
+    IntStream.range( 0, matches.size())
+      .forEach( i -> {
+        String text = matches.get(i);
+
+        boolean matched;
+        try
+          {
+          matched = matchCheck.apply( text, regexp);
+          }
+        catch( Exception e)
+          {
+          throw new RuntimeException( String.format( "[%s] %s -> %s", i, regexp, text), e);
+          }
+
+        if( printResults())
+          {
+          System.out.println( String.format( "  [%s] %s %s", i, matched? "T" : "F", text));
+          }
+        else
+          {
+          assertThat( String.format( "[%s] %s -> %s", i, regexp, text), matched, is( false));
+          }
+        });
+    }
+
+  private void verifyNotMatchesNone( String regexp)
+    {
+    assertThat(
+      String.format( "Not matching '%s'", regexp),
+      Provider.forEcmaScript().notMatching( regexp),
+      is( Optional.empty()));
     }
 
   /**

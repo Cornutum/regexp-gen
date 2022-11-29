@@ -9,6 +9,8 @@ package org.cornutum.regexpgen.js;
 
 import org.cornutum.regexpgen.RegExpGen;
 
+import java.util.Optional;
+
 /**
  * Provides instances of a {@link RegExpGen} that generates strings matching a JavaScript <CODE>RegExp</CODE>
  * (the <A href="https://www.ecma-international.org/publications-and-standards/standards/ecma-262/#sec-patterns">ECMAScript standard</A>).
@@ -45,10 +47,13 @@ public class Provider implements org.cornutum.regexpgen.Provider
    * Returns a {@link RegExpGen} that generates strings that do NOT match the given regular
    * expression.
    * <P/>
+   * For some regular expressions, no result is possible. For example, there is no string that
+   * does not match ".*". For such expressions, this method should return {@link Optional#empty}.
+   * <P/>
    * This is an optional service. Throws an {@link UnsupportedOperationException} if not implemented.
    */
-  public RegExpGen notMatching( String regexp) throws UnsupportedOperationException
+  public Optional<RegExpGen> notMatching( String regexp) throws UnsupportedOperationException
     {
-    throw new UnsupportedOperationException();
+    return NotMatchingFactory.makeFrom( new Parser( regexp).parse( true));
     }
   }
