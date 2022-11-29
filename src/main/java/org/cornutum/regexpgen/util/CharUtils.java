@@ -8,9 +8,12 @@
 package org.cornutum.regexpgen.util;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import static java.util.stream.Collectors.toSet;
 
 /**
  * Defines methods for processing characters.
@@ -39,8 +42,15 @@ public final class CharUtils
    */
   public static boolean isLineTerminator( Character character)
     {
-    char c = character.charValue();
-    return c == '\n' || c == '\r' || c == '\u0085' || c == '\u2028' || c == '\u2029';
+    return lineTerminators().contains( character);
+    }
+
+  /**
+   * Return the set of line terminator characters.
+   */
+  public static Set<Character> lineTerminators()
+    {
+    return lineTerminators_;
     }
 
   /**
@@ -85,4 +95,15 @@ public final class CharUtils
       (int) Character.CONTROL,
       (int) Character.SURROGATE,
       (int) Character.UNASSIGNED);
+
+  private static Set<Character> lineTerminators_ =
+    Collections.unmodifiableSet(
+      Arrays.asList(
+        Character.valueOf( '\n'),
+        Character.valueOf( '\r'),
+        Character.valueOf( '\u0085'),
+        Character.valueOf( '\u2028'),
+        Character.valueOf( '\u2029'))
+      .stream()
+      .collect( toSet()));
   }
