@@ -104,7 +104,7 @@ public class GenerateTest
     {
     verifyMatchesFor( "\\rX|^\\r??$|[^\\r]");
 
-    verifyNotMatchesFor( "\\rX|^\\r??$|[^\\r]");
+    verifyNotMatchesNone( "\\rX|^\\r??$|[^\\r]");
     }
 
   @Test
@@ -215,8 +215,13 @@ public class GenerateTest
   public void whenOptionalPrefixes()
     {
     verifyMatchesFor( ".*\\d*[\\W\\D]|\\D*\\W*@|\\S*[XYZ]*\\d*!");
+    verifyNotMatchesNone( ".*\\d*[\\W\\D]|\\D*\\W*@|\\S*[XYZ]*\\d*!");
 
-    verifyNotMatchesFor( ".*\\d*[\\W\\D]|\\D*\\W*@|\\S*[XYZ]*\\d*!");
+    verifyMatchesFor( ".*");
+    verifyNotMatchesNone( ".*");
+
+    verifyMatchesFor( "\\w*\\s|\\s*\\d");
+    verifyNotMatchesFor( "\\w*\\s|\\s*\\d");
     }
 
   @Test

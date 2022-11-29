@@ -14,8 +14,6 @@ import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.SetUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -62,99 +60,39 @@ public class NotMatchingFactory implements RegExpGenVisitor
 
     else
       {
-      // No, try to build a "not matching" generator.
-      List<CharClassGen> notSeq = new ArrayList<CharClassGen>();
+      // No, given all possible matching initial character class sequences...
+      Set<CharClassGen> initial = getInitialRequired( sequences);
+      Set<CharClassGen> initialPrefix = getInitialPrefix( sequences);
+      Set<Character> initialAny = getAnyOf( initial);
+      Set<Character> initialNone = getNoneOf( initial);
 
-      // Given all possible matching character class sequences...
-      int nextPos;
-      for( nextPos = 0,
-             notMatching = null;
+      Set<Character> mismatching =
+        // Are initial chars defined and consistent?
+        initialAny.equals( initialNone)?
 
-           isValidPos( sequences, nextPos)
-             && notMatching == null;
+        // No, can't determine a "not matching" expression
+        null :
 
-           nextPos++)
-        {
-        Set<Character> anyOfBefore;
-        Set<Character> noneOfBefore;
-        for( anyOfBefore = new HashSet<Character>(),
-               noneOfBefore = new HashSet<Character>();
+        // Yes, find a set of mismatching chars that are...
+        Stream.concat(
+          // ... required to be excluded
+          SetUtils.difference( initialNone, initialAny).stream(),
 
-             // While all char classes at this position can match an empty char...
-             isValidPos( sequences, nextPos)
-               && !isCharRequired( sequences, nextPos);
+          // ... or not among those required to be allowed
+          CharUtils.printableChars().filter( c -> !initialAny.contains( c)))
 
-             nextPos++)
-          {
-          // ...accumulate all chars allowed or excluded up to this position
-          anyOfBefore.addAll( isAnyOfAt( sequences, nextPos));
-          noneOfBefore.addAll( isNoneOfAt( sequences, nextPos));
-          }
+        // ... and are excluded from any optional prefix
+        .filter( c -> isNotPrefix( initialPrefix, c))
+        .limit( 32)
+        .collect( toSet());
 
-        // No chars required at any position?
-        if( !isValidPos( sequences, nextPos))
-          {
-          Set<Character> conflicted = SetUtils.intersection( anyOfBefore, noneOfBefore);
-          if( conflicted.isEmpty())
-            {
-            // Are there any characters that are not allowed at any previous position?
-            Optional.of(
-              CharUtils.printableChars()
-              .filter( c -> !anyOfBefore.contains( c) || noneOfBefore.contains( c))
-              .limit( 16)
-              .collect( toSet()))
-              .filter( mismatched -> !mismatched.isEmpty())
-
-              // If so, we have a mismatch and the "not matching" generator is complete
-              .map( mismatched -> withSource( new AnyOfGen( regExpGen.getOptions(), mismatched), mismatched.stream().map( String::valueOf).collect( joining( ""))))
-              .ifPresent( mismatch -> notSeq.add( mismatch));
-            }
-          }
-
-        else
-          {
-          Set<Character> conflicted =
-            SetUtils.intersection(
-              SetUtils.union( anyOfBefore, isAnyOfAt( sequences, nextPos)),
-              SetUtils.union( noneOfBefore, isNoneOfAt( sequences, nextPos)));
-
-          if( !conflicted.isEmpty())
-            {
-            // Yes, allow a match in this position and look for a mismatch at the next position.
-            notSeq.add(
-              withSource(
-                new AnyOfGen( regExpGen.getOptions(), conflicted),
-                conflicted.stream().map( String::valueOf).collect( joining( ""))));
-            }
-          else
-            {
-            // Yes, are there chars that are both allowed and excluded at previous positions?
-            
-
-            // Are there any characters that are not allowed at this position?
-            Optional.of( isAllowedAt( sequences, nextPos))
-              .map( allowed -> CharUtils.printableChars().filter( c -> !(anyOfBefore.contains( c) || allowed.contains( c))).limit( 16).collect( toSet()))
-              .filter( mismatched -> !mismatched.isEmpty())
-
-              // If so, we have a mismatch at this position and the "not matching" generator is complete
-              .map( mismatched -> withSource( new AnyOfGen( regExpGen.getOptions(), mismatched), mismatched.stream().map( String::valueOf).collect( joining( ""))))
-              .ifPresent( mismatch -> notSeq.add( mismatch));
-              
-            notMatching =
-              notSeq.isEmpty()?
-              null :
-        
-              notSeq.size() == 1?
-              notSeq.get(0) :
-        
-              withSource(
-                new SeqGen( regExpGen.getOptions(), notSeq),
-                notSeq.stream().map( String::valueOf).collect( joining( ",")));
-            }
-          }
-        }
+      notMatching =
+        Optional.ofNullable( mismatching)
+        .filter( m -> !m.isEmpty())
+        .map( m -> withSource( new AnyOfGen( regExpGen.getOptions(), m), m.stream().map( String::valueOf).collect( joining( ""))))
+        .orElse( null);
       }
-    
+
     return Optional.ofNullable( notMatching);
     }
 
@@ -162,45 +100,54 @@ public class NotMatchingFactory implements RegExpGenVisitor
     {
     }
 
-  private static boolean isValidPos( List<List<CharClassGen>> sequences, int pos)
+  private static Set<CharClassGen> getInitialRequired( List<List<CharClassGen>> sequences)
     {
-    return sequences.stream().anyMatch( seq -> seq.size() > pos);
+    return initialChars( sequences).filter( chars -> chars.getMinOccur() > 0).collect( toSet());
     }
 
-  private static boolean isCharRequired( List<List<CharClassGen>> sequences, int pos)
+  private static Set<CharClassGen> getInitialPrefix( List<List<CharClassGen>> sequences)
     {
-    return charsAt( sequences, pos).anyMatch( chars -> chars.getMinOccur() > 0);
+    return initialChars( sequences).filter( chars -> chars.getMinOccur() == 0).collect( toSet());
     }
 
-  private static Set<Character> isAllowedAt( List<List<CharClassGen>> sequences, int pos)
+  private static boolean isNotPrefix( Set<CharClassGen> prefix, Character c)
+    {
+    return prefix.stream().allMatch( chars -> isExcluded( chars, c));
+    }
+
+  private static boolean isExcluded( CharClassGen chars, Character c)
     {
     return
-      charsAt( sequences, pos)
-      .flatMap( chars -> Arrays.stream( chars.getChars()))
-      .collect( toSet());
+      chars instanceof NoneOfGen?
+      chars.getCharSet().contains( c) :
+
+      chars instanceof AnyPrintableGen?
+      CharUtils.isLineTerminator( c) :
+
+      !chars.getCharSet().contains( c);
     }
 
-  private static Set<Character> isAnyOfAt( List<List<CharClassGen>> sequences, int pos)
+  private static Set<Character> getAnyOf( Set<CharClassGen> candidates)
     {
     return
-      charsAt( sequences, pos)
+      candidates.stream()
       .filter( chars -> chars instanceof AnyOfGen)
       .flatMap( chars -> chars.getCharSet().stream())
       .collect( toSet());
     }
 
-  private static Set<Character> isNoneOfAt( List<List<CharClassGen>> sequences, int pos)
+  private static Set<Character> getNoneOf( Set<CharClassGen> candidates)
     {
     return
-      charsAt( sequences, pos)
+      candidates.stream()
       .filter( chars -> chars instanceof NoneOfGen)
       .flatMap( chars -> chars.getCharSet().stream())
       .collect( toSet());
     }
 
-  private static Stream<CharClassGen> charsAt( List<List<CharClassGen>> sequences, int pos)
+  private static Stream<CharClassGen> initialChars( List<List<CharClassGen>> sequences)
     {
-    return sequences.stream().filter( seq -> seq.size() > pos).map( seq -> seq.get( pos));
+    return sequences.stream().filter( seq -> seq.size() > 0).map( seq -> seq.get( 0));
     }
 
   private static <T extends AbstractRegExpGen> T withSource( T regExpGen, String source)
