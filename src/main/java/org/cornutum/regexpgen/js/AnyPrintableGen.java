@@ -65,4 +65,23 @@ public class AnyPrintableGen extends AnyOfGen
     {
     visitor.visit( this);
     }
+
+  public boolean equals( Object object)
+    {
+    AnyPrintableGen other =
+      object != null && object.getClass().equals( getClass())
+      ? (AnyPrintableGen) object
+      : null;
+
+    return
+      other != null
+      && other.getOccurrences().equals( getOccurrences());
+    }
+
+  public int hashCode()
+    {
+    return
+      getClass().hashCode()
+      ^ getOccurrences().hashCode();
+    }
   }
