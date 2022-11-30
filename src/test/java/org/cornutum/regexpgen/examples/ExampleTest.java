@@ -144,6 +144,28 @@ public class ExampleTest
       }
     }
 
+  @Test
+  public void notMatching()
+    {
+    // Given a JavaScript regular expression...
+    String regexp = regexp( "(Hello|Howdy|Allô), world!");
+
+    // ...and a random number generator...
+    RandomGen random = getRandomGen();
+
+    // ...create a RegExpGen instance...
+    RegExpGen generator =
+      Provider.forEcmaScript().notMatching( regexp)
+      .orElseThrow( () -> new IllegalStateException( String.format( "Unable to generate string not matching '%s'", regexp)));
+
+    System.out.println( String.format( "\n%s [ %s ]:", "notMatching", regexp));
+    for( int i = 0; i < getGeneratorCount(); i++)
+      {
+      // ...and generate matching strings.
+      System.out.println( generator.generate( random));
+      }
+    }
+
   /**
    * Returns the number of matches to generate for each regular expression.
    */
