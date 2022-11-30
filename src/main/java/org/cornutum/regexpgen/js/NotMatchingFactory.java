@@ -62,6 +62,8 @@ public class NotMatchingFactory implements RegExpGenVisitor
     else
       {
       // Given all possible matching initial character class sequences...
+      List<AbstractRegExpGen> notAlternatives = new ArrayList<AbstractRegExpGen>();
+
       Set<CharClassGen> initial = getInitialRequired( sequences);
       Set<CharClassGen> initialPrefix = getInitialPrefix( sequences);
       Set<Character> initialAny = getAnyOf( initial);
@@ -90,30 +92,34 @@ public class NotMatchingFactory implements RegExpGenVisitor
       // Mismatching chars found?
       if( Optional.ofNullable( mismatching).map( m -> !m.isEmpty()).orElse( false))
         {
-        // Yes, return the mismatching generator.
-        notMatching = withSource( new AnyOfGen( regExpGen.getOptions(), mismatching), mismatching);
+        // Yes, include a mismatching generator.
+        notAlternatives.add( withSource( new AnyOfGen( regExpGen.getOptions(), mismatching), mismatching));
         }
 
       // Minimum length required?
-      else if( regExpGen.getMinLength() > 0)
+      if( regExpGen.getMinLength() > 0)
         {
+        // Yes, include a too-short generator
         Set<Character> allowed =
           initial.stream()
           .flatMap( chars -> Arrays.stream( chars.getChars()))
           .limit( 32)
           .collect( toSet());
           
-        notMatching =
+        notAlternatives.add(
           withLength(
             withSource( new AnyOfGen( regExpGen.getOptions(), allowed), allowed),
-            regExpGen.getMinLength() - 1);
+            regExpGen.getMinLength() - 1));
         }
 
-      else
-        {
-        // Can't determine a mismatching generator
-        notMatching = null;
-        }
+      notMatching =
+        notAlternatives.isEmpty()?
+        null :
+
+        notAlternatives.size() == 1?
+        notAlternatives.get(0) :
+
+        withSource( new AlternativeGen( regExpGen.getOptions(), notAlternatives), notAlternatives);
       }
 
     return Optional.ofNullable( notMatching);
@@ -194,9 +200,14 @@ public class NotMatchingFactory implements RegExpGenVisitor
     return sequences.stream().filter( seq -> seq.size() > 0).map( seq -> seq.get( 0));
     }
 
-  private static <T extends AbstractRegExpGen> T withSource( T regExpGen, Set<Character> chars)
+  private static <T extends AbstractRegExpGen> T withSource( T regExpGen, Set<Character> source)
     {
-    return withSource( regExpGen, chars.stream().map( String::valueOf).collect( joining( "")));
+    return withSource( regExpGen, source.stream().map( String::valueOf).collect( joining( "")));
+    }
+
+  private static AlternativeGen withSource( AlternativeGen alternativeGen, List<AbstractRegExpGen> source)
+    {
+    return withSource( alternativeGen, source.stream().map( String::valueOf).collect( joining( ",")));
     }
 
   private static <T extends AbstractRegExpGen> T withSource( T regExpGen, String source)
