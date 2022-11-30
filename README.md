@@ -10,6 +10,7 @@
   * [How Does It Work?](#how-does-it-work)
     * [The basics](#the-basics)
     * [Exact matches vs. substring matches](#exact-matches-vs-substring-matches)
+    * [Want strings that _DON'T_ match?](#want-strings-that-dont-match)
     * [What matches "dot"?](#what-matches-dot)
     * [How to create longer matching strings](#how-to-create-longer-matching-strings)
     * [How to generate random matches repeatably](#how-to-generate-random-matches-repeatably)
@@ -18,7 +19,7 @@
 
 ## What's New? ##
 
-  * The latest version ([1.2.4](https://github.com/Cornutum/regexp-gen/releases/tag/release-1.2.4))
+  * The latest version ([2.0.0](https://github.com/Cornutum/regexp-gen/releases/tag/release-2.0.0))
     is now available at the [Maven Central Repository](https://search.maven.org/search?q=regexp-gen).
 
 ## What Is It? ##
@@ -37,7 +38,7 @@ Here's a simple example of how to use a `RegExpGen`.
 ```java
 import org.cornutum.regexpgen.RandomGen;
 import org.cornutum.regexpgen.RegExpGen;
-import org.cornutum.regexpgen.js.Parser;
+import org.cornutum.regexpgen.js.Provider;
 import org.cornutum.regexpgen.random.RandomBoundsGen;
 
 // Given a JavaScript regular expression...
@@ -47,7 +48,7 @@ String regexp = "^Regular expressions are ((odd|hard|stupid), )+but cool!$";
 RandomGen random = new RandomBoundsGen();
 
 // ...create a RegExpGen instance...
-RegExpGen generator = Parser.parseRegExp( regexp);
+RegExpGen generator = Provider.forEcmaScript().matching( regexp);
 
 for( int i = 0; i < 3; i++)
   {
@@ -75,7 +76,7 @@ least one substring that matches". For example, consider what happens when you r
 String regexp = "(Hello|Howdy|Allô), world!";
 
 // ...create a RegExpGen instance...
-RegExpGen generator = Parser.parseRegExp( regexp);
+RegExpGen generator = Provider.forEcmaScript().matching( regexp);
 ...
 ```
 
@@ -92,7 +93,7 @@ These strings contain not only a substring that matches the regular expression, 
 general "substring match", that's exactly what you want to give it.
 
 But what if you need to generate only "exact" matches? In other words, strings containing only the matching characters.
-To do that, use `Parser.parseRegExpExact()`.
+To do that, use `Provider.matchingExact()`.
 
 ```java
 ...
@@ -100,7 +101,7 @@ To do that, use `Parser.parseRegExpExact()`.
 String regexp = "(Hello|Howdy|Allô), world!";
 
 // ...create a RegExpGen instance...
-RegExpGen generator = Parser.parseRegExpExact( regexp);
+RegExpGen generator = Provider.forEcmaScript().matchingExact( regexp);
 ...
 ```
 
@@ -111,6 +112,35 @@ Hello, world!
 Allô, world!
 Howdy, world!
 ```
+
+### Want strings that _DON'T_ match? ###
+
+You can also create a `RegExpGen` that generates strings that _don't_ match a specified regular expression. This is handy when
+you're testing a system that applies a regular expression and you want to see what happens when it gets invalid input. Here's how to do it.
+
+```java
+...
+// Given a JavaScript regular expression...
+String regexp = "(Hello|Howdy|Allô), world!";
+
+// ...create a RegExpGen instance...
+RegExpGen generator =
+  Provider.forEcmaScript().notMatching( regexp)
+  .orElseThrow( () -> new IllegalStateException( String.format( "Unable to generate string not matching '%s'", regexp)));
+
+...
+```
+
+Run with this change and the result will look like this:
+
+```
+HHHAA
+3)!)5!':<
+"+#6)!%;)*8/ 28
+```
+
+Note that `Provider.notMatching()` returns an optional result. Why? Because some regular expressions will match any string, making it
+impossible to generate strings that don't match. For example, there is no string that doesn't match `".*"`.
 
 ### What matches "dot"? ###
 
@@ -129,7 +159,7 @@ String regexp = regexp( "<< My secret is [^\\d\\s]{8,32} >>");
 RandomGen random = getRandomGen();
 
 // ...create a RegExpGen instance...
-RegExpGen generator = Parser.parseRegExp( regexp);
+RegExpGen generator = Provider.forEcmaScript().matching( regexp);
 
 // ...matching "." with specific characters...
 generator.getOptions().setAnyPrintableChars( "1001 Anagrams!");
@@ -283,9 +313,9 @@ matches will always lie between the given limits. Instead, `RegExpGen` makes a s
   * **What flavor of regular expression syntax is supported?**
 
     The `RegExpGen` interface is designed to allow implementations for different regular expression
-    engines. The current version provides an implementation for JavaScript `RegExp` (specifically,
-    as defined by the [ECMAScript](https://www.ecma-international.org/ecma-262/#sec-patterns)
-    standard).
+    engines. The current version provides an
+    [implementation for JavaScript `RegExp`](http://www.cornutum.org/regexp-gen/apidocs/org/cornutum/regexpgen/js/Provider.html)
+    (specifically, as defined by the [ECMAScript](https://www.ecma-international.org/ecma-262/#sec-patterns) standard).
 
     Note that the syntax for the Java `Pattern` implementation overlaps quite a bit with `RegExp`,
     so this `RegExpGen` implementation can also be used to generate matches for most Java `Pattern`
@@ -306,7 +336,7 @@ matches will always lie between the given limits. Instead, `RegExpGen` makes a s
 
   * **Now that I've created a `RegExpGen`, how do I know the regular expression it's generating matches for?**
 
-    Easy -- just call `RegExpGen.getOptions().getRegExp()`.
+    Easy -- just call `RegExpGen.getSource()`.
 
   * **Hey, what happened to release version 1.2.2?**
 
