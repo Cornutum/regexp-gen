@@ -1,7 +1,7 @@
 # rexexp-gen
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.cornutum.regexp/regexp-gen/badge.svg?style=plastic)](https://maven-badges.herokuapp.com/maven-central/org.cornutum.regexp/regexp-gen)
-[![javadoc](https://javadoc.io/badge2/org.cornutum.regexp/regexp-gen/javadoc.svg?style=plastic)](https://javadoc.io/doc/org.cornutum.regexp/regexp-gen)
+[![Maven](https://img.shields.io/badge/maven-2.0.0-green.svg)](https://search.maven.org/search?q=regexp-gen)
+[![Javadoc](https://img.shields.io/badge/javadoc-2.0.0-green.svg)](https://javadoc.io/doc/org.cornutum.regexp/regexp-gen/latest/index.html)
 
 ## Contents ##
 
