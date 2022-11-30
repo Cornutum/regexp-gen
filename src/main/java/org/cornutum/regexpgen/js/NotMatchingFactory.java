@@ -14,6 +14,7 @@ import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.SetUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -60,7 +61,7 @@ public class NotMatchingFactory implements RegExpGenVisitor
 
     else
       {
-      // No, given all possible matching initial character class sequences...
+      // Given all possible matching initial character class sequences...
       Set<CharClassGen> initial = getInitialRequired( sequences);
       Set<CharClassGen> initialPrefix = getInitialPrefix( sequences);
       Set<Character> initialAny = getAnyOf( initial);
@@ -70,7 +71,7 @@ public class NotMatchingFactory implements RegExpGenVisitor
         // Are initial chars defined and consistent?
         initialAny.equals( initialNone)?
 
-        // No, can't determine a "not matching" expression
+        // No, can't determine a mismatching generator
         null :
 
         // Yes, find a set of mismatching chars that are...
@@ -82,15 +83,37 @@ public class NotMatchingFactory implements RegExpGenVisitor
           CharUtils.printableChars().filter( c -> !initialAny.contains( c)))
 
         // ... and are excluded from any optional prefix
-        .filter( c -> isNotPrefix( initialPrefix, c))
+        .filter( c -> isExcluded( initialPrefix, c))
         .limit( 32)
         .collect( toSet());
 
-      notMatching =
-        Optional.ofNullable( mismatching)
-        .filter( m -> !m.isEmpty())
-        .map( m -> withSource( new AnyOfGen( regExpGen.getOptions(), m), m.stream().map( String::valueOf).collect( joining( ""))))
-        .orElse( null);
+      // Mismatching chars found?
+      if( Optional.ofNullable( mismatching).map( m -> !m.isEmpty()).orElse( false))
+        {
+        // Yes, return the mismatching generator.
+        notMatching = withSource( new AnyOfGen( regExpGen.getOptions(), mismatching), mismatching);
+        }
+
+      // Minimum length required?
+      else if( regExpGen.getMinLength() > 0)
+        {
+        Set<Character> allowed =
+          initial.stream()
+          .flatMap( chars -> Arrays.stream( chars.getChars()))
+          .limit( 32)
+          .collect( toSet());
+          
+        notMatching =
+          withLength(
+            withSource( new AnyOfGen( regExpGen.getOptions(), allowed), allowed),
+            regExpGen.getMinLength() - 1);
+        }
+
+      else
+        {
+        // Can't determine a mismatching generator
+        notMatching = null;
+        }
       }
 
     return Optional.ofNullable( notMatching);
@@ -100,21 +123,33 @@ public class NotMatchingFactory implements RegExpGenVisitor
     {
     }
 
+  /**
+   * Returns the generators for the initial required char of any matching sequence.
+   */
   private static Set<CharClassGen> getInitialRequired( List<List<CharClassGen>> sequences)
     {
     return initialChars( sequences).filter( chars -> chars.getMinOccur() > 0).collect( toSet());
     }
 
+  /**
+   * Returns the generators for any optional prefix of any matching sequence.
+   */
   private static Set<CharClassGen> getInitialPrefix( List<List<CharClassGen>> sequences)
     {
     return initialChars( sequences).filter( chars -> chars.getMinOccur() == 0).collect( toSet());
     }
 
-  private static boolean isNotPrefix( Set<CharClassGen> prefix, Character c)
+  /**
+   * Returns true if the given character does not match any of the given the generators.
+   */
+  private static boolean isExcluded( Set<CharClassGen> prefix, Character c)
     {
     return prefix.stream().allMatch( chars -> isExcluded( chars, c));
     }
 
+  /**
+   * Returns true if the given character does not match the given generator.
+   */
   private static boolean isExcluded( CharClassGen chars, Character c)
     {
     return
@@ -127,6 +162,9 @@ public class NotMatchingFactory implements RegExpGenVisitor
       !chars.getCharSet().contains( c);
     }
 
+  /**
+   * Returns the generators of the given type for the initial char of any matching sequence.
+   */
   private static Set<Character> getAnyOf( Set<CharClassGen> candidates)
     {
     return
@@ -136,6 +174,9 @@ public class NotMatchingFactory implements RegExpGenVisitor
       .collect( toSet());
     }
 
+  /**
+   * Returns the generators of the given type for the initial char of any matching sequence.
+   */
   private static Set<Character> getNoneOf( Set<CharClassGen> candidates)
     {
     return
@@ -145,9 +186,17 @@ public class NotMatchingFactory implements RegExpGenVisitor
       .collect( toSet());
     }
 
+  /**
+   * Returns the generators for the initial char of any matching sequence.
+   */
   private static Stream<CharClassGen> initialChars( List<List<CharClassGen>> sequences)
     {
     return sequences.stream().filter( seq -> seq.size() > 0).map( seq -> seq.get( 0));
+    }
+
+  private static <T extends AbstractRegExpGen> T withSource( T regExpGen, Set<Character> chars)
+    {
+    return withSource( regExpGen, chars.stream().map( String::valueOf).collect( joining( "")));
     }
 
   private static <T extends AbstractRegExpGen> T withSource( T regExpGen, String source)
@@ -155,7 +204,16 @@ public class NotMatchingFactory implements RegExpGenVisitor
     regExpGen.setSource( source);
     return regExpGen;
     }
+
+  private static <T extends AbstractRegExpGen> T withLength( T regExpGen, int length)
+    {
+    regExpGen.setOccurrences( length, length);
+    return regExpGen;
+    }
   
+  /**
+   * Returns all matching generator sequences.
+   */
   protected static List<List<CharClassGen>> sequencesFor( AbstractRegExpGen regExpGen)
     {
     NotMatchingFactory factory = new NotMatchingFactory();
@@ -217,6 +275,9 @@ public class NotMatchingFactory implements RegExpGenVisitor
       .orElse( emptyList());
     }
 
+  /**
+   * Returns the cross product of all matching generator sequences for each member of a SeqGen.
+   */
   private List<List<CharClassGen>> allSequences( List<List<List<CharClassGen>>> memberSequences)
     {
     List<List<CharClassGen>> all = new ArrayList<List<CharClassGen>>();

@@ -215,7 +215,7 @@ public class GenerateTest
   public void whenOptionalPrefixes()
     {
     verifyMatchesFor( ".*\\d*[\\W\\D]|\\D*\\W*@|\\S*[XYZ]*\\d*!");
-    verifyNotMatchesNone( ".*\\d*[\\W\\D]|\\D*\\W*@|\\S*[XYZ]*\\d*!");
+    verifyNotMatchesFor( ".*\\d*[\\W\\D]|\\D*\\W*@|\\S*[XYZ]*\\d*!");
 
     verifyMatchesFor( ".*");
     verifyNotMatchesNone( ".*");
@@ -277,8 +277,9 @@ public class GenerateTest
         assertThat(
           "Failure",
           failure.getMessage(),
-          is( "NoneOfGen[\\D+]: "
-              + "Can't generate string of valid length=5 -- no matching characters available"));
+          stringContainsInOrder(
+            "NoneOfGen[\\D+]: Can't generate string of valid length=",
+            "-- no matching characters available"));
         });
     }
 
@@ -517,17 +518,25 @@ public class GenerateTest
    */
   private String stringLiteral( String value)
     {
-    return
-      value
-      .replace( "\\", "\\\\")
-      .replace( "'", "\\'")
-      .replace( "\f", "\\f")
-      .replace( "\n", "\\n")
-      .replace( "\r", "\\r")
-      .replace( "\t", "\\t")
-      .replace( "\13", "\\v")
-      .replace( "\0", "\\x00")
-      ;
+    StringBuilder builder = new StringBuilder();
+    IntStream.range( 0, value.length())
+      .mapToObj( i -> value.charAt(i))
+      .map( c -> {
+        return
+          c == '\\'? "\\\\" :
+          c == '\''? "\\'" :
+          c == '\f'? "\\f" :
+          c == '\n'? "\\n" :
+          c == '\r'? "\\r" :
+          c == '\t'? "\\t" :
+          c == '\13'? "\\v" :
+          c == '\0'? "\\x00" :
+          c >= 0x2000? String.format( "\\u%s", Integer.toHexString( c)) :
+          String.valueOf( c);
+        })
+      .forEach( literal -> builder.append( literal));
+
+    return builder.toString();
     }
 
   /**
