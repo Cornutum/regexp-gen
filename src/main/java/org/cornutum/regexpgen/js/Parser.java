@@ -23,24 +23,28 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
- * Returns the {@link RegExpGen} represented by a JavaScript regular expression.
+ * Returns the {@link AbstractRegExpGen} represented by a JavaScript regular expression.
  */
 public class Parser
   {
   /**
-   * Returns a {@link RegExpGen} that generates strings containing characters that match the given
+   * Returns an {@link AbstractRegExpGen} that generates strings containing characters that match the given
    * JavaScript regular expression.
+   *
+   * @deprecated Replaced by {@link Provider#matching}
    */
-  public static RegExpGen parseRegExp( String regexp) throws IllegalArgumentException
+  public static AbstractRegExpGen parseRegExp( String regexp) throws IllegalArgumentException
     {
     return new Parser( regexp).parse( false);
     }
   
   /**
-   * Returns a {@link RegExpGen} that generates strings containing only characters that match the
+   * Returns an {@link AbstractRegExpGen} that generates strings containing only characters that match the
    * given JavaScript regular expression.
+   *
+   * @deprecated Replaced by {@link Provider#matchingExact}
    */
-  public static RegExpGen parseRegExpExact( String regexp) throws IllegalArgumentException
+  public static AbstractRegExpGen parseRegExpExact( String regexp) throws IllegalArgumentException
     {
     return new Parser( regexp).parse( true);
     }
@@ -48,22 +52,22 @@ public class Parser
   /**
    * Creates a new Parser instance.
    */
-  private Parser( String regexp)
+  Parser( String regexp)
     {
     chars_ = regexp;
-    options_ = new GenOptions( regexp);
+    options_ = new GenOptions();
     charClasses_ = new CharClasses( options_);
     }
 
   /**
-   * Returns the {@link RegExpGen} represented by this JavaScript regular expression.
+   * Returns the {@link AbstractRegExpGen} represented by this JavaScript regular expression.
    * If <CODE>exact</CODE> is true, the result generates strings containing only
    * characters matching this regular expression. Otherwise, the result generates strings
    * that may contain other characters surrounding the matching characters.
    */
-  private RegExpGen parse( boolean exact) throws IllegalArgumentException
+  AbstractRegExpGen parse( boolean exact) throws IllegalArgumentException
     {
-    RegExpGen regExpGen = getNext();
+    AbstractRegExpGen regExpGen = getNext();
 
     char c = peekc();
     if( c != EOS)
@@ -82,6 +86,7 @@ public class Parser
    */
   private AbstractRegExpGen getNext()
     {
+    int cursorStart = cursor();
     List<AbstractRegExpGen> alternatives = new ArrayList<AbstractRegExpGen>();
     AbstractRegExpGen alternative = getAlternative();
     if( alternative != null)
@@ -101,7 +106,7 @@ public class Parser
       null :
 
       alternatives.size() > 1?
-      new AlternativeGen( options(), alternatives) :
+      startingAt( cursorStart, new AlternativeGen( options(), alternatives)) :
 
       alternatives.get(0);
     }
@@ -111,6 +116,7 @@ public class Parser
    */
   private AbstractRegExpGen getAlternative()
     {
+    int cursorStart = cursor();
     List<AbstractRegExpGen> terms = new ArrayList<AbstractRegExpGen>();
 
     List<AbstractRegExpGen> termExpr;
@@ -140,7 +146,7 @@ public class Parser
       null :
 
       terms.size() > 1?
-      new SeqGen( options(), terms) :
+      startingAt( cursorStart, new SeqGen( options(), terms)) :
       
       terms.get(0);      
     }
@@ -166,12 +172,13 @@ public class Parser
    */
   private List<AbstractRegExpGen> getTerm()
     {
+    int cursorStart = cursor();
     List<AbstractRegExpGen> termExpr = new ArrayList<AbstractRegExpGen>();
     
     // Get any start assertion
     AbstractRegExpGen prefix = null;
     boolean anchoredStart = false;
-    for( boolean assertionFound = true; assertionFound; )
+    for( boolean assertionFound = true; assertionFound; cursorStart = cursor())
       {
       if( "\\b".equalsIgnoreCase( peek(2)))
         {
@@ -196,6 +203,7 @@ public class Parser
           throw error( "Missing ')'");
           }
         advance(1);
+        prefix = startingAt( cursorStart, prefix);
         }
       else if( (assertionFound = peekc() == '^'))
         {
@@ -209,16 +217,19 @@ public class Parser
       }
 
     // Get atomic expression
+    int cursorStartQuantified = cursor();
     AbstractRegExpGen quantified = getQuantified();
     if( quantified == null && prefix != null)
       {
       throw error( "Missing regular expression for look-behind assertion");
       }
+    quantified = startingAt( cursorStartQuantified, quantified);
 
     // Get any end assertion
+    cursorStart = cursor();
     AbstractRegExpGen suffix = null;
     boolean anchoredEnd = false;
-    for( boolean assertionFound = true; assertionFound; )
+    for( boolean assertionFound = true; assertionFound; cursorStart = cursor())
       {
       if( "\\b".equalsIgnoreCase( peek(2)))
         {
@@ -245,6 +256,8 @@ public class Parser
           throw error( "Missing ')'");
           }
         advance(1);
+
+        suffix = startingAt( cursorStart, suffix);
         }
       else if( (assertionFound = peekc() == '$'))
         {
@@ -273,17 +286,21 @@ public class Parser
       if( anchoredEnd)
         {
         quantified.setAnchoredEnd( true);
+        startingAt( cursorStartQuantified, quantified);
         }
       }
     else if( anchoredStart || anchoredEnd)
       {
       termExpr.add(
-        AnyOfGen.builder( options())
-        .anyPrintable()
-        .anchoredStart( anchoredStart)
-        .anchoredEnd( anchoredEnd)
-        .occurs(0)
-        .build());
+        startingAt(
+          cursorStart,
+
+          AnyOfGen.builder( options())
+          .anyPrintable()
+          .anchoredStart( anchoredStart)
+          .anchoredEnd( anchoredEnd)
+          .occurs(0)
+          .build()));
       }
     
     if( suffix != null)
@@ -302,6 +319,7 @@ public class Parser
    */
   private AbstractRegExpGen getQuantified()
     {
+    int cursorStart = cursor();
     AbstractRegExpGen atom = getAtom();
     if( atom != null)
       {
@@ -320,7 +338,7 @@ public class Parser
         }
       }
 
-    return atom;
+    return startingAt( cursorStart, atom);
     }
 
   /**
@@ -432,6 +450,7 @@ public class Parser
    */
   private AbstractRegExpGen getAtom()
     {
+    int cursorStart = cursor();
     AbstractRegExpGen atom;
       
     if( (atom = getGroup()) == null
@@ -445,7 +464,7 @@ public class Parser
       atom = getPatternChar();
       }
 
-    return atom;
+    return startingAt( cursorStart, atom);
     }
 
   /**
@@ -453,6 +472,7 @@ public class Parser
    */
   private AbstractRegExpGen getGroup()
     {
+    int cursorStart = cursor();
     AbstractRegExpGen group = null;
     if( peekc() == '(')
       {
@@ -481,7 +501,7 @@ public class Parser
       advance(1);
       }
 
-    return group;
+    return startingAt( cursorStart, group);
     }
 
   /**
@@ -489,12 +509,13 @@ public class Parser
    */
   private AbstractRegExpGen getAnyOne()
     {
+    int cursorStart = cursor();
     AbstractRegExpGen anyOne = null;
 
     if( peekc() == '.')
       {
       advance(1);
-      anyOne = new AnyPrintableGen( options(),1);
+      anyOne = startingAt( cursorStart, new AnyPrintableGen( options(),1));
       }
 
     return anyOne;
@@ -524,6 +545,7 @@ public class Parser
    */
   private AbstractRegExpGen getCharClass()
     {
+    int cursorStart = cursor();
     CharClassGen charClass = null;
     if( peekc() == '[')
       {
@@ -606,7 +628,7 @@ public class Parser
       advance(1);
       }
 
-    return charClass;
+    return startingAt( cursorStart, charClass);
     }
 
   /**
@@ -635,12 +657,13 @@ public class Parser
    */
   private CharClassGen getBackspaceEscape()
     {
+    int cursorStart = cursor();
     CharClassGen escapeClass = null; 
 
     if( peekc() == 'b')
       {
       advance(1);
-      escapeClass = new AnyOfGen( options(), '\b');
+      escapeClass = startingAt( cursorStart, new AnyOfGen( options(), '\b'));
       }
     
     return escapeClass;
@@ -727,6 +750,7 @@ public class Parser
    */
   private CharClassGen getNamedCharEscape()
     {
+    int cursorStart = cursor();
     CharClassGen escapeClass; 
     char id = peekc();
 
@@ -782,7 +806,7 @@ public class Parser
       advance(1);
       }
 
-    return escapeClass;
+    return startingAt( cursorStart, escapeClass);
     }
 
   /**
@@ -790,6 +814,7 @@ public class Parser
    */
   private CharClassGen getControlEscape()
     {
+    int cursorStart = cursor();
     CharClassGen escapeClass = null;
 
     if( peekc() == 'c')
@@ -804,7 +829,7 @@ public class Parser
         }
       advance(1);
 
-      escapeClass = new AnyOfGen( options(), (char) (0x0001 + controlChar));
+      escapeClass = startingAt( cursorStart, new AnyOfGen( options(), (char) (0x0001 + controlChar)));
       }
     
     return escapeClass;
@@ -815,6 +840,7 @@ public class Parser
    */
   private CharClassGen getHexCharClass()
     {
+    int cursorStart = cursor();
     CharClassGen escapeClass = null;
 
     if( peekc() == 'x')
@@ -829,7 +855,7 @@ public class Parser
         }
       advance(2);
 
-      escapeClass = new AnyOfGen( options(), (char) Integer.parseInt( digits, 16));
+      escapeClass = startingAt( cursorStart, new AnyOfGen( options(), (char) Integer.parseInt( digits, 16)));
       }
     
     return escapeClass;
@@ -840,6 +866,7 @@ public class Parser
    */
   private CharClassGen getUnicodeCharClass()
     {
+    int cursorStart = cursor();
     CharClassGen escapeClass = null;
 
     if( peekc() == 'u')
@@ -854,7 +881,7 @@ public class Parser
         }
       advance(4);
 
-      escapeClass = new AnyOfGen( options(), (char) Integer.parseInt( digits, 16));
+      escapeClass = startingAt( cursorStart, new AnyOfGen( options(), (char) Integer.parseInt( digits, 16)));
       }
     
     return escapeClass;
@@ -865,13 +892,14 @@ public class Parser
    */
   private CharClassGen getLiteralChar()
     {
+    int cursorStart = cursor();
     return
       Optional.of( peekc())
       .filter( c -> c != EOS)
       .map( c -> {
         CharClassGen literal = new AnyOfGen( options(), c);
         advance(1);
-        return literal;
+        return startingAt( cursorStart, literal);
         })
       .orElse( null);
     }
@@ -881,6 +909,7 @@ public class Parser
    */
   private CharClassGen getPatternChar()
     {
+    int cursorStart = cursor();
     String syntaxChars = "^$\\.*+?()[]{}|";
     
     return
@@ -889,22 +918,22 @@ public class Parser
       .map( c -> {
         CharClassGen patternChar = new AnyOfGen( options(), c);
         advance(1);
-        return patternChar;
+        return startingAt( cursorStart, patternChar);
         })
       .orElse( null);
     }
 
   /**
-   * Returns the given {@link RegExpGen} after prefacing any unanchored initial subexpressions
+   * Returns the given {@link AbstractRegExpGen} after prefacing any unanchored initial subexpressions
    * with an implicit ".*" expression.
    */
-  private RegExpGen withStartGen( RegExpGen regExpGen)
+  private AbstractRegExpGen withStartGen( AbstractRegExpGen regExpGen)
     {
-    AbstractRegExpGen initiated = (AbstractRegExpGen) regExpGen;
     AlternativeGen alternative;
     SeqGen seq;
 
-    if( initiated instanceof AlternativeGen && (alternative = uninitiated( (AlternativeGen) initiated)) != null)
+    AbstractRegExpGen initiated = regExpGen;
+    if( regExpGen instanceof AlternativeGen && (alternative = uninitiated( (AlternativeGen) regExpGen)) != null)
       {
       initiated =
         AlternativeGen.builder( options())
@@ -916,9 +945,9 @@ public class Parser
         .occurs( alternative.getOccurrences())
         .build();
       }
-    else if( initiated instanceof SeqGen && (seq = uninitiated( (SeqGen) initiated)) != null)
+    else if( regExpGen instanceof SeqGen && (seq = uninitiated( (SeqGen) regExpGen)) != null)
       {
-      List<RegExpGen> members = IterableUtils.toList( seq.getMembers());
+      List<AbstractRegExpGen> members = IterableUtils.toList( seq.getMembers());
       initiated =
         SeqGen.builder( options())
         .addAll(
@@ -928,25 +957,26 @@ public class Parser
         .occurs( seq.getOccurrences())
         .build();
       }
-    else if( !initiated.isAnchoredStart())
+    else if( !regExpGen.isAnchoredStart())
       {
-      initiated = new SeqGen( options(), new AnyPrintableGen( options(), 0, null), initiated);
+      initiated = new SeqGen( options(), new AnyPrintableGen( options(), 0, null), regExpGen);
       }
-    
+
+    initiated.setSource( regExpGen.getSource());
     return initiated;
     }
 
   /**
-   * Returns the given {@link RegExpGen} after appending an implicit ".*" expression to
+   * Returns the given {@link AbstractRegExpGen} after appending an implicit ".*" expression to
    * any unanchored final subexpressions.
    */
-  private RegExpGen withEndGen( RegExpGen regExpGen)
+  private AbstractRegExpGen withEndGen( AbstractRegExpGen regExpGen)
     {
-    AbstractRegExpGen terminated = (AbstractRegExpGen) regExpGen;
     AlternativeGen alternative;
     SeqGen seq;
 
-    if( terminated instanceof AlternativeGen && (alternative = unterminated( (AlternativeGen) terminated)) != null)
+    AbstractRegExpGen terminated = regExpGen;
+    if( regExpGen instanceof AlternativeGen && (alternative = unterminated( (AlternativeGen) regExpGen)) != null)
       {
       terminated =
         AlternativeGen.builder( options())
@@ -958,9 +988,9 @@ public class Parser
         .occurs( alternative.getOccurrences())
         .build();
       }
-    else if( terminated instanceof SeqGen && (seq = unterminated( (SeqGen) terminated)) != null)
+    else if( regExpGen instanceof SeqGen && (seq = unterminated( (SeqGen) regExpGen)) != null)
       {
-      List<RegExpGen> members = IterableUtils.toList( seq.getMembers());
+      List<AbstractRegExpGen> members = IterableUtils.toList( seq.getMembers());
       int last = members.size() - 1;
       terminated =
         SeqGen.builder( options())
@@ -971,11 +1001,12 @@ public class Parser
         .occurs( seq.getOccurrences())
         .build();
       }
-    else if( !terminated.isAnchoredEnd())
+    else if( !regExpGen.isAnchoredEnd())
       {
-      terminated = new SeqGen( options(), terminated, new AnyPrintableGen( options(), 0, null));
+      terminated = new SeqGen( options(), regExpGen, new AnyPrintableGen( options(), 0, null));
       }
     
+    terminated.setSource( regExpGen.getSource());
     return terminated;
     }
 
@@ -1066,6 +1097,26 @@ public class Parser
   private void advance( int n)
     {
     cursor_ = Math.min( cursor_ + n, chars_.length());
+    }
+
+  /**
+   * Returns the current cursor position.
+   */
+  private int cursor()
+    {
+    return cursor_;
+    }
+
+  /**
+   * Updates the {@link AbstractRegExpGen#getSource source} for the given generator.
+   */
+  private <T extends AbstractRegExpGen> T startingAt( int start, T regExpGen)
+    {
+    if( regExpGen != null)
+      {
+      regExpGen.setSource( chars_.substring( start, cursor_));
+      }
+    return regExpGen;
     }
 
   public String toString()

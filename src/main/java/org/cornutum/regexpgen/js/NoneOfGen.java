@@ -9,6 +9,8 @@ package org.cornutum.regexpgen.js;
 
 import org.cornutum.regexpgen.GenOptions;
 
+import java.util.Set;
+
 /**
  * Generates a sequence containing any <EM>except</EM> a given set of characters.
  */
@@ -36,6 +38,14 @@ public class NoneOfGen extends CharClassGen
   protected NoneOfGen( GenOptions options, char first, char last)
     {
     super( options, first, last);
+    }
+  
+  /**
+   * Creates a new NoneOfGen instance.
+   */
+  protected NoneOfGen( GenOptions options, Set<Character> chars)
+    {
+    super( options, chars);
     }
   
   /**

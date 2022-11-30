@@ -35,9 +35,9 @@ public class BoundsTest
     // When...
     List<String> ordered =
       regexps.stream()
-      .map( Parser::parseRegExpExact)
+      .map( regexp -> Provider.forEcmaScript().matchingExact( regexp))
       .sorted()
-      .map( generator -> generator.getOptions().getRegExp())
+      .map( generator -> generator.getSource())
       .collect( toList());
     
     // Then...

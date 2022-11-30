@@ -10,8 +10,6 @@ package org.cornutum.regexpgen.js;
 import org.cornutum.regexpgen.Bounds;
 import org.cornutum.regexpgen.GenOptions;
 import org.cornutum.regexpgen.RandomGen;
-import org.cornutum.regexpgen.RegExpGen;
-import org.cornutum.regexpgen.util.ToString;
 import static org.cornutum.regexpgen.Bounds.UNBOUNDED;
 import static org.cornutum.regexpgen.Bounds.bounded;
 import static org.cornutum.regexpgen.Bounds.dividedBy;
@@ -39,10 +37,10 @@ public class AlternativeGen extends AbstractRegExpGen
   /**
    * Creates a new AlternativeGen instance.
    */
-  public AlternativeGen( GenOptions options, RegExpGen... members)
+  public AlternativeGen( GenOptions options, AbstractRegExpGen... members)
     {
     this( options);
-    for( RegExpGen member : members)
+    for( AbstractRegExpGen member : members)
       {
       add( member);
       }
@@ -51,10 +49,10 @@ public class AlternativeGen extends AbstractRegExpGen
   /**
    * Creates a new AlternativeGen instance.
    */
-  public <T extends RegExpGen> AlternativeGen( GenOptions options, Iterable<T> members)
+  public <T extends AbstractRegExpGen> AlternativeGen( GenOptions options, Iterable<T> members)
     {
     this( options);
-    for( RegExpGen member : members)
+    for( AbstractRegExpGen member : members)
       {
       add( member);
       }
@@ -63,7 +61,7 @@ public class AlternativeGen extends AbstractRegExpGen
   /**
    * Adds an alternative regular expression.
    */
-  public void add( RegExpGen member)
+  public void add( AbstractRegExpGen member)
     {
     members_.add( member);
     }
@@ -71,7 +69,7 @@ public class AlternativeGen extends AbstractRegExpGen
   /**
    * Returns the alternative regular expressions.
    */
-  public Iterable<RegExpGen> getMembers()
+  public Iterable<AbstractRegExpGen> getMembers()
     {
     return members_;
     }
@@ -204,7 +202,7 @@ public class AlternativeGen extends AbstractRegExpGen
   /**
    * Returns a member that can generate a string within the given bounds.
    */
-  private Optional<RegExpGen> memberFeasibleFor( RandomGen random, Bounds length)
+  private Optional<AbstractRegExpGen> memberFeasibleFor( RandomGen random, Bounds length)
     {
     return
       random.shuffle( members_)
@@ -238,7 +236,7 @@ public class AlternativeGen extends AbstractRegExpGen
    */
   public Stream<AbstractRegExpGen> getStartAlternatives()
     {
-    return members_.stream().flatMap( r -> ((AbstractRegExpGen) r).getStartAlternatives());
+    return members_.stream().flatMap( r -> r.getStartAlternatives());
     }
 
   /**
@@ -246,11 +244,11 @@ public class AlternativeGen extends AbstractRegExpGen
    */
   public Stream<AbstractRegExpGen> getEndAlternatives()
     {
-    return members_.stream().flatMap( r -> ((AbstractRegExpGen) r).getEndAlternatives());
+    return members_.stream().flatMap( r -> r.getEndAlternatives());
     }
 
   /**
-   * Implements the Visitor pattern for {@link RegExpGen} implementations.
+   * Implements the Visitor pattern for {@link AbstractRegExpGen} implementations.
    */
   public void accept( RegExpGenVisitor visitor)
     {
@@ -273,15 +271,6 @@ public class AlternativeGen extends AbstractRegExpGen
     return new Builder( options);
     }
 
-  public String toString()
-    {
-    return
-      ToString.getBuilder( this)
-      .append( "members", members_)
-      .appendSuper( super.toString())
-      .toString();
-    }
-
   public boolean equals( Object object)
     {
     AlternativeGen other =
@@ -302,7 +291,7 @@ public class AlternativeGen extends AbstractRegExpGen
       ^ members_.hashCode();
     }
 
-  private List<RegExpGen> members_ = new ArrayList<RegExpGen>();
+  private List<AbstractRegExpGen> members_ = new ArrayList<AbstractRegExpGen>();
 
   /**
    * Builds an {@link AlternativeGen} instance.
@@ -327,18 +316,18 @@ public class AlternativeGen extends AbstractRegExpGen
       return alternative_;
       }
 
-	public Builder add( RegExpGen... members)
+	public Builder add( AbstractRegExpGen... members)
       {
-      for( RegExpGen member : members)
+      for( AbstractRegExpGen member : members)
         {
         alternative_.add( member);
         }
       return this;
       }
 
-	public Builder addAll( Iterable<RegExpGen> members)
+	public Builder addAll( Iterable<AbstractRegExpGen> members)
       {
-      for( RegExpGen member : members)
+      for( AbstractRegExpGen member : members)
         {
         alternative_.add( member);
         }

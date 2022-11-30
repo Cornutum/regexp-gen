@@ -36,6 +36,11 @@ public interface RegExpGen extends Comparable<RegExpGen>
   public GenOptions getOptions();
 
   /**
+   * Returns the regular expression string from which this generator was derived.
+   */
+  public String getSource();
+
+  /**
    * Returns a random string within the given bounds that matches this regular expression.
    */
   public String generate( RandomGen random, Bounds length);

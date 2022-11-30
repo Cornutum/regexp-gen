@@ -9,6 +9,8 @@ package org.cornutum.regexpgen.js;
 
 import org.cornutum.regexpgen.GenOptions;
 
+import java.util.Set;
+
 /**
  * Generates a sequence containing any of a set of characters.
  */
@@ -36,6 +38,14 @@ public class AnyOfGen extends CharClassGen
   protected AnyOfGen( GenOptions options, char first, char last)
     {
     super( options, first, last);
+    }
+  
+  /**
+   * Creates a new AnyOfGen instance.
+   */
+  protected AnyOfGen( GenOptions options, Set<Character> chars)
+    {
+    super( options, chars);
     }
 
   /**

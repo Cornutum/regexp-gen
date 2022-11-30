@@ -10,12 +10,11 @@ package org.cornutum.regexpgen.js;
 import org.cornutum.regexpgen.Bounds;
 import org.cornutum.regexpgen.GenOptions;
 import org.cornutum.regexpgen.RandomGen;
-import org.cornutum.regexpgen.util.ToString;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.IntStream;
-import static java.util.stream.Collectors.joining;
 
 /**
  * Generates a sequence based on a set of characters.
@@ -46,6 +45,15 @@ public abstract class CharClassGen extends AbstractRegExpGen
     {
     super( options);
     addAll( first, last);
+    }
+  
+  /**
+   * Creates a new CharClassGen instance.
+   */
+  protected CharClassGen( GenOptions options, Set<Character> chars)
+    {
+    super( options);
+    addAll( chars);
     }
 
   /**
@@ -100,6 +108,17 @@ public abstract class CharClassGen extends AbstractRegExpGen
     }
 
   /**
+   * Adds all of the given characters to this class.
+   */
+  public void addAll( Set<Character> chars) 
+    {
+    if( chars != null)
+      {
+      chars.forEach( c -> add( c.charValue()));
+      }
+    }
+
+  /**
    * Returns the characters in this class.
    */
   public Character[] getChars()
@@ -110,6 +129,14 @@ public abstract class CharClassGen extends AbstractRegExpGen
       }
     
     return charArray_;
+    }
+
+  /**
+   * Returns true if the given character belongs to this class.
+   */
+  public boolean contains( Character c)
+    {
+    return Arrays.stream( getChars()).anyMatch( classChar -> c.equals( classChar));
     }
 
   /**
@@ -160,19 +187,21 @@ public abstract class CharClassGen extends AbstractRegExpGen
     StringBuilder matching = new StringBuilder();
 
     Character[] chars = getChars();
-    IntStream.range( 0, random.within( length))
+    int generated = random.within( length);
+    if( generated > 0 && chars.length == 0)
+      {
+      throw
+        new IllegalStateException(
+          String.format(
+            "%s: Can't generate string of valid length=%s -- no matching characters available",
+            this,
+            generated));
+      }
+    
+    IntStream.range( 0, generated)
       .forEach( i -> matching.append( chars[ random.below( chars.length)]));
     
     return matching.toString();
-    }
-
-  public String toString()
-    {
-    return
-      ToString.getBuilder( this)
-      .append( "chars", charSetString())
-      .appendSuper( super.toString())
-      .toString();
     }
 
   public boolean equals( Object object)
@@ -193,18 +222,6 @@ public abstract class CharClassGen extends AbstractRegExpGen
     return
       super.hashCode()
       ^ getCharSet().hashCode();
-    }
-
-  /**
-   * Returns a string representation of the characters that define this class.
-   */
-  private String charSetString()
-    {
-    StringBuilder chars = new StringBuilder();
-    chars.append( '[');
-    chars.append( getCharSet().stream().sorted().map( Object::toString).collect( joining( "")));
-    chars.append( ']');
-    return chars.toString();
     }
 
   private Set<Character> chars_ = new HashSet<Character>();
@@ -250,6 +267,12 @@ public abstract class CharClassGen extends AbstractRegExpGen
     public T addAll( CharClassGen charClass) 
       {
       getCharClassGen().addAll( charClass);
+      return (T) this;
+      }
+
+    public T addAll( Set<Character> chars) 
+      {
+      getCharClassGen().addAll( chars);
       return (T) this;
       }
 

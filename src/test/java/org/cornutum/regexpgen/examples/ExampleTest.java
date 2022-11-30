@@ -9,7 +9,7 @@ package org.cornutum.regexpgen.examples;
 
 import org.cornutum.regexpgen.RandomGen;
 import org.cornutum.regexpgen.RegExpGen;
-import org.cornutum.regexpgen.js.Parser;
+import org.cornutum.regexpgen.js.Provider;
 import org.cornutum.regexpgen.random.RandomBoundsGen;
 
 import org.junit.Test;
@@ -30,7 +30,7 @@ public class ExampleTest
     RandomGen random = getRandomGen();
 
     // ...create a RegExpGen instance...
-    RegExpGen generator = Parser.parseRegExp( regexp);
+    RegExpGen generator = Provider.forEcmaScript().matching( regexp);
 
     System.out.println( String.format( "\n%s [ %s ]:", "simple", regexp));
     for( int i = 0; i < getGeneratorCount(); i++)
@@ -51,7 +51,7 @@ public class ExampleTest
     RandomGen random = getRandomGen( 64);
 
     // ...create a RegExpGen instance...
-    RegExpGen generator = Parser.parseRegExp( regexp);
+    RegExpGen generator = Provider.forEcmaScript().matching( regexp);
 
     System.out.println( String.format( "\n%s [ %s ]:", "longMatches", regexp));
     for( int i = 0; i < getGeneratorCount(); i++)
@@ -71,7 +71,7 @@ public class ExampleTest
     RandomGen random = getRandomGen();
 
     // ...create a RegExpGen instance...
-    RegExpGen generator = Parser.parseRegExp( regexp);
+    RegExpGen generator = Provider.forEcmaScript().matching( regexp);
 
     System.out.println( String.format( "\n%s [ %s ]:", "bounded", regexp));
     for( int i = 0; i < getGeneratorCount(); i++)
@@ -91,7 +91,7 @@ public class ExampleTest
     RandomGen random = getRandomGen();
 
     // ...create a RegExpGen instance...
-    RegExpGen generator = Parser.parseRegExp( regexp);
+    RegExpGen generator = Provider.forEcmaScript().matching( regexp);
 
     System.out.println( String.format( "\n%s [ %s ]:", "substringMatches", regexp));
     for( int i = 0; i < getGeneratorCount(); i++)
@@ -111,7 +111,7 @@ public class ExampleTest
     RandomGen random = getRandomGen();
 
     // ...create a RegExpGen instance...
-    RegExpGen generator = Parser.parseRegExp( regexp);
+    RegExpGen generator = Provider.forEcmaScript().matching( regexp);
 
     // ...matching "." with specific characters...
     generator.getOptions().setAnyPrintableChars( "1001 Anagrams!");
@@ -134,7 +134,7 @@ public class ExampleTest
     RandomGen random = getRandomGen();
 
     // ...create a RegExpGen instance...
-    RegExpGen generator = Parser.parseRegExpExact( regexp);
+    RegExpGen generator = Provider.forEcmaScript().matchingExact( regexp);
 
     System.out.println( String.format( "\n%s [ %s ]:", "exactMatches", regexp));
     for( int i = 0; i < getGeneratorCount(); i++)

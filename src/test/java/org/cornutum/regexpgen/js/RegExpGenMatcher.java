@@ -7,8 +7,6 @@
 
 package org.cornutum.regexpgen.js;
 
-import org.cornutum.regexpgen.RegExpGen;
-
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -17,14 +15,14 @@ import org.hamcrest.core.IsNull;
 /**
  * A composite matcher for {@link AbstractRegExpGen} instances
  */
-public class RegExpGenMatcher extends BaseMatcher<RegExpGen>
+public class RegExpGenMatcher extends BaseMatcher<AbstractRegExpGen>
   {
   /**
    * Creates a new RegExpGenMatcher instance.
    */
-  public RegExpGenMatcher( RegExpGen expected)
+  public RegExpGenMatcher( AbstractRegExpGen expected)
     {
-    delegate_ = MatcherFactory.matcherFor( (AbstractRegExpGen) expected);
+    delegate_ = MatcherFactory.matcherFor( expected);
     }
 
   public boolean matches( Object item)
