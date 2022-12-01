@@ -88,8 +88,46 @@ public final class CharUtils
     return printableChars( 0, 0xFFFF);
     }
 
-  public static Character REPLACEMENT = Character.valueOf( (char) 0xFFFD);
-  
+  /**
+   * Returns a literal string for the given character.
+   */
+  public static String literal( Character c)
+    {
+    return
+      c == '\\'? "\\\\" :
+      c == '\''? "\\'" :
+      c == '\f'? "\\f" :
+      c == '\n'? "\\n" :
+      c == '\r'? "\\r" :
+      c == '\t'? "\\t" :
+      c == '\13'? "\\v" :
+      c == '\0'? "\\x00" :
+      c >= 0x2000? String.format( "\\u%s", Integer.toHexString( c)) :
+      String.valueOf( c);
+    }
+
+  /**
+   * Returns a literal string for the given character in a JavaScript string.
+   */
+  public static String stringLiteral( Character c)
+    {
+    return
+      c == '\''? "\\'" :
+      c == '"'? "\\\"" :
+      literal( c);
+    }
+
+  /**
+   * Returns a literal string for the given character in a character class expression.
+   */
+  public static String charClassLiteral( Character c)
+    {
+    return
+      c == '-'? "\\-" :
+      c == ']'? "\\]" :
+      literal( c);
+    }
+
   private static final List<Integer> notVisible_ =
     Arrays.asList(
       (int) Character.CONTROL,

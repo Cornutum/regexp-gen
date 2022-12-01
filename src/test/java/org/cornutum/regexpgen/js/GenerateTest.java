@@ -11,6 +11,7 @@ import org.cornutum.regexpgen.Bounds;
 import org.cornutum.regexpgen.RandomGen;
 import org.cornutum.regexpgen.RegExpGen;
 import org.cornutum.regexpgen.random.RandomBoundsGen;
+import org.cornutum.regexpgen.util.CharUtils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
@@ -472,6 +473,12 @@ public class GenerateTest
           assertThat( String.format( "[%s] %s -> %s", i, regexp, text), matched, is( false));
           }
         });
+
+    // When...
+    String source = generator.getSource();
+
+    // Then...
+    assertThat( "For source=" + source, Provider.forEcmaScript().matching( source), is( generator));
     }
 
   private void verifyNotMatchesNone( String regexp)
@@ -520,20 +527,7 @@ public class GenerateTest
     {
     StringBuilder builder = new StringBuilder();
     IntStream.range( 0, value.length())
-      .mapToObj( i -> value.charAt(i))
-      .map( c -> {
-        return
-          c == '\\'? "\\\\" :
-          c == '\''? "\\'" :
-          c == '\f'? "\\f" :
-          c == '\n'? "\\n" :
-          c == '\r'? "\\r" :
-          c == '\t'? "\\t" :
-          c == '\13'? "\\v" :
-          c == '\0'? "\\x00" :
-          c >= 0x2000? String.format( "\\u%s", Integer.toHexString( c)) :
-          String.valueOf( c);
-        })
+      .mapToObj( i -> CharUtils.stringLiteral( value.charAt(i)))
       .forEach( literal -> builder.append( literal));
 
     return builder.toString();
