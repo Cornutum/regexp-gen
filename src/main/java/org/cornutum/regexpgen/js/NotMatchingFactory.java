@@ -16,6 +16,7 @@ import org.apache.commons.collections4.SetUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -35,7 +36,7 @@ public class NotMatchingFactory implements RegExpGenVisitor
    */
   public static Optional<RegExpGen> makeFrom( AbstractRegExpGen regExpGen)
     {
-    RegExpGen notMatching;
+    AbstractRegExpGen notMatching;
 
     // Get all matching sequences, ignoring those that match only an empty string.
     boolean anchored = regExpGen.isAnchoredStart() && regExpGen.isAnchoredEnd();
@@ -127,7 +128,7 @@ public class NotMatchingFactory implements RegExpGenVisitor
         withSource( new AlternativeGen( regExpGen.getOptions(), notAlternatives), notAlternatives);
       }
 
-    return Optional.ofNullable( notMatching);
+    return Optional.ofNullable( notMatching).map( NotMatchingFactory::withAnchors);
     }
 
   private NotMatchingFactory()
@@ -207,12 +208,12 @@ public class NotMatchingFactory implements RegExpGenVisitor
 
   private static <T extends AbstractRegExpGen> T withSource( T regExpGen, Set<Character> source)
     {
-    return withSource( regExpGen, source.stream().map( String::valueOf).collect( joining( "")));
+    return withSource( regExpGen, source.stream().map( CharUtils::charClassLiteral).collect( joining( "", "[", "]")));
     }
 
-  private static AlternativeGen withSource( AlternativeGen alternativeGen, List<AbstractRegExpGen> source)
+  private static AlternativeGen withSource( AlternativeGen alternativeGen, List<AbstractRegExpGen> members)
     {
-    return withSource( alternativeGen, source.stream().map( String::valueOf).collect( joining( ",")));
+    return withSource( alternativeGen, members.stream().map( RegExpGen::getSource).collect( joining( "|", "(", ")")));
     }
 
   private static <T extends AbstractRegExpGen> T withSource( T regExpGen, String source)
@@ -224,7 +225,19 @@ public class NotMatchingFactory implements RegExpGenVisitor
   private static <T extends AbstractRegExpGen> T withLength( T regExpGen, int minLength, Integer maxLength)
     {
     regExpGen.setOccurrences( minLength, maxLength);
-    return regExpGen;
+    return withSource( regExpGen, String.format( "%s{%s,%s}", regExpGen.getSource(), minLength, Objects.toString( maxLength, "")));
+    }
+
+  private static <T extends AbstractRegExpGen> T withAnchors( T regExpGen)
+    {
+    return
+      Optional.ofNullable( regExpGen)
+      .map( r -> {
+        r.setAnchoredStart( true);
+        r.setAnchoredEnd( true);
+        return withSource( r, String.format( "^%s$", r.getSource()));
+        })
+      .orElse( null);
     }
   
   /**
