@@ -93,7 +93,11 @@ public class NotMatchingFactory implements RegExpGenVisitor
       if( Optional.ofNullable( mismatching).map( m -> !m.isEmpty()).orElse( false))
         {
         // Yes, include a mismatching generator.
-        notAlternatives.add( withSource( new AnyOfGen( regExpGen.getOptions(), mismatching), mismatching));
+        notAlternatives.add(
+          withLength(
+            withSource( new AnyOfGen( regExpGen.getOptions(), mismatching), mismatching),
+            1,
+            null));
         }
 
       // Minimum length required?
@@ -109,6 +113,7 @@ public class NotMatchingFactory implements RegExpGenVisitor
         notAlternatives.add(
           withLength(
             withSource( new AnyOfGen( regExpGen.getOptions(), allowed), allowed),
+            0,
             regExpGen.getMinLength() - 1));
         }
 
@@ -216,9 +221,9 @@ public class NotMatchingFactory implements RegExpGenVisitor
     return regExpGen;
     }
 
-  private static <T extends AbstractRegExpGen> T withLength( T regExpGen, int length)
+  private static <T extends AbstractRegExpGen> T withLength( T regExpGen, int minLength, Integer maxLength)
     {
-    regExpGen.setOccurrences( length, length);
+    regExpGen.setOccurrences( minLength, maxLength);
     return regExpGen;
     }
   
