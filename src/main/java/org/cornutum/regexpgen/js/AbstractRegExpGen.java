@@ -210,14 +210,20 @@ public abstract class AbstractRegExpGen implements RegExpGen
 
     return
       other != null
-      && other.getOccurrences().equals( getOccurrences());
+      && other.getOccurrences().equals( getOccurrences())
+      && other.isAnchoredStart() == isAnchoredStart()
+      && other.isAnchoredEnd() == isAnchoredEnd()
+      ;
     }
 
   public int hashCode()
     {
     return
       getClass().hashCode()
-      ^ getOccurrences().hashCode();
+      ^ getOccurrences().hashCode()
+      ^ Boolean.hashCode( isAnchoredStart())
+      ^ Boolean.hashCode( isAnchoredEnd())
+      ;
     }
 
   private String source_;
