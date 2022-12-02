@@ -1,7 +1,7 @@
 # rexexp-gen
 
-[![Maven](https://img.shields.io/badge/maven-2.0.0-green.svg)](https://search.maven.org/search?q=regexp-gen)
-[![Javadoc](https://img.shields.io/badge/javadoc-2.0.0-green.svg)](https://javadoc.io/doc/org.cornutum.regexp/regexp-gen/latest/index.html)
+[![Maven](https://img.shields.io/badge/maven-2.0.1-green.svg)](https://search.maven.org/search?q=regexp-gen)
+[![Javadoc](https://img.shields.io/badge/javadoc-2.0.1-green.svg)](https://javadoc.io/doc/org.cornutum.regexp/regexp-gen/latest/index.html)
 
 ## Contents ##
 
@@ -19,7 +19,7 @@
 
 ## What's New? ##
 
-  * The latest version ([2.0.0](https://github.com/Cornutum/regexp-gen/releases/tag/release-2.0.0))
+  * The latest version ([2.0.1](https://github.com/Cornutum/regexp-gen/releases/tag/release-2.0.1))
     is now available at the [Maven Central Repository](https://search.maven.org/search?q=regexp-gen).
 
 ## What Is It? ##
