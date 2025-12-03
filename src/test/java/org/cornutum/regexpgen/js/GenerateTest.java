@@ -71,6 +71,8 @@ public class GenerateTest
   @Test
   public void whenLookBehind()
     {
+    // Look behind assertions not supported by this version of Mozilla Rhino -- use Java regex matching instead.
+    
     verifyJavaMatchesFor( "(?<=(^Gronk| cat| dog))( is an animal)$");
 
     verifyJavaNotMatchesFor( "(?<=(^Gronk| cat| dog))( is an animal)$");
