@@ -54,8 +54,16 @@ public class Parser
    */
   Parser( String regexp)
     {
+    this( regexp, null);
+    }
+
+  /**
+   * Creates a new Parser instance with the given options.
+   */
+  Parser( String regexp, GenOptions options)
+    {
     chars_ = regexp;
-    options_ = new GenOptions();
+    options_ = options != null ? options : new GenOptions();
     charClasses_ = new CharClasses( options_);
     }
 

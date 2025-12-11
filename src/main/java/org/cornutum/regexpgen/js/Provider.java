@@ -7,6 +7,7 @@
 
 package org.cornutum.regexpgen.js;
 
+import org.cornutum.regexpgen.GenOptions;
 import org.cornutum.regexpgen.RegExpGen;
 
 import java.util.Optional;
@@ -27,33 +28,33 @@ public class Provider implements org.cornutum.regexpgen.Provider
 
   /**
    * Returns a {@link RegExpGen} that generates strings containing characters that match the given
-   * regular expression.
+   * regular expression, using the given options.
    */
-  public RegExpGen matching( String regexp)
+  public RegExpGen matching( String regexp, GenOptions options)
     {
-    return new Parser( regexp).parse( false); 
+    return new Parser( regexp, options).parse( false);
     }
-  
+
   /**
    * Returns a {@link RegExpGen} that generates strings containing only characters that match the
-   * given regular expression.
+   * given regular expression, using the given options.
    */
-  public RegExpGen matchingExact( String regexp)
+  public RegExpGen matchingExact( String regexp, GenOptions options)
     {
-    return new Parser( regexp).parse( true); 
+    return new Parser( regexp, options).parse( true);
     }
 
   /**
    * Returns a {@link RegExpGen} that generates strings that do NOT match the given regular
-   * expression.
+   * expression, using the given options.
    * <P/>
    * For some regular expressions, no result is possible. For example, there is no string that
    * does not match ".*". For such expressions, this method should return {@link Optional#empty}.
    * <P/>
    * This is an optional service. Throws an {@link UnsupportedOperationException} if not implemented.
    */
-  public Optional<RegExpGen> notMatching( String regexp) throws UnsupportedOperationException
+  public Optional<RegExpGen> notMatching( String regexp, GenOptions options) throws UnsupportedOperationException
     {
-    return NotMatchingFactory.makeFrom( new Parser( regexp).parse( true));
+    return NotMatchingFactory.makeFrom( new Parser( regexp, options).parse( true));
     }
   }

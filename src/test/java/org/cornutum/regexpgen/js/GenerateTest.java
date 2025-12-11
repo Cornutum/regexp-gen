@@ -8,6 +8,7 @@
 package org.cornutum.regexpgen.js;
 
 import org.cornutum.regexpgen.Bounds;
+import org.cornutum.regexpgen.GenOptions;
 import org.cornutum.regexpgen.RandomGen;
 import org.cornutum.regexpgen.RegExpGen;
 import org.cornutum.regexpgen.random.RandomBoundsGen;
@@ -17,10 +18,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
+
+import static java.util.Collections.unmodifiableSet;
 import static org.cornutum.hamcrest.ExpectedFailure.expectFailure;
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -286,6 +291,24 @@ public class GenerateTest
         });
     }
 
+  @Test
+  public void whenCustomSpaceChars()
+    {
+    String spaceChars = " \t";
+
+    verifyMatchesForSpaceChars( "^\\s+$", spaceChars);
+    verifyMatchesForSpaceChars( "^\\S+$", spaceChars);
+    verifyMatchesForSpaceChars( "^\\s\\S\\s$", spaceChars);
+    verifyMatchesForSpaceChars( "^[a-zA-Z\\s]+$", spaceChars);
+    verifyMatchesForSpaceChars( "^[^\\s]+$", spaceChars);
+
+    verifyNotMatchesForSpaceChars( "^\\s+$", spaceChars);
+    verifyNotMatchesForSpaceChars( "^\\S+$", spaceChars);
+    verifyNotMatchesForSpaceChars( "^\\s\\S\\s$", spaceChars);
+    verifyNotMatchesForSpaceChars( "^[a-zA-Z\\s]+$", spaceChars);
+    verifyNotMatchesForSpaceChars( "^[^\\s]+$", spaceChars);
+    }
+
   private void verifyMatchesFor( String regexp)
     {
     verifyMatchesFor( regexp, (Integer) null);
@@ -489,6 +512,54 @@ public class GenerateTest
       String.format( "Not matching '%s'", regexp),
       Provider.forEcmaScript().notMatching( regexp),
       is( Optional.empty()));
+    }
+
+  private void verifyMatchesForSpaceChars( String regexp, String spaceChars)
+    {
+    // Given...
+    GenOptions options = new GenOptions();
+    options.setSpaceChars( spaceChars);
+    RegExpGen generator = Provider.forEcmaScript().matchingExact( regexp, options);
+
+    RandomGen random = getRandomGen();
+
+    // When...
+    List<String> matches =
+      IntStream.range( 0, getGeneratorCount())
+      .mapToObj( i -> generator.generate( random))
+      .collect( toList());
+
+    // Then...
+    IntStream.range( 0, matches.size())
+      .forEach( i -> {
+        String text = matches.get(i);
+        assertThat( String.format( "[%s] %s -> %s", i, regexp, text), matchesJavaScript( text, regexp), is( true));
+        });
+    }
+
+  private void verifyNotMatchesForSpaceChars( String regexp, String spaceChars)
+    {
+    // Given...
+    GenOptions options = new GenOptions();
+    options.setSpaceChars( spaceChars);
+    RegExpGen generator =
+      Provider.forEcmaScript().notMatching( regexp, options)
+      .orElseThrow( () -> new RuntimeException( String.format( "Can't create not-matching generator for regexp=%s", regexp)));
+
+    RandomGen random = getRandomGen();
+
+    // When...
+    List<String> matches =
+      IntStream.range( 0, getGeneratorCount())
+      .mapToObj( i -> generator.generate( random))
+      .collect( toList());
+
+    // Then...
+    IntStream.range( 0, matches.size())
+      .forEach( i -> {
+        String text = matches.get(i);
+        assertThat( String.format( "[%s] %s -> %s", i, regexp, text), matchesJavaScript( text, regexp), is( false));
+        });
     }
 
   /**
