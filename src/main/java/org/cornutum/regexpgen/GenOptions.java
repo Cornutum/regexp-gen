@@ -11,6 +11,7 @@ import org.cornutum.regexpgen.util.CharUtils;
 import org.cornutum.regexpgen.util.ToString;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
@@ -28,6 +29,7 @@ public class GenOptions
   public GenOptions()
     {
     setAnyPrintableChars( ANY_LATIN_1);
+    setSpaceChars( ECMA_SPACE);
     }
 
   /**
@@ -73,6 +75,38 @@ public class GenOptions
     return anyPrintable_;
     }
 
+  /**
+   * Changes the set of characters used to generate matches for the "\s" expression.
+   */
+  public void setSpaceChars( Set<Character> chars)
+    {
+    Set<Character> spaceChars = Optional.ofNullable( chars).orElse( ECMA_SPACE);
+    if( spaceChars.isEmpty())
+      {
+      throw new IllegalArgumentException( "Space character set is empty");
+      }
+    spaceChars_ = spaceChars;
+    }
+
+  /**
+   * Changes the set of characters used to generate matches for the "\s" expression.
+   */
+  public void setSpaceChars( String chars)
+    {
+    setSpaceChars(
+      IntStream.range( 0, chars.length())
+      .mapToObj( i -> chars.charAt( i))
+      .collect( toSet()));
+    }
+
+  /**
+   * Returns the set of characters used to generate matches for the "\s" expression.
+   */
+  public Set<Character> getSpaceChars()
+    {
+    return spaceChars_;
+    }
+
   public String toString()
     {
     return
@@ -81,6 +115,7 @@ public class GenOptions
     }
 
   private Set<Character> anyPrintable_;
+  private Set<Character> spaceChars_;
 
   /**
    * All printable characters in the basic and supplemental Latin-1 code blocks
@@ -97,4 +132,33 @@ public class GenOptions
     Collections.unmodifiableSet(
       CharUtils.printableAscii()
       .collect( toSet()));
+
+  /**
+   * Standard ECMA-262 whitespace characters for the "\s" character class
+   */
+  public static final Set<Character> ECMA_SPACE;
+  static
+    {
+    Set<Character> ecmaSpace = new HashSet<>();
+    ecmaSpace.add( ' ');
+    ecmaSpace.add( '\f');
+    ecmaSpace.add( '\n');
+    ecmaSpace.add( '\r');
+    ecmaSpace.add( '\t');
+    ecmaSpace.add( (char) 0x000b);  // Vertical tab
+    ecmaSpace.add( (char) 0x00a0);  // Non-breaking space
+    ecmaSpace.add( (char) 0x1680);  // Ogham space mark
+    ecmaSpace.add( (char) 0x2028);  // Line separator
+    ecmaSpace.add( (char) 0x2029);  // Paragraph separator
+    ecmaSpace.add( (char) 0x202f);  // Narrow no-break space
+    ecmaSpace.add( (char) 0x205f);  // Medium mathematical space
+    ecmaSpace.add( (char) 0x3000);  // Ideographic space
+    ecmaSpace.add( (char) 0xfeff);  // Byte order mark
+    // En quad through hair space
+    for( char c = (char) 0x2000; c <= (char) 0x200a; c++)
+      {
+      ecmaSpace.add( c);
+      }
+    ECMA_SPACE = Collections.unmodifiableSet( ecmaSpace);
+    }
   }

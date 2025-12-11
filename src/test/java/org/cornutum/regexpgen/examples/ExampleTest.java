@@ -7,6 +7,7 @@
 
 package org.cornutum.regexpgen.examples;
 
+import org.cornutum.regexpgen.GenOptions;
 import org.cornutum.regexpgen.RandomGen;
 import org.cornutum.regexpgen.RegExpGen;
 import org.cornutum.regexpgen.js.Provider;
@@ -159,6 +160,30 @@ public class ExampleTest
       .orElseThrow( () -> new IllegalStateException( String.format( "Unable to generate string not matching '%s'", regexp)));
 
     System.out.println( String.format( "\n%s [ %s ]:", "notMatching", regexp));
+    for( int i = 0; i < getGeneratorCount(); i++)
+      {
+      // ...and generate matching strings.
+      System.out.println( generator.generate( random));
+      }
+    }
+
+  @Test
+  public void withSpaceChars()
+    {
+    // Given a JavaScript regular expression...
+    String regexp = regexp( "^Name:\\s+Value$");
+
+    // ...and a random number generator...
+    RandomGen random = getRandomGen();
+
+    // ...create options matching "\s" with specific characters (only space and tab)...
+    GenOptions options = new GenOptions();
+    options.setSpaceChars( " \t");
+
+    // ...create a RegExpGen instance with custom space characters...
+    RegExpGen generator = Provider.forEcmaScript().matchingExact( regexp, options);
+
+    System.out.println( String.format( "\n%s [ %s ]:", "withSpaceChars", regexp));
     for( int i = 0; i < getGeneratorCount(); i++)
       {
       // ...and generate matching strings.

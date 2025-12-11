@@ -63,24 +63,7 @@ public class CharClasses
    */
   public CharClassGen space()
     {
-    AnyOfGen space = new AnyOfGen( options_);
-    space.add( ' ');
-    space.add( '\f');
-    space.add( '\n');
-    space.add( '\r');
-    space.add( '\t');
-    space.add( (char) 0x000b);
-    space.add( (char) 0x00a0);
-    space.add( (char) 0x1680);
-    space.add( (char) 0x2028);
-    space.add( (char) 0x2029);
-    space.add( (char) 0x202f);
-    space.add( (char) 0x205f);
-    space.add( (char) 0x3000);
-    space.add( (char) 0xfeff);
-    space.addAll( (char) 0x2000, (char) 0x200a);
-
-    return space;
+    return new AnyOfGen( options_, options_.getSpaceChars());
     }
 
   /**
