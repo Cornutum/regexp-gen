@@ -196,6 +196,26 @@ public class GenerateTest
     }
 
   @Test
+  public void whenNegativeClassProvided()
+    {
+    verifyMatchesFor( "[^a-f\\d]+");
+    verifyMatchesFor( "^(\\S+\\s)*\\S+$");
+    verifyMatchesFor( "\\S{2,}");
+    verifyMatchesFor( "^\\S+$");
+    verifyMatchesFor( "^\\W+$");
+    verifyMatchesFor( "^\\D+$");
+    verifyMatchesFor( "^[^\\s]+$");
+
+    verifyNotMatchesFor( "[^a-f\\d]+");
+    verifyNotMatchesFor( "^(\\S+\\s)*\\S+$");
+    verifyNotMatchesFor( "\\S{2,}");
+    verifyNotMatchesFor( "^\\S+$");
+    verifyNotMatchesFor( "^\\W+$");
+    verifyNotMatchesFor( "^\\D+$");
+    verifyNotMatchesFor( "^[^\\s]+$");
+    }
+
+  @Test
   public void whenDetachedAnchorEnd()
     {
     verifyMatchesFor( "^Cats are bad( company |$| pets )");
