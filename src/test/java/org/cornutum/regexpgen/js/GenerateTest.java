@@ -19,13 +19,10 @@ import org.junit.Test;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 
-import static java.util.Collections.unmodifiableSet;
 import static org.cornutum.hamcrest.ExpectedFailure.expectFailure;
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
