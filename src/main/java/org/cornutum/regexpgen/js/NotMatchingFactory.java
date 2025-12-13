@@ -82,8 +82,11 @@ public class NotMatchingFactory implements RegExpGenVisitor
           // ... required to be excluded
           SetUtils.difference( initialNone, initialAny).stream(),
 
-          // ... or not among those required to be allowed
-          CharUtils.printableChars().filter( c -> !initialAny.contains( c)))
+          // ... or not among those required to be allowed (only when no NoneOfGen present,
+          // since NoneOfGen matches everything except its charSet, so Part 1 already covers mismatching)
+          initialNone.isEmpty()
+          ? regExpGen.getOptions().getAnyPrintableChars().stream().filter( c -> !initialAny.contains( c))
+          : Stream.empty())
 
         // ... and are excluded from any optional prefix
         .filter( c -> isExcluded( initialPrefix, c))
