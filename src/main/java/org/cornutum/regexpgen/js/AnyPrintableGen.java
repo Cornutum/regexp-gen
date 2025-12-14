@@ -9,7 +9,7 @@ package org.cornutum.regexpgen.js;
 
 import java.util.Set;
 
-import org.cornutum.regexpgen.GenOptions;
+import org.cornutum.regexpgen.MatchOptions;
 
 /**
  * Generates a sequence of any printable characters.
@@ -19,7 +19,7 @@ public class AnyPrintableGen extends AnyOfGen
   /**
    * Creates a new AnyPrintableGen instance.
    */
-  public AnyPrintableGen( GenOptions options)
+  public AnyPrintableGen( MatchOptions options)
     {
     super( options);
     }
@@ -27,7 +27,7 @@ public class AnyPrintableGen extends AnyOfGen
   /**
    * Creates a new AnyPrintableGen instance.
    */
-  public AnyPrintableGen( GenOptions options, int length)
+  public AnyPrintableGen( MatchOptions options, int length)
     {
     this( options);
     setOccurrences( length, length);
@@ -36,7 +36,7 @@ public class AnyPrintableGen extends AnyOfGen
   /**
    * Creates a new AnyPrintableGen instance.
    */
-  public AnyPrintableGen( GenOptions options, Integer minOccur, Integer maxOccur)
+  public AnyPrintableGen( MatchOptions options, Integer minOccur, Integer maxOccur)
     {
     this( options);
     setOccurrences( minOccur, maxOccur);
@@ -47,7 +47,7 @@ public class AnyPrintableGen extends AnyOfGen
    */
   protected Set<Character> getCharSet()
     {
-    return getOptions().getAnyPrintableChars();
+    return getMatchOptions().getAnyPrintableChars();
     }
 
   /**

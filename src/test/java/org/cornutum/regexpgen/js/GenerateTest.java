@@ -8,11 +8,12 @@
 package org.cornutum.regexpgen.js;
 
 import org.cornutum.regexpgen.Bounds;
-import org.cornutum.regexpgen.GenOptions;
+import org.cornutum.regexpgen.MatchOptions;
 import org.cornutum.regexpgen.RandomGen;
 import org.cornutum.regexpgen.RegExpGen;
 import org.cornutum.regexpgen.random.RandomBoundsGen;
 import org.cornutum.regexpgen.util.CharUtils;
+import static org.cornutum.regexpgen.RegExpGenBuilder.generateRegExp;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
@@ -270,7 +271,7 @@ public class GenerateTest
     {
     // Given...
     String regexp = "^They say( No[?!],){1,3} but I say( (Yes[?!]|What?),){1,3} OK\\?$";
-    RegExpGen generator = Provider.forEcmaScript().matching( regexp);
+    RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( regexp);
     RandomGen random = getRandomGen();
 
     expectFailure( IllegalArgumentException.class)
@@ -291,10 +292,8 @@ public class GenerateTest
     {
     // Given...
     String regexp = "\\D+";
-    RegExpGen generator = Provider.forEcmaScript().matching( regexp);
+    RegExpGen generator = generateRegExp( Provider.forEcmaScript()).withAny( singleton( Character.valueOf( '0'))).matching( regexp);
     RandomGen random = getRandomGen();
-
-    generator.getOptions().setAnyPrintableChars( singleton( Character.valueOf( '0')));
 
     expectFailure( IllegalStateException.class)
       .when( () -> generator.generate( random))
@@ -358,26 +357,20 @@ public class GenerateTest
   
   private void verifyMatchesFor( String regexp, Integer lengthMin, Integer lengthMax, BiFunction<String,String,Boolean> matchCheck)
     {
-    verifyMatchesFor( false, regexp, null, lengthMin, lengthMax, matchCheck);
-    verifyMatchesFor( true, regexp, null, lengthMin, lengthMax, matchCheck);
+    verifyMatchesFor( regexp, MatchOptions.builder().exactly( false).build(), lengthMin, lengthMax, matchCheck);
+    verifyMatchesFor( regexp, MatchOptions.builder().exactly( true).build(), lengthMin, lengthMax, matchCheck);
     }
 
   private void verifyMatchesFor( String regexp, Set<Character> printable)
     {
-    verifyMatchesFor( false, regexp, printable, 0, null, this::matchesJavaScript);
+    verifyMatchesFor( regexp, MatchOptions.builder().withAny( printable).build(), 0, null, this::matchesJavaScript);
     }
 
-  private void verifyMatchesFor( boolean exact, String regexp, Set<Character> printable, Integer lengthMin, Integer lengthMax, BiFunction<String,String,Boolean> matchCheck)
+  private void verifyMatchesFor( String regexp, MatchOptions options, Integer lengthMin, Integer lengthMax, BiFunction<String,String,Boolean> matchCheck)
     {
     // Given...
-    RegExpGen generator =
-      exact
-      ? Provider.forEcmaScript().matchingExact( regexp)
-      : Provider.forEcmaScript().matching( regexp);
+    RegExpGen generator = Provider.forEcmaScript().matching( regexp, options);
 
-    Optional.ofNullable( printable)
-      .ifPresent( chars -> generator.getOptions().setAnyPrintableChars( chars));
-    
     RandomGen random = getRandomGen();
     Bounds length = new Bounds( lengthMin, lengthMax);
     
@@ -399,7 +392,7 @@ public class GenerateTest
     // Then...
     if( printResults())
       {
-      System.out.println( String.format( "\n%s %s", exact? "Exact" : "Any", regexp));
+      System.out.println( String.format( "\n%s %s", options.isExactMatch()? "Exact" : "Any", regexp));
       }
     IntStream.range( 0, matches.size())
       .forEach( i -> {
@@ -447,30 +440,27 @@ public class GenerateTest
 
   private void verifyNotMatchesFor( String regexp)
     {
-    verifyNotMatchesFor( regexp, null, this::matchesJavaScript);
+    verifyNotMatchesFor( regexp, new MatchOptions(), this::matchesJavaScript);
     }
 
   private void verifyJavaNotMatchesFor( String regexp)
     {
-    verifyNotMatchesFor( regexp, null, this::matchesJava);
+    verifyNotMatchesFor( regexp, new MatchOptions(), this::matchesJava);
     }
 
   private void verifyNotMatchesFor( String regexp, Set<Character> printable)
     {
-    verifyNotMatchesFor( regexp, printable, this::matchesJavaScript);
+    verifyNotMatchesFor( regexp, MatchOptions.builder().withAny( printable).build(), this::matchesJavaScript);
     }
 
-  private void verifyNotMatchesFor( String regexp, Set<Character> printable, BiFunction<String,String,Boolean> matchCheck)
+  private void verifyNotMatchesFor( String regexp, MatchOptions options, BiFunction<String,String,Boolean> matchCheck)
     {
     // Given...
     RegExpGen generator =
-      Provider.forEcmaScript().notMatching( regexp)
+      Provider.forEcmaScript().notMatching( regexp, options)
       .orElseThrow( () -> new RuntimeException( String.format( "Can't create not-matching generator for regexp=%s", regexp)));
     
     RandomGen random = getRandomGen();
-
-    Optional.ofNullable( printable)
-      .ifPresent( chars -> generator.getOptions().setAnyPrintableChars( chars));
 
     // When...
     List<String> matches =
@@ -520,63 +510,25 @@ public class GenerateTest
     String source = generator.getSource();
 
     // Then...
-    assertThat( "For source=" + source, Provider.forEcmaScript().matching( source), is( generator));
+    assertThat( "For source=" + source, generateRegExp( Provider.forEcmaScript()).matching( source), is( generator));
     }
 
   private void verifyNotMatchesNone( String regexp)
     {
     assertThat(
       String.format( "Not matching '%s'", regexp),
-      Provider.forEcmaScript().notMatching( regexp),
+      generateRegExp( Provider.forEcmaScript()).notMatching( regexp),
       is( Optional.empty()));
     }
 
   private void verifyMatchesForSpaceChars( String regexp, String spaceChars)
     {
-    // Given...
-    GenOptions options = new GenOptions();
-    options.setSpaceChars( spaceChars);
-    RegExpGen generator = Provider.forEcmaScript().matchingExact( regexp, options);
-
-    RandomGen random = getRandomGen();
-
-    // When...
-    List<String> matches =
-      IntStream.range( 0, getGeneratorCount())
-      .mapToObj( i -> generator.generate( random))
-      .collect( toList());
-
-    // Then...
-    IntStream.range( 0, matches.size())
-      .forEach( i -> {
-        String text = matches.get(i);
-        assertThat( String.format( "[%s] %s -> %s", i, regexp, text), matchesJavaScript( text, regexp), is( true));
-        });
+    verifyMatchesFor( regexp, MatchOptions.builder().withSpace( spaceChars).build(), 0, null, this::matchesJavaScript);
     }
 
   private void verifyNotMatchesForSpaceChars( String regexp, String spaceChars)
     {
-    // Given...
-    GenOptions options = new GenOptions();
-    options.setSpaceChars( spaceChars);
-    RegExpGen generator =
-      Provider.forEcmaScript().notMatching( regexp, options)
-      .orElseThrow( () -> new RuntimeException( String.format( "Can't create not-matching generator for regexp=%s", regexp)));
-
-    RandomGen random = getRandomGen();
-
-    // When...
-    List<String> matches =
-      IntStream.range( 0, getGeneratorCount())
-      .mapToObj( i -> generator.generate( random))
-      .collect( toList());
-
-    // Then...
-    IntStream.range( 0, matches.size())
-      .forEach( i -> {
-        String text = matches.get(i);
-        assertThat( String.format( "[%s] %s -> %s", i, regexp, text), matchesJavaScript( text, regexp), is( false));
-        });
+    verifyNotMatchesFor( regexp, MatchOptions.builder().withSpace( spaceChars).build(), this::matchesJavaScript);
     }
 
   /**

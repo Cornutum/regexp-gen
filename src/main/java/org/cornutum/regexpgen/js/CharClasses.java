@@ -7,7 +7,7 @@
 
 package org.cornutum.regexpgen.js;
 
-import org.cornutum.regexpgen.GenOptions;
+import org.cornutum.regexpgen.MatchOptions;
 
 /**
  * Creates {@link CharClassGen} instances for standard character classes.
@@ -17,7 +17,7 @@ public class CharClasses
   /**
    * Creates a new CharClasses instance.
    */
-  public CharClasses( GenOptions options)
+  public CharClasses( MatchOptions options)
     {
     options_ = options;
     }
@@ -74,5 +74,5 @@ public class CharClasses
     return new NoneOfGen( space());
     }
 
-  private final GenOptions options_;
+  private final MatchOptions options_;
   }

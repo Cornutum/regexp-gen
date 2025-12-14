@@ -9,6 +9,7 @@ package org.cornutum.regexpgen.js;
 
 import org.cornutum.regexpgen.Bounds;
 import org.cornutum.regexpgen.GenOptions;
+import org.cornutum.regexpgen.MatchOptions;
 import org.cornutum.regexpgen.RandomGen;
 import org.cornutum.regexpgen.RegExpGen;
 import org.cornutum.regexpgen.util.ToString;
@@ -24,7 +25,7 @@ public abstract class AbstractRegExpGen implements RegExpGen
   /**
    * Creates a new AbstractRegExpGen instance.
    */
-  protected AbstractRegExpGen( GenOptions options)
+  protected AbstractRegExpGen( MatchOptions options)
     {
     this( options, 1);
     }
@@ -32,7 +33,7 @@ public abstract class AbstractRegExpGen implements RegExpGen
   /**
    * Creates a new AbstractRegExpGen instance.
    */
-  protected AbstractRegExpGen( GenOptions options, int length)
+  protected AbstractRegExpGen( MatchOptions options, int length)
     {
     this( options, length, length);
     }
@@ -40,7 +41,7 @@ public abstract class AbstractRegExpGen implements RegExpGen
   /**
    * Creates a new AbstractRegExpGen instance.
    */
-  protected AbstractRegExpGen( GenOptions options, Integer minOccur, Integer maxOccur)
+  protected AbstractRegExpGen( MatchOptions options, Integer minOccur, Integer maxOccur)
     {
     options_ = options;
     setOccurrences( minOccur, maxOccur);
@@ -88,8 +89,19 @@ public abstract class AbstractRegExpGen implements RegExpGen
 
   /**
    * Returns the {@link GenOptions options} for this generator.
+   *
+   * @deprecated Provides {@link GenOptions} for backward-compatibility only
    */
+  @Deprecated
   public GenOptions getOptions()
+    {
+    return options_.getGenOptions();
+    }
+
+  /**
+   * Returns the {@link MatchOptions options} for this generator.
+   */
+  public MatchOptions getMatchOptions()
     {
     return options_;
     }
@@ -230,9 +242,9 @@ public abstract class AbstractRegExpGen implements RegExpGen
   private Bounds occurrences_;
   private boolean anchoredStart_ = false;
   private boolean anchoredEnd_ = false;
-  private final GenOptions options_;
+  private final MatchOptions options_;
 
-  public static final GenOptions BUILDER_OPTIONS = new GenOptions();
+  public static final MatchOptions BUILDER_OPTIONS = new MatchOptions();
   
   /**
    * Builds an {@link AbstractRegExpGen} instance.

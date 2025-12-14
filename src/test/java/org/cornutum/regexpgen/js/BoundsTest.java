@@ -7,6 +7,8 @@
 
 package org.cornutum.regexpgen.js;
 
+import static org.cornutum.regexpgen.RegExpGenBuilder.generateRegExp;
+
 import org.junit.Test;
 import static org.cornutum.hamcrest.Composites.*;
 import static org.hamcrest.MatcherAssert.*;
@@ -35,7 +37,7 @@ public class BoundsTest
     // When...
     List<String> ordered =
       regexps.stream()
-      .map( regexp -> Provider.forEcmaScript().matchingExact( regexp))
+      .map( regexp -> generateRegExp( Provider.forEcmaScript()).exactly().matching( regexp))
       .sorted()
       .map( generator -> generator.getSource())
       .collect( toList());

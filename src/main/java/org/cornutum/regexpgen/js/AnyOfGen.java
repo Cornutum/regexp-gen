@@ -7,7 +7,7 @@
 
 package org.cornutum.regexpgen.js;
 
-import org.cornutum.regexpgen.GenOptions;
+import org.cornutum.regexpgen.MatchOptions;
 
 import java.util.Set;
 
@@ -19,7 +19,7 @@ public class AnyOfGen extends CharClassGen
   /**
    * Creates a new AnyOfGen instance.
    */
-  public AnyOfGen( GenOptions options)
+  public AnyOfGen( MatchOptions options)
     {
     super( options);
     }
@@ -27,7 +27,7 @@ public class AnyOfGen extends CharClassGen
   /**
    * Creates a new AnyOfGen instance.
    */
-  protected AnyOfGen( GenOptions options, char c)
+  protected AnyOfGen( MatchOptions options, char c)
     {
     super( options, c);
     }
@@ -35,7 +35,7 @@ public class AnyOfGen extends CharClassGen
   /**
    * Creates a new AnyOfGen instance.
    */
-  protected AnyOfGen( GenOptions options, char first, char last)
+  protected AnyOfGen( MatchOptions options, char first, char last)
     {
     super( options, first, last);
     }
@@ -43,7 +43,7 @@ public class AnyOfGen extends CharClassGen
   /**
    * Creates a new AnyOfGen instance.
    */
-  protected AnyOfGen( GenOptions options, Set<Character> chars)
+  protected AnyOfGen( MatchOptions options, Set<Character> chars)
     {
     super( options, chars);
     }
@@ -84,7 +84,7 @@ public class AnyOfGen extends CharClassGen
   /**
    * Returns an {@link AnyOfGen} builder.
    */
-  public static Builder builder( GenOptions options)
+  public static Builder builder( MatchOptions options)
     {
     return new Builder( options);
     }
@@ -99,7 +99,7 @@ public class AnyOfGen extends CharClassGen
       this( BUILDER_OPTIONS);
       }
 
-    public Builder( GenOptions options)
+    public Builder( MatchOptions options)
       {
       anyOf_ = new AnyOfGen( options);
       }
@@ -114,7 +114,7 @@ public class AnyOfGen extends CharClassGen
 
     public Builder anyPrintable()
       {
-      anyOf_ = new AnyPrintableGen( anyOf_.getOptions());
+      anyOf_ = new AnyPrintableGen( anyOf_.getMatchOptions());
       return this;
       }
 

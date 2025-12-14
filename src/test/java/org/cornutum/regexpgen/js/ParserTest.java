@@ -8,6 +8,7 @@
 package org.cornutum.regexpgen.js;
 
 import org.cornutum.regexpgen.RegExpGen;
+import static org.cornutum.regexpgen.RegExpGenBuilder.generateRegExp;
 
 import org.junit.Test;
 import static org.cornutum.hamcrest.Composites.*;
@@ -58,7 +59,7 @@ public class ParserTest
     String regexp = "^\\((Copyright[-: ]+2020)?[\\\\\\d\\t]? K(?=ornutum)\\)|@Copyright|@Trademark";
     
     // When...
-    RegExpGen generator = Provider.forEcmaScript().matching( regexp);
+    RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( regexp);
 
     // Then...
     AbstractRegExpGen expected =
@@ -160,7 +161,7 @@ public class ParserTest
     String regexp = "-+|\\([^\\0-]*?\\0\\)|-";
     
     // When...
-    RegExpGen generator = Provider.forEcmaScript().matching( regexp);
+    RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( regexp);
 
     // Then...
     AbstractRegExpGen expected =
@@ -245,7 +246,7 @@ public class ParserTest
     String regexp = "(?<=[\\ca-\\ck]+)\\cZ+$";
     
     // When...
-    RegExpGen generator = Provider.forEcmaScript().matching( regexp);
+    RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( regexp);
 
     // Then...
     AbstractRegExpGen expected =
@@ -300,7 +301,7 @@ public class ParserTest
     String regexp = "(?<=Prefix)([^\\sA-Z\\uABCD@]\\n)+|X\\\\=.{0,2}(?=Suffix)";
     
     // When...
-    RegExpGen generator = Provider.forEcmaScript().matching( regexp);
+    RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( regexp);
 
     // Then...
     AbstractRegExpGen expected =
@@ -397,7 +398,7 @@ public class ParserTest
     String regexp = "^[\\b]\\\\+?\\f$";
     
     // When...
-    RegExpGen generator = Provider.forEcmaScript().matching( regexp);
+    RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( regexp);
 
     // Then...
     AbstractRegExpGen expected =
@@ -449,7 +450,7 @@ public class ParserTest
     String regexp = "\\rX|^\\r??$|[^\\r]";
     
     // When...
-    RegExpGen generator = Provider.forEcmaScript().matching( regexp);
+    RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( regexp);
 
     // Then...
     AbstractRegExpGen expected =
@@ -523,7 +524,7 @@ public class ParserTest
     String regexp = "(?<=^Prefix)([\\S@X-Z\\]\\v]\\(\\x6A.z\\))*?$";
     
     // When...
-    RegExpGen generator = Provider.forEcmaScript().matching( regexp);
+    RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( regexp);
 
     // Then...
     AbstractRegExpGen expected =
@@ -588,7 +589,7 @@ public class ParserTest
     String regexp = "(?<=^(?<group>A|B))([^\\cC]*\\\\\\t)+(?=Z$|D)|(Z|D$)";
     
     // When...
-    RegExpGen generator = Provider.forEcmaScript().matching( regexp);
+    RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( regexp);
 
     // Then...
     AbstractRegExpGen expected =
@@ -678,7 +679,7 @@ public class ParserTest
     String regexp = "\\u028f{2,3}$";
     
     // When...
-    RegExpGen generator = Provider.forEcmaScript().matching( regexp);
+    RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( regexp);
 
     // Then...
     AbstractRegExpGen expected =
@@ -732,7 +733,7 @@ public class ParserTest
     String regexp = "\\?|^(?:[^\\\\-z\\W\\f-]\\)\\v+.){2,2}?(?=Suffix)";
     
     // When...
-    RegExpGen generator = Provider.forEcmaScript().matching( regexp);
+    RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( regexp);
 
     // Then...
     AbstractRegExpGen expected =
@@ -817,7 +818,7 @@ public class ParserTest
     String regexp = "(?<=\\\\{3})[\\n]\\??\\0{2,}$";
     
     // When...
-    RegExpGen generator = Provider.forEcmaScript().matching( regexp);
+    RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( regexp);
 
     // Then...
     AbstractRegExpGen expected =
@@ -873,7 +874,7 @@ public class ParserTest
     String regexp = "^\\{|\\cb{0,3}?(?=C|D|E$)|\\{{1,2}?";
     
     // When...
-    RegExpGen generator = Provider.forEcmaScript().matching( regexp);
+    RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( regexp);
 
     // Then...
     AbstractRegExpGen expected =
@@ -960,7 +961,7 @@ public class ParserTest
     String regexp = "^[-\\[\\r\\--\\-\\]\\D].\\\\(?:(?<=x+y)z$)?";
     
     // When...
-    RegExpGen generator = Provider.forEcmaScript().matching( regexp);
+    RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( regexp);
 
     // Then...
     AbstractRegExpGen expected =
@@ -1033,7 +1034,7 @@ public class ParserTest
     String regexp = "^[^\\xA2]\\xc5+\\n*?(?=\\f)|(?<zee>Z$)";
     
     // When...
-    RegExpGen generator = Provider.forEcmaScript().matching( regexp);
+    RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( regexp);
 
     // Then...
     AbstractRegExpGen expected =
@@ -1099,7 +1100,7 @@ public class ParserTest
     String regexp = "(?<=\\*)[\\]\\Z-\\A.\\w\\t]+$";
     
     // When...
-    RegExpGen generator = Provider.forEcmaScript().matching( regexp);
+    RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( regexp);
 
     // Then...
     AbstractRegExpGen expected =
@@ -1161,7 +1162,7 @@ public class ParserTest
     String regexp = "";
     
     // When...
-    RegExpGen generator = Provider.forEcmaScript().matching( regexp);
+    RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( regexp);
 
     // Then...
     AbstractRegExpGen expected = null;
@@ -1175,7 +1176,7 @@ public class ParserTest
     String detachedStart = "( fat | bad |^)cat\\.$";
     
     // When...
-    RegExpGen generator = Provider.forEcmaScript().matching( detachedStart);
+    RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( detachedStart);
 
     // Then...
     AbstractRegExpGen expected =
@@ -1211,7 +1212,7 @@ public class ParserTest
     String detachedEnd = "^Cats are bad( company |$| pets )";
     
     // When...
-    generator = Provider.forEcmaScript().matching( detachedEnd);
+    generator = generateRegExp( Provider.forEcmaScript()).matching( detachedEnd);
 
     // Then...
     expected =
@@ -1247,7 +1248,7 @@ public class ParserTest
     String empty = "^$";
     
     // When...
-    generator = Provider.forEcmaScript().matching( empty);
+    generator = generateRegExp( Provider.forEcmaScript()).matching( empty);
 
     // Then...
     expected = AnyOfGen.builder().anyPrintable().occurs(0).build();
@@ -1262,7 +1263,7 @@ public class ParserTest
     String regexp = "\\w+@\\w+(\\.\\w+)*\\.(com|net|org)";
     
     // When...
-    RegExpGen generator = Provider.forEcmaScript().matchingExact( regexp);
+    RegExpGen generator = generateRegExp( Provider.forEcmaScript()).exactly().matching( regexp);
 
     // Then...
     AbstractRegExpGen expected =
@@ -1295,7 +1296,7 @@ public class ParserTest
     String unanchored = "(cat|dog|turtle)+";
     
     // When...
-    RegExpGen generator = Provider.forEcmaScript().matching( unanchored);
+    RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( unanchored);
 
     // Then...
     AbstractRegExpGen expected =
@@ -1320,7 +1321,7 @@ public class ParserTest
     String startAnchored = "^(cat|dog|turtle)+";
     
     // When...
-    generator = Provider.forEcmaScript().matching( startAnchored);
+    generator = generateRegExp( Provider.forEcmaScript()).matching( startAnchored);
 
     // Then...
     expected =
@@ -1341,7 +1342,7 @@ public class ParserTest
     String endAnchored = "(cat|dog|turtle)+$";
     
     // When...
-    generator = Provider.forEcmaScript().matching( endAnchored);
+    generator = generateRegExp( Provider.forEcmaScript()).matching( endAnchored);
 
     // Then...
     expected =
@@ -1366,7 +1367,7 @@ public class ParserTest
     String unanchored = "(Digit=[\\d],){2}";
     
     // When...
-    RegExpGen generator = Provider.forEcmaScript().matching( unanchored);
+    RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( unanchored);
 
     // Then...
     AbstractRegExpGen expected =
@@ -1391,7 +1392,7 @@ public class ParserTest
     String startAnchored = "^(Digit=[\\d],){2}";
     
     // When...
-    generator = Provider.forEcmaScript().matching( startAnchored);
+    generator = generateRegExp( Provider.forEcmaScript()).matching( startAnchored);
 
     // Then...
     expected =
@@ -1412,7 +1413,7 @@ public class ParserTest
     String endAnchored = "(Digit=[\\d],){2}$";
     
     // When...
-    generator = Provider.forEcmaScript().matching( endAnchored);
+    generator = generateRegExp( Provider.forEcmaScript()).matching( endAnchored);
 
     // Then...
     expected =
@@ -1437,7 +1438,7 @@ public class ParserTest
     String regexp = "A||C";
 
     expectFailure( IllegalArgumentException.class)
-      .when( () -> Provider.forEcmaScript().matching( regexp))
+      .when( () -> generateRegExp( Provider.forEcmaScript()).matching( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Alternative missing", 2)));
         });
@@ -1450,7 +1451,7 @@ public class ParserTest
     String regexp = "^A(B|^C)";
 
     expectFailure( IllegalArgumentException.class)
-      .when( () -> Provider.forEcmaScript().matching( regexp))
+      .when( () -> generateRegExp( Provider.forEcmaScript()).matching( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Start-anchored expression can be matched at most once", 8)));
         });
@@ -1463,7 +1464,7 @@ public class ParserTest
     String regexp = "(ABC$)(DEF)";
 
     expectFailure( IllegalArgumentException.class)
-      .when( () -> Provider.forEcmaScript().matching( regexp))
+      .when( () -> generateRegExp( Provider.forEcmaScript()).matching( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Extra expressions not allowed after $ anchor", 11)));
         });
@@ -1476,7 +1477,7 @@ public class ParserTest
     String regexp = "Matchy (\\bMatchy)";
 
     expectFailure( IllegalArgumentException.class)
-      .when( () -> Provider.forEcmaScript().matching( regexp))
+      .when( () -> generateRegExp( Provider.forEcmaScript()).matching( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Unsupported word boundary assertion", 8)));
         });
@@ -1489,7 +1490,7 @@ public class ParserTest
     String regexp = "Matchy\\B Matchy";
 
     expectFailure( IllegalArgumentException.class)
-      .when( () -> Provider.forEcmaScript().matching( regexp))
+      .when( () -> generateRegExp( Provider.forEcmaScript()).matching( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Unsupported word boundary assertion", 6)));
         });
@@ -1502,7 +1503,7 @@ public class ParserTest
     String regexp = "(?<!ABC)D";
 
     expectFailure( IllegalArgumentException.class)
-      .when( () -> Provider.forEcmaScript().matching( regexp))
+      .when( () -> generateRegExp( Provider.forEcmaScript()).matching( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Unsupported negative look-behind assertion", 0)));
         });
@@ -1515,7 +1516,7 @@ public class ParserTest
     String regexp = "(?<=)ABC";
 
     expectFailure( IllegalArgumentException.class)
-      .when( () -> Provider.forEcmaScript().matching( regexp))
+      .when( () -> generateRegExp( Provider.forEcmaScript()).matching( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Missing look-behind expression", 4)));
         });
@@ -1528,7 +1529,7 @@ public class ParserTest
     String regexp = "(?<=XYZ";
 
     expectFailure( IllegalArgumentException.class)
-      .when( () -> Provider.forEcmaScript().matching( regexp))
+      .when( () -> generateRegExp( Provider.forEcmaScript()).matching( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Missing ')'", 7)));
         });
@@ -1541,7 +1542,7 @@ public class ParserTest
     String regexp = "(?<=A)^Z";
 
     expectFailure( IllegalArgumentException.class)
-      .when( () -> Provider.forEcmaScript().matching( regexp))
+      .when( () -> generateRegExp( Provider.forEcmaScript()).matching( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Start assertion is inconsistent with look-behind assertion", 7)));
         });
@@ -1554,7 +1555,7 @@ public class ParserTest
     String regexp = "A(?<=B)";
 
     expectFailure( IllegalArgumentException.class)
-      .when( () -> Provider.forEcmaScript().matching( regexp))
+      .when( () -> generateRegExp( Provider.forEcmaScript()).matching( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Missing regular expression for look-behind assertion", 7)));
         });
@@ -1567,7 +1568,7 @@ public class ParserTest
     String regexp = "ABC(?!D)";
 
     expectFailure( IllegalArgumentException.class)
-      .when( () -> Provider.forEcmaScript().matching( regexp))
+      .when( () -> generateRegExp( Provider.forEcmaScript()).matching( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Unsupported negative look-ahead assertion", 3)));
         });
@@ -1580,7 +1581,7 @@ public class ParserTest
     String regexp = "(ABC)(?=)Z";
 
     expectFailure( IllegalArgumentException.class)
-      .when( () -> Provider.forEcmaScript().matching( regexp))
+      .when( () -> generateRegExp( Provider.forEcmaScript()).matching( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Missing look-ahead expression", 8)));
         });
@@ -1593,7 +1594,7 @@ public class ParserTest
     String regexp = "ABC(?=DEF";
 
     expectFailure( IllegalArgumentException.class)
-      .when( () -> Provider.forEcmaScript().matching( regexp))
+      .when( () -> generateRegExp( Provider.forEcmaScript()).matching( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Missing ')'", 9)));
         });
@@ -1606,7 +1607,7 @@ public class ParserTest
     String regexp = "ABC$(?=DEF)";
 
     expectFailure( IllegalArgumentException.class)
-      .when( () -> Provider.forEcmaScript().matching( regexp))
+      .when( () -> generateRegExp( Provider.forEcmaScript()).matching( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "End assertion is inconsistent with look-ahead assertion", 11)));
         });
@@ -1619,7 +1620,7 @@ public class ParserTest
     String regexp = "(ABC$)+";
 
     expectFailure( IllegalArgumentException.class)
-      .when( () -> Provider.forEcmaScript().matching( regexp))
+      .when( () -> generateRegExp( Provider.forEcmaScript()).matching( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "End-anchored expression can be matched at most once", 7)));
         });
@@ -1632,7 +1633,7 @@ public class ParserTest
     String regexp = "(A|^B|C)+";
 
     expectFailure( IllegalArgumentException.class)
-      .when( () -> Provider.forEcmaScript().matching( regexp))
+      .when( () -> generateRegExp( Provider.forEcmaScript()).matching( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Start-anchored expression can be matched at most once", 9)));
         });
@@ -1645,7 +1646,7 @@ public class ParserTest
     String regexp = "X{}";
 
     expectFailure( IllegalArgumentException.class)
-      .when( () -> Provider.forEcmaScript().matching( regexp))
+      .when( () -> generateRegExp( Provider.forEcmaScript()).matching( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Missing number", 2)));
         });
@@ -1658,7 +1659,7 @@ public class ParserTest
     String regexp = "A{1,2BC";
 
     expectFailure( IllegalArgumentException.class)
-      .when( () -> Provider.forEcmaScript().matching( regexp))
+      .when( () -> generateRegExp( Provider.forEcmaScript()).matching( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Missing '}'", 5)));
         });
@@ -1671,7 +1672,7 @@ public class ParserTest
     String regexp = "A()B";
 
     expectFailure( IllegalArgumentException.class)
-      .when( () -> Provider.forEcmaScript().matching( regexp))
+      .when( () -> generateRegExp( Provider.forEcmaScript()).matching( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Incomplete group expression", 2)));
         });
@@ -1684,7 +1685,7 @@ public class ParserTest
     String regexp = "(A|B";
 
     expectFailure( IllegalArgumentException.class)
-      .when( () -> Provider.forEcmaScript().matching( regexp))
+      .when( () -> generateRegExp( Provider.forEcmaScript()).matching( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Missing ')'", 4)));
         });
@@ -1697,7 +1698,7 @@ public class ParserTest
     String regexp = "[\\w-Z]";
 
     expectFailure( IllegalArgumentException.class)
-      .when( () -> Provider.forEcmaScript().matching( regexp))
+      .when( () -> generateRegExp( Provider.forEcmaScript()).matching( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Character range must begin with a specific character", 5)));
         });
@@ -1710,7 +1711,7 @@ public class ParserTest
     String regexp = "[d-\\S]";
 
     expectFailure( IllegalArgumentException.class)
-      .when( () -> Provider.forEcmaScript().matching( regexp))
+      .when( () -> generateRegExp( Provider.forEcmaScript()).matching( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Character range must end with a specific character", 5)));
         });
@@ -1723,7 +1724,7 @@ public class ParserTest
     String regexp = "AB[CD";
 
     expectFailure( IllegalArgumentException.class)
-      .when( () -> Provider.forEcmaScript().matching( regexp))
+      .when( () -> generateRegExp( Provider.forEcmaScript()).matching( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Missing ']'", 5)));
         });
@@ -1736,7 +1737,7 @@ public class ParserTest
     String regexp = "A[^]Z";
 
     expectFailure( IllegalArgumentException.class)
-      .when( () -> Provider.forEcmaScript().matching( regexp))
+      .when( () -> generateRegExp( Provider.forEcmaScript()).matching( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Empty character class", 3)));
         });
@@ -1749,7 +1750,7 @@ public class ParserTest
     String regexp = "\\c9";
 
     expectFailure( IllegalArgumentException.class)
-      .when( () -> Provider.forEcmaScript().matching( regexp))
+      .when( () -> generateRegExp( Provider.forEcmaScript()).matching( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Invalid control escape character='9'", 2)));
         });
@@ -1762,7 +1763,7 @@ public class ParserTest
     String regexp = "\\x1G";
 
     expectFailure( IllegalArgumentException.class)
-      .when( () -> Provider.forEcmaScript().matching( regexp))
+      .when( () -> generateRegExp( Provider.forEcmaScript()).matching( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Invalid hex character='1G'", 2)));
         });
@@ -1775,7 +1776,7 @@ public class ParserTest
     String incomplete = "\\u123";
 
     expectFailure( IllegalArgumentException.class)
-      .when( () -> Provider.forEcmaScript().matching( incomplete))
+      .when( () -> generateRegExp( Provider.forEcmaScript()).matching( incomplete))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Invalid Unicode character='123'", 2)));
         });
@@ -1783,7 +1784,7 @@ public class ParserTest
     String nonHex = "\\u123X";
 
     expectFailure( IllegalArgumentException.class)
-      .when( () -> Provider.forEcmaScript().matching( nonHex))
+      .when( () -> generateRegExp( Provider.forEcmaScript()).matching( nonHex))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Invalid Unicode character='123X'", 2)));
         }); 
@@ -1796,7 +1797,7 @@ public class ParserTest
     String regexp = "ABC^DEF";
 
     expectFailure( IllegalArgumentException.class)
-      .when( () -> Provider.forEcmaScript().matching( regexp))
+      .when( () -> generateRegExp( Provider.forEcmaScript()).matching( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Extra expressions not allowed preceding ^ anchor", 5)));
         });
@@ -1809,7 +1810,7 @@ public class ParserTest
     String regexp = "<([a-z]+)>(.*?)</\\1>";
 
     expectFailure( IllegalArgumentException.class)
-      .when( () -> Provider.forEcmaScript().matching( regexp))
+      .when( () -> generateRegExp( Provider.forEcmaScript()).matching( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Unsupported back reference to capturing group", 18)));
         });
@@ -1822,7 +1823,7 @@ public class ParserTest
     String regexp = "<([a-z]+)>(?<tag>.*?)</\\k<tag>>";
 
     expectFailure( IllegalArgumentException.class)
-      .when( () -> Provider.forEcmaScript().matching( regexp))
+      .when( () -> generateRegExp( Provider.forEcmaScript()).matching( regexp))
       .then( failure -> {
         assertThat( "Failure", failure.getMessage(), is( errorAt( "Unsupported back reference to named group", 24)));
         });

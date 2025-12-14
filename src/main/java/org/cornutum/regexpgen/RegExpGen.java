@@ -32,7 +32,10 @@ public interface RegExpGen extends Comparable<RegExpGen>
 
   /**
    * Returns the {@link GenOptions options} for this generator.
+   *
+   * @deprecated Use {@link RegExpGenBuilder} to configure options.
    */
+  @Deprecated
   public GenOptions getOptions();
 
   /**
