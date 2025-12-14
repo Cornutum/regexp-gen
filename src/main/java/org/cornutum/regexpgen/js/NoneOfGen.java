@@ -7,7 +7,7 @@
 
 package org.cornutum.regexpgen.js;
 
-import org.cornutum.regexpgen.GenOptions;
+import org.cornutum.regexpgen.MatchOptions;
 
 import java.util.Set;
 
@@ -19,7 +19,7 @@ public class NoneOfGen extends CharClassGen
   /**
    * Creates a new NoneOfGen instance.
    */
-  public NoneOfGen( GenOptions options)
+  public NoneOfGen( MatchOptions options)
     {
     super( options);
     }
@@ -27,7 +27,7 @@ public class NoneOfGen extends CharClassGen
   /**
    * Creates a new NoneOfGen instance.
    */
-  protected NoneOfGen( GenOptions options, char c)
+  protected NoneOfGen( MatchOptions options, char c)
     {
     super( options, c);
     }
@@ -35,7 +35,7 @@ public class NoneOfGen extends CharClassGen
   /**
    * Creates a new NoneOfGen instance.
    */
-  protected NoneOfGen( GenOptions options, char first, char last)
+  protected NoneOfGen( MatchOptions options, char first, char last)
     {
     super( options, first, last);
     }
@@ -43,7 +43,7 @@ public class NoneOfGen extends CharClassGen
   /**
    * Creates a new NoneOfGen instance.
    */
-  protected NoneOfGen( GenOptions options, Set<Character> chars)
+  protected NoneOfGen( MatchOptions options, Set<Character> chars)
     {
     super( options, chars);
     }
@@ -53,7 +53,7 @@ public class NoneOfGen extends CharClassGen
    */
   public NoneOfGen( CharClassGen charClass)
     {
-    super( charClass.getOptions());
+    super( charClass.getMatchOptions());
     addAll( charClass);
     }
 
@@ -71,7 +71,7 @@ public class NoneOfGen extends CharClassGen
   protected Character[] makeChars()
     {
     return
-      getOptions().getAnyPrintableChars().stream()
+      getMatchOptions().getAnyPrintableChars().stream()
       .filter( c -> !getCharSet().contains( c))
       .toArray( Character[]::new);
     }
@@ -112,7 +112,7 @@ public class NoneOfGen extends CharClassGen
   /**
    * Returns an {@link NoneOfGen} builder.
    */
-  public static Builder builder( GenOptions options)
+  public static Builder builder( MatchOptions options)
     {
     return new Builder( options);
     }
@@ -127,7 +127,7 @@ public class NoneOfGen extends CharClassGen
       this( BUILDER_OPTIONS);
       }
 
-    public Builder( GenOptions options)
+    public Builder( MatchOptions options)
       {
       noneOf_ = new NoneOfGen( options);
       }

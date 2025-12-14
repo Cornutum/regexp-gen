@@ -8,7 +8,7 @@
 package org.cornutum.regexpgen.js;
 
 import org.cornutum.regexpgen.Bounds;
-import org.cornutum.regexpgen.GenOptions;
+import org.cornutum.regexpgen.MatchOptions;
 import org.cornutum.regexpgen.RegExpGen;
 import org.cornutum.regexpgen.util.ToString;
 
@@ -28,52 +28,19 @@ import java.util.stream.IntStream;
 public class Parser
   {
   /**
-   * Returns an {@link AbstractRegExpGen} that generates strings containing characters that match the given
-   * JavaScript regular expression.
-   *
-   * @deprecated Replaced by {@link Provider#matching}
-   */
-  public static AbstractRegExpGen parseRegExp( String regexp) throws IllegalArgumentException
-    {
-    return new Parser( regexp).parse( false);
-    }
-  
-  /**
-   * Returns an {@link AbstractRegExpGen} that generates strings containing only characters that match the
-   * given JavaScript regular expression.
-   *
-   * @deprecated Replaced by {@link Provider#matchingExact}
-   */
-  public static AbstractRegExpGen parseRegExpExact( String regexp) throws IllegalArgumentException
-    {
-    return new Parser( regexp).parse( true);
-    }
-
-  /**
-   * Creates a new Parser instance.
-   */
-  Parser( String regexp)
-    {
-    this( regexp, null);
-    }
-
-  /**
    * Creates a new Parser instance with the given options.
    */
-  Parser( String regexp, GenOptions options)
+  Parser( String regexp, MatchOptions options)
     {
     chars_ = regexp;
-    options_ = options != null ? options : new GenOptions();
-    charClasses_ = new CharClasses( options_);
+    options_ = options;
+    charClasses_ = new CharClasses( options);
     }
 
   /**
    * Returns the {@link AbstractRegExpGen} represented by this JavaScript regular expression.
-   * If <CODE>exact</CODE> is true, the result generates strings containing only
-   * characters matching this regular expression. Otherwise, the result generates strings
-   * that may contain other characters surrounding the matching characters.
    */
-  AbstractRegExpGen parse( boolean exact) throws IllegalArgumentException
+  AbstractRegExpGen parse() throws IllegalArgumentException
     {
     AbstractRegExpGen regExpGen = getNext();
 
@@ -85,7 +52,7 @@ public class Parser
     
     return
       Optional.ofNullable( regExpGen)
-      .map( r -> exact? r : withStartGen( withEndGen( r)))
+      .map( r -> options().isExactMatch()? r : withStartGen( withEndGen( r)))
       .orElse( null);
     }
 
@@ -1063,9 +1030,9 @@ public class Parser
     }
 
   /**
-   * Returns the {@link GenOptions options} for {@link RegExpGen} instances created by this parser.
+   * Returns the {@link MatchOptions options} for {@link RegExpGen} instances created by this parser.
    */
-  private GenOptions options()
+  private MatchOptions options()
     {
     return options_;
     }
@@ -1141,7 +1108,7 @@ public class Parser
     }
   
   private final String chars_;
-  private final GenOptions options_;
+  private final MatchOptions options_;
   private final CharClasses charClasses_;
   private int cursor_ = 0;
 

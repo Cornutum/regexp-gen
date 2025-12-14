@@ -17,32 +17,32 @@ public interface Provider
   /**
    * Returns a {@link RegExpGen} that generates strings containing characters that match the given
    * regular expression.
+   *
+   * @deprecated Replace using {@link RegExpGenBuilder} with default options
    */
+  @Deprecated
   public default RegExpGen matching( String regexp)
     {
-    return matching( regexp, null);
+    return matching( regexp, new MatchOptions());
     }
 
   /**
    * Returns a {@link RegExpGen} that generates strings containing characters that match the given
    * regular expression, using the given options.
    */
-  public RegExpGen matching( String regexp, GenOptions options);
+  public RegExpGen matching( String regexp, MatchOptions options);
 
   /**
    * Returns a {@link RegExpGen} that generates strings containing only characters that match the
    * given regular expression.
+   *
+   * @deprecated Replace using {@link RegExpGenBuilder} with <CODE>exactly()</CODE>
    */
+  @Deprecated
   public default RegExpGen matchingExact( String regexp)
     {
-    return matchingExact( regexp, null);
+    return matching( regexp, MatchOptions.builder().exactly().build());
     }
-
-  /**
-   * Returns a {@link RegExpGen} that generates strings containing only characters that match the
-   * given regular expression, using the given options.
-   */
-  public RegExpGen matchingExact( String regexp, GenOptions options);
 
   /**
    * Returns a {@link RegExpGen} that generates strings that do NOT match the given regular
@@ -52,10 +52,13 @@ public interface Provider
    * does not match ".*". For such expressions, this method should return {@link Optional#empty}.
    * <P/>
    * This is an optional service. Throws an {@link UnsupportedOperationException} if not implemented.
+   *
+   * @deprecated Replace using {@link RegExpGenBuilder#notMatching}
    */
+  @Deprecated
   public default Optional<RegExpGen> notMatching( String regexp) throws UnsupportedOperationException
     {
-    return notMatching( regexp, null);
+    return notMatching( regexp, new MatchOptions());
     }
 
   /**
@@ -67,5 +70,5 @@ public interface Provider
    * <P/>
    * This is an optional service. Throws an {@link UnsupportedOperationException} if not implemented.
    */
-  public Optional<RegExpGen> notMatching( String regexp, GenOptions options) throws UnsupportedOperationException;
+  public Optional<RegExpGen> notMatching( String regexp, MatchOptions options) throws UnsupportedOperationException;
   }

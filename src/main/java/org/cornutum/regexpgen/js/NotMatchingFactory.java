@@ -50,7 +50,7 @@ public class NotMatchingFactory implements RegExpGenVisitor
     if( sequences.isEmpty())
       {
       // Yes, then any non-empty string is "not matching"
-      notMatching = withSource( new AnyPrintableGen( regExpGen.getOptions(), 1, null), ".+");
+      notMatching = withSource( new AnyPrintableGen( regExpGen.getMatchOptions(), 1, null), ".+");
       }
 
     // Unanchored empty string a possible match?
@@ -85,7 +85,7 @@ public class NotMatchingFactory implements RegExpGenVisitor
           // ... or not among those required to be allowed (only when no NoneOfGen present,
           // since NoneOfGen matches everything except its charSet, so Part 1 already covers mismatching)
           initialNone.isEmpty()
-          ? regExpGen.getOptions().getAnyPrintableChars().stream().filter( c -> !initialAny.contains( c))
+          ? regExpGen.getMatchOptions().getAnyPrintableChars().stream().filter( c -> !initialAny.contains( c))
           : Stream.empty())
 
         // ... and are excluded from any optional prefix
@@ -99,7 +99,7 @@ public class NotMatchingFactory implements RegExpGenVisitor
         // Yes, include a mismatching generator.
         notAlternatives.add(
           withLength(
-            withSource( new AnyOfGen( regExpGen.getOptions(), mismatching), mismatching),
+            withSource( new AnyOfGen( regExpGen.getMatchOptions(), mismatching), mismatching),
             1,
             null));
         }
@@ -116,7 +116,7 @@ public class NotMatchingFactory implements RegExpGenVisitor
           
         notAlternatives.add(
           withLength(
-            withSource( new AnyOfGen( regExpGen.getOptions(), allowed), allowed),
+            withSource( new AnyOfGen( regExpGen.getMatchOptions(), allowed), allowed),
             0,
             regExpGen.getMinLength() - 1));
         }
@@ -128,7 +128,7 @@ public class NotMatchingFactory implements RegExpGenVisitor
         notAlternatives.size() == 1?
         notAlternatives.get(0) :
 
-        withSource( new AlternativeGen( regExpGen.getOptions(), notAlternatives), notAlternatives);
+        withSource( new AlternativeGen( regExpGen.getMatchOptions(), notAlternatives), notAlternatives);
       }
 
     return Optional.ofNullable( notMatching).map( NotMatchingFactory::withAnchors);

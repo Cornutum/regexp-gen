@@ -8,7 +8,7 @@
 package org.cornutum.regexpgen.js;
 
 import org.cornutum.regexpgen.Bounds;
-import org.cornutum.regexpgen.GenOptions;
+import org.cornutum.regexpgen.MatchOptions;
 import org.cornutum.regexpgen.RandomGen;
 import static org.cornutum.regexpgen.Bounds.UNBOUNDED;
 import static org.cornutum.regexpgen.Bounds.bounded;
@@ -29,7 +29,7 @@ public class AlternativeGen extends AbstractRegExpGen
   /**
    * Creates a new AlternativeGen instance.
    */
-  public AlternativeGen( GenOptions options)
+  public AlternativeGen( MatchOptions options)
     {
     super( options);
     }
@@ -37,7 +37,7 @@ public class AlternativeGen extends AbstractRegExpGen
   /**
    * Creates a new AlternativeGen instance.
    */
-  public AlternativeGen( GenOptions options, AbstractRegExpGen... members)
+  public AlternativeGen( MatchOptions options, AbstractRegExpGen... members)
     {
     this( options);
     for( AbstractRegExpGen member : members)
@@ -49,7 +49,7 @@ public class AlternativeGen extends AbstractRegExpGen
   /**
    * Creates a new AlternativeGen instance.
    */
-  public <T extends AbstractRegExpGen> AlternativeGen( GenOptions options, Iterable<T> members)
+  public <T extends AbstractRegExpGen> AlternativeGen( MatchOptions options, Iterable<T> members)
     {
     this( options);
     for( AbstractRegExpGen member : members)
@@ -266,7 +266,7 @@ public class AlternativeGen extends AbstractRegExpGen
   /**
    * Returns an {@link AlternativeGen} builder.
    */
-  public static Builder builder( GenOptions options)
+  public static Builder builder( MatchOptions options)
     {
     return new Builder( options);
     }
@@ -303,7 +303,7 @@ public class AlternativeGen extends AbstractRegExpGen
       this( BUILDER_OPTIONS);
       }
 
-    public Builder( GenOptions options)
+    public Builder( MatchOptions options)
       {
       alternative_ = new AlternativeGen( options);
       }

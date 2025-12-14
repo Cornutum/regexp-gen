@@ -8,7 +8,7 @@
 package org.cornutum.regexpgen.js;
 
 import org.cornutum.regexpgen.Bounds;
-import org.cornutum.regexpgen.GenOptions;
+import org.cornutum.regexpgen.MatchOptions;
 import org.cornutum.regexpgen.RandomGen;
 import static org.cornutum.regexpgen.Bounds.UNBOUNDED;
 import static org.cornutum.regexpgen.Bounds.bounded;
@@ -30,7 +30,7 @@ public class SeqGen extends AbstractRegExpGen
   /**
    * Creates a new SeqGen instance.
    */
-  public SeqGen( GenOptions options)
+  public SeqGen( MatchOptions options)
     {
     super( options);
     }
@@ -38,7 +38,7 @@ public class SeqGen extends AbstractRegExpGen
   /**
    * Creates a new SeqGen instance.
    */
-  public SeqGen( GenOptions options, AbstractRegExpGen... members)
+  public SeqGen( MatchOptions options, AbstractRegExpGen... members)
     {
     this( options);
     for( AbstractRegExpGen member : members)
@@ -50,7 +50,7 @@ public class SeqGen extends AbstractRegExpGen
   /**
    * Creates a new SeqGen instance.
    */
-  public <T extends AbstractRegExpGen> SeqGen( GenOptions options, Iterable<T> members)
+  public <T extends AbstractRegExpGen> SeqGen( MatchOptions options, Iterable<T> members)
     {
     this( options);
     for( AbstractRegExpGen member : members)
@@ -77,7 +77,7 @@ public class SeqGen extends AbstractRegExpGen
     {
     Stream.of( Optional.ofNullable( chars).orElse( ""))
       .flatMap( s -> IntStream.range( 0, s.length()).mapToObj( i -> new Character( s.charAt(i))))
-      .forEach( c -> add( new AnyOfGen( getOptions(), c)));
+      .forEach( c -> add( new AnyOfGen( getMatchOptions(), c)));
     }
 
   /**
@@ -305,7 +305,7 @@ public class SeqGen extends AbstractRegExpGen
   /**
    * Returns an {@link SeqGen} builder.
    */
-  public static Builder builder( GenOptions options)
+  public static Builder builder( MatchOptions options)
     {
     return new Builder( options);
     }
@@ -342,7 +342,7 @@ public class SeqGen extends AbstractRegExpGen
       this( BUILDER_OPTIONS);
       }
 
-    public Builder( GenOptions options)
+    public Builder( MatchOptions options)
       {
       seq_ = new SeqGen( options);
       }

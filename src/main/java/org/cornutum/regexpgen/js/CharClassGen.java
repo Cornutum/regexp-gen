@@ -8,7 +8,7 @@
 package org.cornutum.regexpgen.js;
 
 import org.cornutum.regexpgen.Bounds;
-import org.cornutum.regexpgen.GenOptions;
+import org.cornutum.regexpgen.MatchOptions;
 import org.cornutum.regexpgen.RandomGen;
 
 import java.util.Arrays;
@@ -24,7 +24,7 @@ public abstract class CharClassGen extends AbstractRegExpGen
   /**
    * Creates a new CharClassGen instance.
    */
-  protected CharClassGen( GenOptions options)
+  protected CharClassGen( MatchOptions options)
     {
     super( options);
     }
@@ -32,7 +32,7 @@ public abstract class CharClassGen extends AbstractRegExpGen
   /**
    * Creates a new CharClassGen instance.
    */
-  protected CharClassGen( GenOptions options, char c)
+  protected CharClassGen( MatchOptions options, char c)
     {
     super( options);
     add( c);
@@ -41,7 +41,7 @@ public abstract class CharClassGen extends AbstractRegExpGen
   /**
    * Creates a new CharClassGen instance.
    */
-  protected CharClassGen( GenOptions options, char first, char last)
+  protected CharClassGen( MatchOptions options, char first, char last)
     {
     super( options);
     addAll( first, last);
@@ -50,7 +50,7 @@ public abstract class CharClassGen extends AbstractRegExpGen
   /**
    * Creates a new CharClassGen instance.
    */
-  protected CharClassGen( GenOptions options, Set<Character> chars)
+  protected CharClassGen( MatchOptions options, Set<Character> chars)
     {
     super( options);
     addAll( chars);
