@@ -589,7 +589,7 @@ public class GenerateTest
    */
   private int getGeneratorCount()
     {
-    return Optional.ofNullable( System.getProperty( "count")).map( Integer::valueOf).orElse( 100);
+    return Optional.ofNullable( StringUtils.trimToNull( System.getProperty( "count"))).map( Integer::valueOf).orElse( 100);
     }
 
   /**
