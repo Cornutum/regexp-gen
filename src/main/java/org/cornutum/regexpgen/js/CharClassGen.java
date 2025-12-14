@@ -233,6 +233,11 @@ public abstract class CharClassGen extends AbstractRegExpGen
   @SuppressWarnings("unchecked")
   protected static abstract class CharClassGenBuilder<T extends CharClassGenBuilder<T>> extends BaseBuilder<T>
     {
+    protected CharClassGenBuilder( MatchOptions options)
+      {
+      charClasses_ = new CharClasses( options);
+      }
+    
     /**
      * Returns the {@link CharClassGen} instance for this builder.
      */
@@ -312,6 +317,6 @@ public abstract class CharClassGen extends AbstractRegExpGen
       return (T) this;
       }
 
-    private CharClasses charClasses_ = new CharClasses( BUILDER_OPTIONS);
+    private CharClasses charClasses_;
     }
   }

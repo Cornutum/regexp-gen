@@ -297,14 +297,6 @@ public class SeqGen extends AbstractRegExpGen
   /**
    * Returns an {@link SeqGen} builder.
    */
-  public static Builder builder()
-    {
-    return new Builder();
-    }
-
-  /**
-   * Returns an {@link SeqGen} builder.
-   */
   public static Builder builder( MatchOptions options)
     {
     return new Builder( options);
@@ -337,11 +329,6 @@ public class SeqGen extends AbstractRegExpGen
    */
   public static class Builder extends BaseBuilder<Builder>
     {
-    public Builder()
-      {
-      this( BUILDER_OPTIONS);
-      }
-
     public Builder( MatchOptions options)
       {
       seq_ = new SeqGen( options);

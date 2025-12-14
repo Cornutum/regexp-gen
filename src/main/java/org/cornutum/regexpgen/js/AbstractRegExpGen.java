@@ -95,7 +95,7 @@ public abstract class AbstractRegExpGen implements RegExpGen
   @Deprecated
   public GenOptions getOptions()
     {
-    return options_.getGenOptions();
+    return  getMatchOptions().getGenOptions();
     }
 
   /**
@@ -244,8 +244,6 @@ public abstract class AbstractRegExpGen implements RegExpGen
   private boolean anchoredEnd_ = false;
   private final MatchOptions options_;
 
-  public static final MatchOptions BUILDER_OPTIONS = new MatchOptions();
-  
   /**
    * Builds an {@link AbstractRegExpGen} instance.
    */

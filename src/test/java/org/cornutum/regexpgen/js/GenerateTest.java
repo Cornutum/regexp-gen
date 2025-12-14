@@ -13,6 +13,7 @@ import org.cornutum.regexpgen.RandomGen;
 import org.cornutum.regexpgen.RegExpGen;
 import org.cornutum.regexpgen.random.RandomBoundsGen;
 import org.cornutum.regexpgen.util.CharUtils;
+import static org.cornutum.regexpgen.MatchOptionsBuilder.options;
 import static org.cornutum.regexpgen.RegExpGenBuilder.generateRegExp;
 
 import org.apache.commons.lang3.StringUtils;
@@ -357,13 +358,13 @@ public class GenerateTest
   
   private void verifyMatchesFor( String regexp, Integer lengthMin, Integer lengthMax, BiFunction<String,String,Boolean> matchCheck)
     {
-    verifyMatchesFor( regexp, MatchOptions.builder().exactly( false).build(), lengthMin, lengthMax, matchCheck);
-    verifyMatchesFor( regexp, MatchOptions.builder().exactly( true).build(), lengthMin, lengthMax, matchCheck);
+    verifyMatchesFor( regexp, options().exactly( false).build(), lengthMin, lengthMax, matchCheck);
+    verifyMatchesFor( regexp, options().exactly( true).build(), lengthMin, lengthMax, matchCheck);
     }
 
   private void verifyMatchesFor( String regexp, Set<Character> printable)
     {
-    verifyMatchesFor( regexp, MatchOptions.builder().withAny( printable).build(), 0, null, this::matchesJavaScript);
+    verifyMatchesFor( regexp, options().withAny( printable).build(), 0, null, this::matchesJavaScript);
     }
 
   private void verifyMatchesFor( String regexp, MatchOptions options, Integer lengthMin, Integer lengthMax, BiFunction<String,String,Boolean> matchCheck)
@@ -440,17 +441,17 @@ public class GenerateTest
 
   private void verifyNotMatchesFor( String regexp)
     {
-    verifyNotMatchesFor( regexp, new MatchOptions(), this::matchesJavaScript);
+    verifyNotMatchesFor( regexp, options().build(), this::matchesJavaScript);
     }
 
   private void verifyJavaNotMatchesFor( String regexp)
     {
-    verifyNotMatchesFor( regexp, new MatchOptions(), this::matchesJava);
+    verifyNotMatchesFor( regexp, options().build(), this::matchesJava);
     }
 
   private void verifyNotMatchesFor( String regexp, Set<Character> printable)
     {
-    verifyNotMatchesFor( regexp, MatchOptions.builder().withAny( printable).build(), this::matchesJavaScript);
+    verifyNotMatchesFor( regexp, options().withAny( printable).build(), this::matchesJavaScript);
     }
 
   private void verifyNotMatchesFor( String regexp, MatchOptions options, BiFunction<String,String,Boolean> matchCheck)
@@ -523,12 +524,12 @@ public class GenerateTest
 
   private void verifyMatchesForSpaceChars( String regexp, String spaceChars)
     {
-    verifyMatchesFor( regexp, MatchOptions.builder().withSpace( spaceChars).build(), 0, null, this::matchesJavaScript);
+    verifyMatchesFor( regexp, options().withSpace( spaceChars).build(), 0, null, this::matchesJavaScript);
     }
 
   private void verifyNotMatchesForSpaceChars( String regexp, String spaceChars)
     {
-    verifyNotMatchesFor( regexp, MatchOptions.builder().withSpace( spaceChars).build(), this::matchesJavaScript);
+    verifyNotMatchesFor( regexp, options().withSpace( spaceChars).build(), this::matchesJavaScript);
     }
 
   /**

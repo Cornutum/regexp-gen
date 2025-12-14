@@ -22,14 +22,14 @@ public class GenOptions
    */
   public GenOptions()
     {
-    this( new MatchOptions());
+    this( new MatchOptionsBuilder.Options());
     }
 
   /**
    * Creates a new GenOptions instance for generating matches for the given
    * regular expression.
    */
-  public GenOptions( MatchOptions matchOptions)
+  public GenOptions( MatchOptionsBuilder.Options matchOptions)
     {
     matchOptions_ = matchOptions;
     }
@@ -70,7 +70,7 @@ public class GenOptions
       .toString();
     }
 
-  private final MatchOptions matchOptions_;
+  private final MatchOptionsBuilder.Options matchOptions_;
 
   /**
    * All printable characters in the basic and supplemental Latin-1 code blocks

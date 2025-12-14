@@ -7,8 +7,10 @@
 
 package org.cornutum.regexpgen.js;
 
+import org.cornutum.regexpgen.MatchOptions;
 import org.cornutum.regexpgen.RegExpGen;
 import static org.cornutum.regexpgen.RegExpGenBuilder.generateRegExp;
+import static org.cornutum.regexpgen.MatchOptionsBuilder.options;
 
 import org.junit.Test;
 import static org.cornutum.hamcrest.Composites.*;
@@ -57,25 +59,26 @@ public class ParserTest
     {
     // Given...
     String regexp = "^\\((Copyright[-: ]+2020)?[\\\\\\d\\t]? K(?=ornutum)\\)|@Copyright|@Trademark";
+    MatchOptions options = options().build();
     
     // When...
     RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( regexp);
 
     // Then...
     AbstractRegExpGen expected =
-      AlternativeGen.builder()
+      AlternativeGen.builder( options)
       .add(
-        SeqGen.builder()
+        SeqGen.builder( options)
         .add( "(")
         .add(
-          SeqGen.builder()
+          SeqGen.builder( options)
           .add( "Copyright")
-          .add( AnyOfGen.builder().addAll( "-: ").occurs( 1, null).build())
+          .add( AnyOfGen.builder( options).addAll( "-: ").occurs( 1, null).build())
           .add( "2020")
           .occurs( 0, 1)
           .build())
         .add(
-          AnyOfGen.builder()
+          AnyOfGen.builder( options)
           .add( '\\')
           .digit()
           .add( '\t')
@@ -83,39 +86,39 @@ public class ParserTest
           .build())
         .add( " ")
         .add( "K")
-        .add( SeqGen.builder().add( "ornutum").build())
+        .add( SeqGen.builder( options).add( "ornutum").build())
         .add(
-          SeqGen.builder()
+          SeqGen.builder( options)
           .add( ")")
-          .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+          .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
           .build())
         .build(),
 
-        SeqGen.builder()
+        SeqGen.builder( options)
         .add(
-          SeqGen.builder()
-          .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+          SeqGen.builder( options)
+          .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
           .add( "@")
           .build())
         .add( "Copyrigh")
         .add(
-          SeqGen.builder()
+          SeqGen.builder( options)
           .add( "t")
-          .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+          .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
           .build())
         .build(),
 
-        SeqGen.builder()
+        SeqGen.builder( options)
         .add(
-          SeqGen.builder()
-          .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+          SeqGen.builder( options)
+          .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
           .add( "@")
           .build())
         .add( "Trademar")
         .add(
-          SeqGen.builder()
+          SeqGen.builder( options)
           .add( "k")
-          .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+          .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
           .build())
         .build())
       .build();
@@ -159,48 +162,49 @@ public class ParserTest
     {
     // Given...
     String regexp = "-+|\\([^\\0-]*?\\0\\)|-";
+    MatchOptions options = options().build();
     
     // When...
     RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( regexp);
 
     // Then...
     AbstractRegExpGen expected =
-      AlternativeGen.builder()
+      AlternativeGen.builder( options)
       .add(
-        SeqGen.builder()
+        SeqGen.builder( options)
         .add(
-          SeqGen.builder()
+          SeqGen.builder( options)
           .add(
-            AnyOfGen.builder().anyPrintable().occurs( 0, null).build(),
-            AnyOfGen.builder().add( '-').occurs( 1, null).build())
+            AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build(),
+            AnyOfGen.builder( options).add( '-').occurs( 1, null).build())
           .build())
-        .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+        .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
         .build())
 
       .add(
-        SeqGen.builder()
+        SeqGen.builder( options)
         .add(
-          SeqGen.builder()
-          .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+          SeqGen.builder( options)
+          .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
           .add( "(")
           .build())
-        .add( NoneOfGen.builder().add( (char) 0).add( '-').occurs(0).build())
-        .add( AnyOfGen.builder().add( (char) 0).occurs( 1).build())
+        .add( NoneOfGen.builder( options).add( (char) 0).add( '-').occurs(0).build())
+        .add( AnyOfGen.builder( options).add( (char) 0).occurs( 1).build())
         .add(
-          SeqGen.builder()
+          SeqGen.builder( options)
           .add( ")")
-          .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+          .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
           .build())
         .build())
 
       .add(
-        SeqGen.builder()
+        SeqGen.builder( options)
         .add(
-          SeqGen.builder()
-          .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
-          .add( AnyOfGen.builder().add( '-').occurs( 1).build())
+          SeqGen.builder( options)
+          .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
+          .add( AnyOfGen.builder( options).add( '-').occurs( 1).build())
           .build(),
-          AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+          AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
         .build())
       
       .build();
@@ -244,20 +248,21 @@ public class ParserTest
     {
     // Given...
     String regexp = "(?<=[\\ca-\\ck]+)\\cZ+$";
+    MatchOptions options = options().build();
     
     // When...
     RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( regexp);
 
     // Then...
     AbstractRegExpGen expected =
-      SeqGen.builder()
+      SeqGen.builder( options)
       .add(
-        SeqGen.builder()
+        SeqGen.builder( options)
         .add(
-          AnyOfGen.builder().anyPrintable().occurs( 0, null).build(),
-          AnyOfGen.builder().addAll( (char) 0x0001, (char) 0x000B).occurs( 1, null).build())
+          AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build(),
+          AnyOfGen.builder( options).addAll( (char) 0x0001, (char) 0x000B).occurs( 1, null).build())
         .build(),
-        AnyOfGen.builder().add( (char) 0x001A).occurs( 1, null).build())
+        AnyOfGen.builder( options).add( (char) 0x001A).occurs( 1, null).build())
       .build();
 
     assertThat( (AbstractRegExpGen) generator, matches( new RegExpGenMatcher( expected)));
@@ -299,58 +304,59 @@ public class ParserTest
     {
     // Given...
     String regexp = "(?<=Prefix)([^\\sA-Z\\uABCD@]\\n)+|X\\\\=.{0,2}(?=Suffix)";
+    MatchOptions options = options().build();
     
     // When...
     RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( regexp);
 
     // Then...
     AbstractRegExpGen expected =
-      AlternativeGen.builder()
+      AlternativeGen.builder( options)
       .add(
-        SeqGen.builder()
+        SeqGen.builder( options)
         .add(
-          SeqGen.builder()
+          SeqGen.builder( options)
           .add(
-            SeqGen.builder()
-            .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+            SeqGen.builder( options)
+            .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
             .add( "P")
             .build())
           .add( "refix")
           .build())
         .add(
-          SeqGen.builder()
+          SeqGen.builder( options)
           .add(
-            SeqGen.builder()
+            SeqGen.builder( options)
             .add(
-              NoneOfGen.builder()
+              NoneOfGen.builder( options)
               .space()
               .addAll( 'A', 'Z')
               .add( (char) 0xABCD)
               .add( '@')
               .build())
-            .add( AnyOfGen.builder().add( '\n').build())
+            .add( AnyOfGen.builder( options).add( '\n').build())
             .occurs( 1, null)
             .build())
-          .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+          .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
           .build())
         .build())
 
       .add(
-        SeqGen.builder()
+        SeqGen.builder( options)
         .add(
-          SeqGen.builder()
-          .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+          SeqGen.builder( options)
+          .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
           .add( "X")
           .build())
         .add( "\\=")
-        .add( AnyOfGen.builder().anyPrintable().occurs( 0, 2).build())
+        .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, 2).build())
         .add(
-          SeqGen.builder()
+          SeqGen.builder( options)
           .add( "Suffi")
           .add(
-            SeqGen.builder()
+            SeqGen.builder( options)
             .add( "x")
-            .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+            .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
             .build())
           .build())
         .build())
@@ -396,17 +402,18 @@ public class ParserTest
     {
     // Given...
     String regexp = "^[\\b]\\\\+?\\f$";
+    MatchOptions options = options().build();
     
     // When...
     RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( regexp);
 
     // Then...
     AbstractRegExpGen expected =
-      SeqGen.builder()
+      SeqGen.builder( options)
       .add(
-        AnyOfGen.builder().add( '\b').build(),
-        AnyOfGen.builder().add( '\\').occurs(1).build(),
-        AnyOfGen.builder().add( '\f').build())
+        AnyOfGen.builder( options).add( '\b').build(),
+        AnyOfGen.builder( options).add( '\\').occurs(1).build(),
+        AnyOfGen.builder( options).add( '\f').build())
       .build();
 
     assertThat( (AbstractRegExpGen) generator, matches( new RegExpGenMatcher( expected)));
@@ -448,37 +455,38 @@ public class ParserTest
     {
     // Given...
     String regexp = "\\rX|^\\r??$|[^\\r]";
+    MatchOptions options = options().build();
     
     // When...
     RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( regexp);
 
     // Then...
     AbstractRegExpGen expected =
-      AlternativeGen.builder()
+      AlternativeGen.builder( options)
       .add(
-        SeqGen.builder()
+        SeqGen.builder( options)
         .add(
-          SeqGen.builder()
-          .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+          SeqGen.builder( options)
+          .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
           .add( "\r")
           .build())
         .add(
-          SeqGen.builder()
+          SeqGen.builder( options)
           .add( "X")
-          .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+          .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
           .build())
         .build())
 
-      .add( AnyOfGen.builder().add( '\r').occurs( 0).build())
+      .add( AnyOfGen.builder( options).add( '\r').occurs( 0).build())
 
       .add(
-        SeqGen.builder()
+        SeqGen.builder( options)
         .add(
-          SeqGen.builder()
-          .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
-          .add( NoneOfGen.builder().add( '\r').build())
+          SeqGen.builder( options)
+          .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
+          .add( NoneOfGen.builder( options).add( '\r').build())
           .build())
-        .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+        .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
         .build())
       
       .build();
@@ -522,18 +530,19 @@ public class ParserTest
     {
     // Given...
     String regexp = "(?<=^Prefix)([\\S@X-Z\\]\\v]\\(\\x6A.z\\))*?$";
+    MatchOptions options = options().build();
     
     // When...
     RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( regexp);
 
     // Then...
     AbstractRegExpGen expected =
-      SeqGen.builder()
-      .add( SeqGen.builder().add( "Prefix").build())
+      SeqGen.builder( options)
+      .add( SeqGen.builder( options).add( "Prefix").build())
       .add(
-        SeqGen.builder()
+        SeqGen.builder( options)
         .add(
-          AnyOfGen.builder()
+          AnyOfGen.builder( options)
           .nonSpace()
           .add( '@')
           .addAll( 'X', 'Z')
@@ -541,8 +550,8 @@ public class ParserTest
           .add( (char) 0x000B)
           .build())
         .add( "(")
-        .add( AnyOfGen.builder().add( (char) 0x006A).build())
-        .add( AnyOfGen.builder().anyPrintable().build())
+        .add( AnyOfGen.builder( options).add( (char) 0x006A).build())
+        .add( AnyOfGen.builder( options).anyPrintable().build())
         .add( "z)")
         .occurs( 0)
         .build())
@@ -587,52 +596,53 @@ public class ParserTest
     {
     // Given...
     String regexp = "(?<=^(?<group>A|B))([^\\cC]*\\\\\\t)+(?=Z$|D)|(Z|D$)";
+    MatchOptions options = options().build();
     
     // When...
     RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( regexp);
 
     // Then...
     AbstractRegExpGen expected =
-      AlternativeGen.builder()
+      AlternativeGen.builder( options)
       .add(
-        SeqGen.builder()
+        SeqGen.builder( options)
         .add(
-          AlternativeGen.builder()
-          .add( AnyOfGen.builder().add( 'A').build())
-          .add( AnyOfGen.builder().add( 'B').build())
+          AlternativeGen.builder( options)
+          .add( AnyOfGen.builder( options).add( 'A').build())
+          .add( AnyOfGen.builder( options).add( 'B').build())
           .build())
         .add(
-          SeqGen.builder()
-          .add( NoneOfGen.builder().add( (char) 0x0003).occurs( 0, null).build())
+          SeqGen.builder( options)
+          .add( NoneOfGen.builder( options).add( (char) 0x0003).occurs( 0, null).build())
           .add( "\\\t")
           .occurs( 1, null)
           .build())
         .add(
-          AlternativeGen.builder()
-          .add( AnyOfGen.builder().add( 'Z').build())
+          AlternativeGen.builder( options)
+          .add( AnyOfGen.builder( options).add( 'Z').build())
           .add(
-            SeqGen.builder()
-            .add( AnyOfGen.builder().add( 'D').build())
-            .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+            SeqGen.builder( options)
+            .add( AnyOfGen.builder( options).add( 'D').build())
+            .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
             .build())
           .build())
         .build())
       
       .add(
-        AlternativeGen.builder()
+        AlternativeGen.builder( options)
         .add(
-          SeqGen.builder()
+          SeqGen.builder( options)
           .add(
-            SeqGen.builder()
-            .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
-            .add( AnyOfGen.builder().add( 'Z').build())
+            SeqGen.builder( options)
+            .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
+            .add( AnyOfGen.builder( options).add( 'Z').build())
             .build())
-          .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+          .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
           .build())
         .add(
-          SeqGen.builder()
-          .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
-          .add( AnyOfGen.builder().add( 'D').build())
+          SeqGen.builder( options)
+          .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
+          .add( AnyOfGen.builder( options).add( 'D').build())
           .build())
         .build())
       
@@ -677,16 +687,17 @@ public class ParserTest
     {
     // Given...
     String regexp = "\\u028f{2,3}$";
+    MatchOptions options = options().build();
     
     // When...
     RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( regexp);
 
     // Then...
     AbstractRegExpGen expected =
-      SeqGen.builder()
-      .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+      SeqGen.builder( options)
+      .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
       .add(
-        AnyOfGen.builder()
+        AnyOfGen.builder( options)
         .add( (char) 0x028F)
         .occurs( 2, 3)
         .build())
@@ -731,46 +742,47 @@ public class ParserTest
     {
     // Given...
     String regexp = "\\?|^(?:[^\\\\-z\\W\\f-]\\)\\v+.){2,2}?(?=Suffix)";
+    MatchOptions options = options().build();
     
     // When...
     RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( regexp);
 
     // Then...
     AbstractRegExpGen expected =
-      AlternativeGen.builder()
+      AlternativeGen.builder( options)
       .add(
-        SeqGen.builder()
+        SeqGen.builder( options)
         .add(
-          SeqGen.builder()
-          .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
-          .add( AnyOfGen.builder().add( '?').build())
+          SeqGen.builder( options)
+          .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
+          .add( AnyOfGen.builder( options).add( '?').build())
           .build())
-        .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+        .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
         .build())
 
       .add(
-        SeqGen.builder()
+        SeqGen.builder( options)
         .add(
-          SeqGen.builder()
+          SeqGen.builder( options)
           .add(
-            NoneOfGen.builder()
+            NoneOfGen.builder( options)
             .addAll( '\\', 'z')
             .nonWord()
             .add( '\f')
             .add( '-')
             .build())
           .add( ")")
-          .add( AnyOfGen.builder().add( (char) 0x000b).occurs( 1, null).build())
-          .add( AnyOfGen.builder().anyPrintable().build())
+          .add( AnyOfGen.builder( options).add( (char) 0x000b).occurs( 1, null).build())
+          .add( AnyOfGen.builder( options).anyPrintable().build())
           .occurs( 2)
           .build())
         .add(
-          SeqGen.builder()
+          SeqGen.builder( options)
           .add( "Suffi")
           .add(
-            SeqGen.builder()
-            .add( AnyOfGen.builder().add( 'x').build())
-            .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+            SeqGen.builder( options)
+            .add( AnyOfGen.builder( options).add( 'x').build())
+            .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
             .build())
             .build())
         .build())
@@ -816,21 +828,22 @@ public class ParserTest
     {
     // Given...
     String regexp = "(?<=\\\\{3})[\\n]\\??\\0{2,}$";
+    MatchOptions options = options().build();
     
     // When...
     RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( regexp);
 
     // Then...
     AbstractRegExpGen expected =
-      SeqGen.builder()
+      SeqGen.builder( options)
       .add(
-        SeqGen.builder()
-        .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
-        .add( AnyOfGen.builder().add( '\\').occurs(3).build())
+        SeqGen.builder( options)
+        .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
+        .add( AnyOfGen.builder( options).add( '\\').occurs(3).build())
         .build())
-      .add( AnyOfGen.builder().add( '\n').build())
-      .add( AnyOfGen.builder().add( '?').occurs( 0, 1).build())
-      .add( AnyOfGen.builder().add( (char) 0).occurs( 2, null).build())
+      .add( AnyOfGen.builder( options).add( '\n').build())
+      .add( AnyOfGen.builder( options).add( '?').occurs( 0, 1).build())
+      .add( AnyOfGen.builder( options).add( (char) 0).occurs( 2, null).build())
       .build();
 
     assertThat( (AbstractRegExpGen) generator, matches( new RegExpGenMatcher( expected)));
@@ -872,50 +885,51 @@ public class ParserTest
     {
     // Given...
     String regexp = "^\\{|\\cb{0,3}?(?=C|D|E$)|\\{{1,2}?";
+    MatchOptions options = options().build();
     
     // When...
     RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( regexp);
 
     // Then...
     AbstractRegExpGen expected =
-      AlternativeGen.builder()
+      AlternativeGen.builder( options)
       .add(
-        SeqGen.builder()
-        .add( AnyOfGen.builder().add( '{').build())
-        .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+        SeqGen.builder( options)
+        .add( AnyOfGen.builder( options).add( '{').build())
+        .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
         .build())
 
       .add(
-        SeqGen.builder()
+        SeqGen.builder( options)
         .add(
-          SeqGen.builder()
-          .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
-          .add( AnyOfGen.builder().add( (char) 0x0002).occurs(0).build())
+          SeqGen.builder( options)
+          .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
+          .add( AnyOfGen.builder( options).add( (char) 0x0002).occurs(0).build())
           .build())
         .add(
-          AlternativeGen.builder()
+          AlternativeGen.builder( options)
           .add(
-            SeqGen.builder()
-            .add( AnyOfGen.builder().add( 'C').build())
-            .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+            SeqGen.builder( options)
+            .add( AnyOfGen.builder( options).add( 'C').build())
+            .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
             .build())
           .add(
-            SeqGen.builder()
-            .add( AnyOfGen.builder().add( 'D').build())
-            .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+            SeqGen.builder( options)
+            .add( AnyOfGen.builder( options).add( 'D').build())
+            .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
             .build())
-          .add( AnyOfGen.builder().add( 'E').build())
+          .add( AnyOfGen.builder( options).add( 'E').build())
           .build())
         .build())
 
       .add(
-        SeqGen.builder()
+        SeqGen.builder( options)
         .add(
-          SeqGen.builder()
-          .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
-          .add( AnyOfGen.builder().add( '{').occurs(1).build())
+          SeqGen.builder( options)
+          .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
+          .add( AnyOfGen.builder( options).add( '{').occurs(1).build())
           .build())
-        .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+        .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
         .build())
 
       .build();
@@ -959,15 +973,16 @@ public class ParserTest
     {
     // Given...
     String regexp = "^[-\\[\\r\\--\\-\\]\\D].\\\\(?:(?<=x+y)z$)?";
+    MatchOptions options = options().build();
     
     // When...
     RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( regexp);
 
     // Then...
     AbstractRegExpGen expected =
-      SeqGen.builder()
+      SeqGen.builder( options)
       .add(
-        AnyOfGen.builder()
+        AnyOfGen.builder( options)
         .add( '-')
         .add( '[')
         .add( '\r')
@@ -976,18 +991,18 @@ public class ParserTest
         .nonDigit()
         .build())
 
-      .add( AnyOfGen.builder().anyPrintable().build())
+      .add( AnyOfGen.builder( options).anyPrintable().build())
 
-      .add( AnyOfGen.builder().add( '\\').build())
+      .add( AnyOfGen.builder( options).add( '\\').build())
 
       .add(
-        SeqGen.builder()
+        SeqGen.builder( options)
         .add(
-          SeqGen.builder()
-          .add( AnyOfGen.builder().add( 'x').occurs( 1, null).build())
-          .add( AnyOfGen.builder().add( 'y').build())
+          SeqGen.builder( options)
+          .add( AnyOfGen.builder( options).add( 'x').occurs( 1, null).build())
+          .add( AnyOfGen.builder( options).add( 'y').build())
           .build())
-        .add( AnyOfGen.builder().add( 'z').build())
+        .add( AnyOfGen.builder( options).add( 'z').build())
         .occurs( 0, 1)
         .build())
       
@@ -1032,29 +1047,30 @@ public class ParserTest
     {
     // Given...
     String regexp = "^[^\\xA2]\\xc5+\\n*?(?=\\f)|(?<zee>Z$)";
+    MatchOptions options = options().build();
     
     // When...
     RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( regexp);
 
     // Then...
     AbstractRegExpGen expected =
-      AlternativeGen.builder()
+      AlternativeGen.builder( options)
       .add(
-        SeqGen.builder()
-        .add( NoneOfGen.builder().add( (char) 0x00a2).build())
-        .add( AnyOfGen.builder().add( (char) 0xC5).occurs( 1, null).build())
-        .add( AnyOfGen.builder().add( '\n').occurs( 0).build())
+        SeqGen.builder( options)
+        .add( NoneOfGen.builder( options).add( (char) 0x00a2).build())
+        .add( AnyOfGen.builder( options).add( (char) 0xC5).occurs( 1, null).build())
+        .add( AnyOfGen.builder( options).add( '\n').occurs( 0).build())
         .add(
-          SeqGen.builder()
-          .add( AnyOfGen.builder().add( '\f').build())
-          .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+          SeqGen.builder( options)
+          .add( AnyOfGen.builder( options).add( '\f').build())
+          .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
           .build())
         .build())
       
       .add(
-        SeqGen.builder()
-        .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
-        .add( AnyOfGen.builder().add( 'Z').build())
+        SeqGen.builder( options)
+        .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
+        .add( AnyOfGen.builder( options).add( 'Z').build())
         .build())
       
       .build();
@@ -1098,20 +1114,21 @@ public class ParserTest
     {
     // Given...
     String regexp = "(?<=\\*)[\\]\\Z-\\A.\\w\\t]+$";
+    MatchOptions options = options().build();
     
     // When...
     RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( regexp);
 
     // Then...
     AbstractRegExpGen expected =
-      SeqGen.builder()
+      SeqGen.builder( options)
       .add(
-        SeqGen.builder()
-        .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
-        .add( AnyOfGen.builder().add( '*').build())
+        SeqGen.builder( options)
+        .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
+        .add( AnyOfGen.builder( options).add( '*').build())
         .build())
       .add(
-        AnyOfGen.builder()
+        AnyOfGen.builder( options)
         .add( ']')
         .addAll( 'A', 'Z')
         .add( '.')
@@ -1174,34 +1191,35 @@ public class ParserTest
     {
     // Given...
     String detachedStart = "( fat | bad |^)cat\\.$";
+    MatchOptions options = options().build();
     
     // When...
     RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( detachedStart);
 
     // Then...
     AbstractRegExpGen expected =
-      SeqGen.builder()
+      SeqGen.builder( options)
       .add(
-        AlternativeGen.builder()
+        AlternativeGen.builder( options)
         .add(
-          SeqGen.builder()
+          SeqGen.builder( options)
           .add(
-            SeqGen.builder()
-            .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
-            .add( AnyOfGen.builder().add( ' ').build())
+            SeqGen.builder( options)
+            .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
+            .add( AnyOfGen.builder( options).add( ' ').build())
             .build())
           .add( "fat ")
           .build())
         .add(
-          SeqGen.builder()
+          SeqGen.builder( options)
           .add(
-            SeqGen.builder()
-            .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
-            .add( AnyOfGen.builder().add( ' ').build())
+            SeqGen.builder( options)
+            .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
+            .add( AnyOfGen.builder( options).add( ' ').build())
             .build())
           .add( "bad ")
           .build())
-        .add( AnyOfGen.builder().anyPrintable().occurs(0).build())
+        .add( AnyOfGen.builder( options).anyPrintable().occurs(0).build())
         .build())
       .add( "cat.")
       .build();
@@ -1216,27 +1234,27 @@ public class ParserTest
 
     // Then...
     expected =
-      SeqGen.builder()
+      SeqGen.builder( options)
       .add( "Cats are bad")
       .add(
-        AlternativeGen.builder()
+        AlternativeGen.builder( options)
         .add(
-          SeqGen.builder()
+          SeqGen.builder( options)
           .add( " company")
           .add(
-            SeqGen.builder()
-            .add( AnyOfGen.builder().add( ' ').build())
-            .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+            SeqGen.builder( options)
+            .add( AnyOfGen.builder( options).add( ' ').build())
+            .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
             .build())
           .build())
-        .add( AnyOfGen.builder().anyPrintable().occurs( 0).build())
+        .add( AnyOfGen.builder( options).anyPrintable().occurs( 0).build())
         .add(
-          SeqGen.builder()
+          SeqGen.builder( options)
           .add( " pets")
           .add(
-            SeqGen.builder()
-            .add( AnyOfGen.builder().add( ' ').build())
-            .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+            SeqGen.builder( options)
+            .add( AnyOfGen.builder( options).add( ' ').build())
+            .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
             .build())
           .build())
         .build())
@@ -1251,7 +1269,7 @@ public class ParserTest
     generator = generateRegExp( Provider.forEcmaScript()).matching( empty);
 
     // Then...
-    expected = AnyOfGen.builder().anyPrintable().occurs(0).build();
+    expected = AnyOfGen.builder( options).anyPrintable().occurs(0).build();
 
     assertThat( (AbstractRegExpGen) generator, matches( new RegExpGenMatcher( expected)));
     }
@@ -1261,28 +1279,29 @@ public class ParserTest
     {
     // Given...
     String regexp = "\\w+@\\w+(\\.\\w+)*\\.(com|net|org)";
+    MatchOptions options = options().build();
     
     // When...
     RegExpGen generator = generateRegExp( Provider.forEcmaScript()).exactly().matching( regexp);
 
     // Then...
     AbstractRegExpGen expected =
-      SeqGen.builder()
-      .add( AnyOfGen.builder().word().occurs( 1, null).build())
+      SeqGen.builder( options)
+      .add( AnyOfGen.builder( options).word().occurs( 1, null).build())
       .add( "@")
-      .add( AnyOfGen.builder().word().occurs( 1, null).build())
+      .add( AnyOfGen.builder( options).word().occurs( 1, null).build())
       .add(
-        SeqGen.builder()
+        SeqGen.builder( options)
         .add( ".")
-        .add( AnyOfGen.builder().word().occurs( 1, null).build())
+        .add( AnyOfGen.builder( options).word().occurs( 1, null).build())
         .occurs( 0, null)
         .build())
       .add( ".")
       .add(
-        AlternativeGen.builder()
-        .add( SeqGen.builder().add( "com").build())
-        .add( SeqGen.builder().add( "net").build())
-        .add( SeqGen.builder().add( "org").build())
+        AlternativeGen.builder( options)
+        .add( SeqGen.builder( options).add( "com").build())
+        .add( SeqGen.builder( options).add( "net").build())
+        .add( SeqGen.builder( options).add( "org").build())
         .build())
       .build();
 
@@ -1294,25 +1313,26 @@ public class ParserTest
     {
     // Given...
     String unanchored = "(cat|dog|turtle)+";
+    MatchOptions options = options().build();
     
     // When...
     RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( unanchored);
 
     // Then...
     AbstractRegExpGen expected =
-      SeqGen.builder()
+      SeqGen.builder( options)
       .add(
-        SeqGen.builder()
-        .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+        SeqGen.builder( options)
+        .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
         .add(
-          AlternativeGen.builder()
-          .add( SeqGen.builder().add( "cat").build())
-          .add( SeqGen.builder().add( "dog").build())
-          .add( SeqGen.builder().add( "turtle").build())
+          AlternativeGen.builder( options)
+          .add( SeqGen.builder( options).add( "cat").build())
+          .add( SeqGen.builder( options).add( "dog").build())
+          .add( SeqGen.builder( options).add( "turtle").build())
           .occurs( 1, null)
           .build())
         .build())
-      .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+      .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
       .build();
 
     assertThat( (AbstractRegExpGen) generator, matches( new RegExpGenMatcher( expected)));
@@ -1325,15 +1345,15 @@ public class ParserTest
 
     // Then...
     expected =
-      SeqGen.builder()
+      SeqGen.builder( options)
       .add(
-        AlternativeGen.builder()
-        .add( SeqGen.builder().add( "cat").build())
-        .add( SeqGen.builder().add( "dog").build())
-        .add( SeqGen.builder().add( "turtle").build())
+        AlternativeGen.builder( options)
+        .add( SeqGen.builder( options).add( "cat").build())
+        .add( SeqGen.builder( options).add( "dog").build())
+        .add( SeqGen.builder( options).add( "turtle").build())
         .occurs( 1, null)
         .build())
-      .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+      .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
       .build();
 
     assertThat( (AbstractRegExpGen) generator, matches( new RegExpGenMatcher( expected)));
@@ -1346,13 +1366,13 @@ public class ParserTest
 
     // Then...
     expected =
-      SeqGen.builder()
-      .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+      SeqGen.builder( options)
+      .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
       .add(
-        AlternativeGen.builder()
-        .add( SeqGen.builder().add( "cat").build())
-        .add( SeqGen.builder().add( "dog").build())
-        .add( SeqGen.builder().add( "turtle").build())
+        AlternativeGen.builder( options)
+        .add( SeqGen.builder( options).add( "cat").build())
+        .add( SeqGen.builder( options).add( "dog").build())
+        .add( SeqGen.builder( options).add( "turtle").build())
         .occurs( 1, null)
         .build())
       .build();
@@ -1365,25 +1385,26 @@ public class ParserTest
     {
     // Given...
     String unanchored = "(Digit=[\\d],){2}";
+    MatchOptions options = options().build();
     
     // When...
     RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( unanchored);
 
     // Then...
     AbstractRegExpGen expected =
-      SeqGen.builder()
+      SeqGen.builder( options)
       .add(
-        SeqGen.builder()
-        .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+        SeqGen.builder( options)
+        .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
         .add(
-          SeqGen.builder()
+          SeqGen.builder( options)
           .add( "Digit=")
-          .add( AnyOfGen.builder().digit().build())
+          .add( AnyOfGen.builder( options).digit().build())
           .add( ",")
           .occurs( 2)
           .build())
         .build())
-      .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+      .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
       .build();
 
     assertThat( (AbstractRegExpGen) generator, matches( new RegExpGenMatcher( expected)));
@@ -1396,15 +1417,15 @@ public class ParserTest
 
     // Then...
     expected =
-      SeqGen.builder()
+      SeqGen.builder( options)
       .add(
-        SeqGen.builder()
+        SeqGen.builder( options)
         .add( "Digit=")
-        .add( AnyOfGen.builder().digit().build())
+        .add( AnyOfGen.builder( options).digit().build())
         .add( ",")
         .occurs( 2)
         .build())
-      .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+      .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
       .build();
 
     assertThat( (AbstractRegExpGen) generator, matches( new RegExpGenMatcher( expected)));
@@ -1417,12 +1438,12 @@ public class ParserTest
 
     // Then...
     expected =
-      SeqGen.builder()
-      .add( AnyOfGen.builder().anyPrintable().occurs( 0, null).build())
+      SeqGen.builder( options)
+      .add( AnyOfGen.builder( options).anyPrintable().occurs( 0, null).build())
       .add(
-        SeqGen.builder()
+        SeqGen.builder( options)
         .add( "Digit=")
-        .add( AnyOfGen.builder().digit().build())
+        .add( AnyOfGen.builder( options).digit().build())
         .add( ",")
         .occurs( 2)
         .build())
