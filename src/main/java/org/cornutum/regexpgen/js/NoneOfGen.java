@@ -104,14 +104,6 @@ public class NoneOfGen extends CharClassGen
   /**
    * Returns an {@link NoneOfGen} builder.
    */
-  public static Builder builder()
-    {
-    return new Builder();
-    }
-
-  /**
-   * Returns an {@link NoneOfGen} builder.
-   */
   public static Builder builder( MatchOptions options)
     {
     return new Builder( options);
@@ -122,13 +114,9 @@ public class NoneOfGen extends CharClassGen
    */
   public static class Builder extends CharClassGenBuilder<Builder>
     {
-    public Builder()
-      {
-      this( BUILDER_OPTIONS);
-      }
-
     public Builder( MatchOptions options)
       {
+      super( options);
       noneOf_ = new NoneOfGen( options);
       }
     

@@ -29,7 +29,7 @@ public class RegExpGenBuilder
   public RegExpGenBuilder( Provider provider)
     {
     provider_ = provider;
-    options_ = MatchOptions.builder();
+    options_ = MatchOptionsBuilder.options();
     }
 
   /**
@@ -104,5 +104,5 @@ public class RegExpGenBuilder
     }
 
   private Provider provider_;
-  private MatchOptions.Builder options_;
+  private MatchOptionsBuilder options_;
   }

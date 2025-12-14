@@ -76,14 +76,6 @@ public class AnyOfGen extends CharClassGen
   /**
    * Returns an {@link AnyOfGen} builder.
    */
-  public static Builder builder()
-    {
-    return new Builder();
-    }
-
-  /**
-   * Returns an {@link AnyOfGen} builder.
-   */
   public static Builder builder( MatchOptions options)
     {
     return new Builder( options);
@@ -94,13 +86,9 @@ public class AnyOfGen extends CharClassGen
    */
   public static class Builder extends CharClassGenBuilder<Builder>
     {
-    public Builder()
-      {
-      this( BUILDER_OPTIONS);
-      }
-
     public Builder( MatchOptions options)
       {
+      super( options);
       anyOf_ = new AnyOfGen( options);
       }
     

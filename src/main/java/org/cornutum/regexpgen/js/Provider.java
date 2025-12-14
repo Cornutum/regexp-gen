@@ -9,6 +9,7 @@ package org.cornutum.regexpgen.js;
 
 import org.cornutum.regexpgen.MatchOptions;
 import org.cornutum.regexpgen.RegExpGen;
+import static org.cornutum.regexpgen.MatchOptionsBuilder.options;
 
 import java.util.Optional;
 
@@ -48,7 +49,7 @@ public class Provider implements org.cornutum.regexpgen.Provider
     {
     return
       NotMatchingFactory.makeFrom(
-        new Parser( regexp, MatchOptions.builder( options).exactly().build())
+        new Parser( regexp, options( options).exactly().build())
         .parse());
     }
   }

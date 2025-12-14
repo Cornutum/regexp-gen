@@ -7,6 +7,8 @@
 
 package org.cornutum.regexpgen;
 
+import static org.cornutum.regexpgen.MatchOptionsBuilder.options;
+
 import java.util.Optional;
 
 /**
@@ -23,7 +25,7 @@ public interface Provider
   @Deprecated
   public default RegExpGen matching( String regexp)
     {
-    return matching( regexp, new MatchOptions());
+    return matching( regexp, options().build());
     }
 
   /**
@@ -41,7 +43,7 @@ public interface Provider
   @Deprecated
   public default RegExpGen matchingExact( String regexp)
     {
-    return matching( regexp, MatchOptions.builder().exactly().build());
+    return matching( regexp, options().exactly().build());
     }
 
   /**
@@ -58,7 +60,7 @@ public interface Provider
   @Deprecated
   public default Optional<RegExpGen> notMatching( String regexp) throws UnsupportedOperationException
     {
-    return notMatching( regexp, new MatchOptions());
+    return notMatching( regexp, options().build());
     }
 
   /**

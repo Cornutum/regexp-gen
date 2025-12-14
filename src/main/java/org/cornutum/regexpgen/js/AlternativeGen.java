@@ -258,14 +258,6 @@ public class AlternativeGen extends AbstractRegExpGen
   /**
    * Returns an {@link AlternativeGen} builder.
    */
-  public static Builder builder()
-    {
-    return new Builder();
-    }
-
-  /**
-   * Returns an {@link AlternativeGen} builder.
-   */
   public static Builder builder( MatchOptions options)
     {
     return new Builder( options);
@@ -298,11 +290,6 @@ public class AlternativeGen extends AbstractRegExpGen
    */
   public static class Builder extends BaseBuilder<Builder>
     {
-    public Builder()
-      {
-      this( BUILDER_OPTIONS);
-      }
-
     public Builder( MatchOptions options)
       {
       alternative_ = new AlternativeGen( options);
