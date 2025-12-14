@@ -97,6 +97,9 @@ public class RegExpGenBuilder
   /**
    * Returns a {@link RegExpGen} that generates strings that do NOT match the given regular expression,
    * using the specified options.
+   * <P/>
+   * For some regular expressions, no result is possible. For example, there is no string that
+   * does not match ".*". For such expressions, this method returns {@link Optional#empty}.
    */
   public Optional<RegExpGen> notMatching( String regexp)
     {
