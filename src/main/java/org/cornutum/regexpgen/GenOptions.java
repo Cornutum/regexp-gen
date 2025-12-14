@@ -13,6 +13,8 @@ import java.util.Set;
 
 /**
  * Defines options for generating regular expression matches.
+ * <P/>
+ * <B>Deprecated:</B> Use {@link RegExpGenBuilder} to define options for generating matches
  */
 public class GenOptions
   {
