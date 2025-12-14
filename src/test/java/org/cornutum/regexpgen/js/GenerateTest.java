@@ -395,6 +395,8 @@ public class GenerateTest
       {
       System.out.println( String.format( "\n%s %s", options.isExactMatch()? "Exact" : "Any", regexp));
       }
+    assertThat( String.format( "%s, source", generator), generator.getSource(), is( regexp));
+    
     IntStream.range( 0, matches.size())
       .forEach( i -> {
         String text = matches.get(i);

@@ -147,6 +147,7 @@ public class Parser
    */
   private List<AbstractRegExpGen> getTerm()
     {
+    int cursorInitial = cursor();
     int cursorStart = cursor();
     List<AbstractRegExpGen> termExpr = new ArrayList<AbstractRegExpGen>();
     
@@ -198,7 +199,6 @@ public class Parser
       {
       throw error( "Missing regular expression for look-behind assertion");
       }
-    quantified = startingAt( cursorStartQuantified, quantified);
 
     // Get any end assertion
     cursorStart = cursor();
@@ -253,22 +253,22 @@ public class Parser
 
     if( quantified != null)
       {
-      termExpr.add( quantified);
+      termExpr.add( startingAt( cursorStartQuantified, quantified));
       if( anchoredStart)
         {
         quantified.setAnchoredStart( true);
+        startingAt( cursorInitial, quantified);
         }
       if( anchoredEnd)
         {
         quantified.setAnchoredEnd( true);
-        startingAt( cursorStartQuantified, quantified);
         }
       }
     else if( anchoredStart || anchoredEnd)
       {
       termExpr.add(
         startingAt(
-          cursorStart,
+          cursorInitial,
 
           AnyOfGen.builder( options())
           .anyPrintable()
