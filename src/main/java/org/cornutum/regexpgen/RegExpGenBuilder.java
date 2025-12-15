@@ -55,7 +55,7 @@ public class RegExpGenBuilder
    */
   public RegExpGenBuilder withSpace( String chars)
     {
-    options_.withAny( chars);
+    options_.withSpace( chars);
     return this;
     }
 
