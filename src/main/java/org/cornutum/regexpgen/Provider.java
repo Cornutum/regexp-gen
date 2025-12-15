@@ -20,7 +20,7 @@ public interface Provider
    * Returns a {@link RegExpGen} that generates strings containing characters that match the given
    * regular expression.
    *
-   * @deprecated Replace using {@link RegExpGenBuilder} with default options
+   * @deprecated Replace with {@link RegExpGenBuilder}<CODE>.matching()</CODE>
    */
   @Deprecated
   public default RegExpGen matching( String regexp)
@@ -38,7 +38,7 @@ public interface Provider
    * Returns a {@link RegExpGen} that generates strings containing only characters that match the
    * given regular expression.
    *
-   * @deprecated Replace using {@link RegExpGenBuilder} with <CODE>exactly()</CODE>
+   * @deprecated Replace with {@link RegExpGenBuilder}<CODE>.exactly().matching()</CODE>
    */
   @Deprecated
   public default RegExpGen matchingExact( String regexp)
@@ -55,7 +55,7 @@ public interface Provider
    * <P/>
    * This is an optional service. Throws an {@link UnsupportedOperationException} if not implemented.
    *
-   * @deprecated Replace using {@link RegExpGenBuilder#notMatching}
+   * @deprecated Replace with {@link RegExpGenBuilder}<CODE>.notMatching()</CODE>
    */
   @Deprecated
   public default Optional<RegExpGen> notMatching( String regexp) throws UnsupportedOperationException
