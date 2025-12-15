@@ -1,7 +1,7 @@
 # rexexp-gen
 
-[![Maven](https://img.shields.io/badge/maven-2.0.1-green.svg)](https://search.maven.org/search?q=regexp-gen)
-[![Javadoc](https://img.shields.io/badge/javadoc-2.0.1-green.svg)](https://javadoc.io/doc/org.cornutum.regexp/regexp-gen/latest/index.html)
+[![Maven](https://img.shields.io/badge/maven-3.0.0-green.svg)](https://search.maven.org/search?q=regexp-gen)
+[![Javadoc](https://img.shields.io/badge/javadoc-3.0.0-green.svg)](https://javadoc.io/doc/org.cornutum.regexp/regexp-gen/latest/index.html)
 
 ## Contents ##
 
@@ -12,6 +12,7 @@
     * [Exact matches vs. substring matches](#exact-matches-vs-substring-matches)
     * [Want strings that _DON'T_ match?](#want-strings-that-dont-match)
     * [What matches "dot"?](#what-matches-dot)
+    * [What matches "\s"?](#what-matches-s)
     * [How to create longer matching strings](#how-to-create-longer-matching-strings)
     * [How to generate random matches repeatably](#how-to-generate-random-matches-repeatably)
     * [How to limit match length to a specific range](#how-to-limit-match-length-to-a-specific-range)
@@ -19,7 +20,7 @@
 
 ## What's New? ##
 
-  * The latest version ([2.0.1](https://github.com/Cornutum/regexp-gen/releases/tag/release-2.0.1))
+  * The latest version ([3.0.0](https://github.com/Cornutum/regexp-gen/releases/tag/release-3.0.0))
     is now available at the [Maven Central Repository](https://search.maven.org/search?q=regexp-gen).
 
 ## What Is It? ##
@@ -40,6 +41,7 @@ import org.cornutum.regexpgen.RandomGen;
 import org.cornutum.regexpgen.RegExpGen;
 import org.cornutum.regexpgen.js.Provider;
 import org.cornutum.regexpgen.random.RandomBoundsGen;
+import static org.cornutum.regexpgen.RegExpGenBuilder.generateRegExp;
 
 // Given a JavaScript regular expression...
 String regexp = "^Regular expressions are ((odd|hard|stupid), )+but cool!$";
@@ -48,7 +50,7 @@ String regexp = "^Regular expressions are ((odd|hard|stupid), )+but cool!$";
 RandomGen random = new RandomBoundsGen();
 
 // ...create a RegExpGen instance...
-RegExpGen generator = Provider.forEcmaScript().matching( regexp);
+RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( regexp);
 
 for( int i = 0; i < 3; i++)
   {
@@ -76,7 +78,7 @@ least one substring that matches". For example, consider what happens when you r
 String regexp = "(Hello|Howdy|Allô), world!";
 
 // ...create a RegExpGen instance...
-RegExpGen generator = Provider.forEcmaScript().matching( regexp);
+RegExpGen generator = generateRegExp( Provider.forEcmaScript()).matching( regexp);
 ...
 ```
 
@@ -93,7 +95,7 @@ These strings contain not only a substring that matches the regular expression, 
 general "substring match", that's exactly what you want to give it.
 
 But what if you need to generate only "exact" matches? In other words, strings containing only the matching characters.
-To do that, use `Provider.matchingExact()`.
+To do that, use `RegExpGenBuilder.exactly()`.
 
 ```java
 ...
@@ -101,7 +103,7 @@ To do that, use `Provider.matchingExact()`.
 String regexp = "(Hello|Howdy|Allô), world!";
 
 // ...create a RegExpGen instance...
-RegExpGen generator = Provider.forEcmaScript().matchingExact( regexp);
+RegExpGen generator = generateRegExp( Provider.forEcmaScript()).exactly().matching( regexp);
 ...
 ```
 
@@ -125,7 +127,7 @@ String regexp = "(Hello|Howdy|Allô), world!";
 
 // ...create a RegExpGen instance...
 RegExpGen generator =
-  Provider.forEcmaScript().notMatching( regexp)
+  generateRegExp( Provider.forEcmaScript()).notMatching( regexp)
   .orElseThrow( () -> new IllegalStateException( String.format( "Unable to generate string not matching '%s'", regexp)));
 
 ...
@@ -139,14 +141,14 @@ HHHAA
 "+#6)!%;)*8/ 28
 ```
 
-Note that `Provider.notMatching()` returns an optional result. Why? Because some regular expressions will match any string, making it
+Note that `RegExpGenBuilder.notMatching()` returns an optional result. Why? Because some regular expressions will match any string, making it
 impossible to generate strings that don't match. For example, there is no string that doesn't match `".*"`.
 
 ### What matches "dot"? ###
 
 What matches the regular expression `.`? In general, any printable character. For a `RegExpGen`, by default, that means "any printable character
 from the Latin-1 basic and supplemental Unicode blocks". But what if that includes characters that your application is not designed to handle?
-You can define exactly what "any printable character" means using the `GenOptions` for a `RegExpGen`.
+You can define exactly what "any printable character" means using `RegExpGenBuilder.withAny()`.
 
 For example, you could make a ridiculously narrow definition like this:
 
@@ -159,10 +161,12 @@ String regexp = regexp( "<< My secret is [^\\d\\s]{8,32} >>");
 RandomGen random = getRandomGen();
 
 // ...create a RegExpGen instance...
-RegExpGen generator = Provider.forEcmaScript().matching( regexp);
+RegExpGen generator =
+    generateRegExp( Provider.forEcmaScript())
 
-// ...matching "." with specific characters...
-generator.getOptions().setAnyPrintableChars( "1001 Anagrams!");
+    // ...matching "." with specific characters...
+    .withAny( "1001 Anagrams!")
+    .matching( regexp);
 ...
 ```
 
@@ -176,13 +180,45 @@ s11aa0Agra<< My secret is rsm!!nA!!Aanmnsgmmr >>m
 
 Notice how the implicit `.*` expressions that generate the beginning and ending of [substring
 matches](#exact-matches-vs-substring-matches) draw only from the characters specified by
-`GenOptions.setAnyPrintableChars()`. And notice something else: the definition of "any printable"
+`withAny()`. And notice something else: the definition of "any printable"
 also affects how matches are generated for exclusionary character classes of the form `[^...]`.
 That's because these classes are interpreted to mean "any printable char *except* for...".
 
-For convenience, `GenOptions` defines some common candidates for "any printable", such as
-`GenOptions.ANY_LATIN_1` and `GenOptions.ANY_ASCII`.
+For convenience, `MatchOptions` defines some common candidates for "any printable", such as
+`MatchOptions.ANY_LATIN_1` and `MatchOptions.ANY_ASCII`.
 
+
+### What matches "\s"? ###
+
+What matches the regular expression `\s`? By default, this matches whitespace characters as defined by the
+[ECMA-262 standard](https://262.ecma-international.org/#prod-4qp2L35t), including space,
+tab, newlines, and various Unicode space characters.
+
+But what if you need to match a different set of whitespace characters? You can define exactly what "space"
+means using `RegExpGenBuilder.withSpace()`.
+
+For example, to limit whitespace to only ASCII space and tab:
+
+```java
+...
+// Given a JavaScript regular expression...
+String regexp = "^Name:\\s+Value$";
+
+// ...create a RegExpGen instance...
+RegExpGen generator =
+  generateRegExp( Provider.forEcmaScript())
+
+  // ...matching "\s" with specific characters...
+  .withSpace( " \t")
+  .matching( regexp);
+...
+```
+
+This also affects the `\S` character class, which matches any character *except* those defined by
+`withSpace()`.
+
+For convenience, `MatchOptions` defines some common candidates for whitespace, such as `MatchOptions.ECMA_SPACE` (the default)
+and `MatchOptions.ASCII_SPACE` (standard ASCII whitespace, as defined by the Java `Pattern` class).
 ### How to create longer matching strings ###
 
 For any regular expression, there is always a miniumum length for any matching string.  Sometimes
