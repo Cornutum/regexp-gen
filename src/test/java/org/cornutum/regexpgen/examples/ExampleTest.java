@@ -116,8 +116,6 @@ public class ExampleTest
 
       // ...matching "." with specific characters...
       .withAny( "1001 Anagrams!")
-
-      .exactly()
       .matching( regexp);
 
     System.out.println( String.format( "\n%s [ %s ]:", "withAnyPrintable", regexp));
@@ -188,8 +186,6 @@ public class ExampleTest
 
       // ...matching "\s" with specific characters...
       .withSpace( " \t")
-
-      .exactly()
       .matching( regexp);
 
     System.out.println( String.format( "\n%s [ %s ]:", "withSpaceChars", regexp));
