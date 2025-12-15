@@ -186,8 +186,6 @@ public class ExampleTest
 
       // ...matching "\s" with specific characters...
       .withSpace( " \t")
-
-      .exactly()
       .matching( regexp);
 
     System.out.println( String.format( "\n%s [ %s ]:", "withSpaceChars", regexp));
