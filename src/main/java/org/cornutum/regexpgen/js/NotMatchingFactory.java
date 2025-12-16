@@ -9,6 +9,7 @@ package org.cornutum.regexpgen.js;
 
 import org.cornutum.regexpgen.RegExpGen;
 import org.cornutum.regexpgen.util.CharUtils;
+import static org.cornutum.regexpgen.Bounds.bounded;
 
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.SetUtils;
@@ -78,15 +79,12 @@ public class NotMatchingFactory implements RegExpGenVisitor
         null :
 
         // Yes, find a set of mismatching chars that are...
-        Stream.concat(
-          // ... required to be excluded
-          SetUtils.difference( initialNone, initialAny).stream(),
+        (initialNone.isEmpty()
+         // ... not among those required to be allowed
+         ? regExpGen.getMatchOptions().getAnyPrintableChars().stream().filter( c -> !initialAny.contains( c))
 
-          // ... or not among those required to be allowed (only when no NoneOfGen present,
-          // since NoneOfGen matches everything except its charSet, so Part 1 already covers mismatching)
-          initialNone.isEmpty()
-          ? regExpGen.getMatchOptions().getAnyPrintableChars().stream().filter( c -> !initialAny.contains( c))
-          : Stream.empty())
+         // ... or required to be excluded
+         : SetUtils.difference( initialNone, initialAny).stream())
 
         // ... and are excluded from any optional prefix
         .filter( c -> isExcluded( initialPrefix, c))
@@ -100,7 +98,7 @@ public class NotMatchingFactory implements RegExpGenVisitor
         notAlternatives.add(
           withLength(
             withSource( new AnyOfGen( regExpGen.getMatchOptions(), mismatching), mismatching),
-            1,
+            bounded( regExpGen.getMaxLength()).map( max -> max + 1).orElse( 1),
             null));
         }
 
