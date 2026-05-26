@@ -76,7 +76,7 @@ public class SeqGen extends AbstractRegExpGen
   public void add( String chars)
     {
     Stream.of( Optional.ofNullable( chars).orElse( ""))
-      .flatMap( s -> IntStream.range( 0, s.length()).mapToObj( i -> new Character( s.charAt(i))))
+      .flatMap( s -> IntStream.range( 0, s.length()).mapToObj( i -> Character.valueOf( s.charAt(i))))
       .forEach( c -> add( new AnyOfGen( getMatchOptions(), c)));
     }
 

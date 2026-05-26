@@ -1102,7 +1102,7 @@ public class Parser
         String.format(
           "%s%s%s",
           chars_.substring( 0, cursor_),
-          new Character( (char) 0x00BB),
+          Character.valueOf( (char) 0x00BB),
           chars_.substring( cursor_)))
       .toString();
     }
