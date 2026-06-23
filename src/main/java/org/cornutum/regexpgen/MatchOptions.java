@@ -37,6 +37,7 @@ public interface MatchOptions
   /**
    * @deprecated Provides {@link GenOptions} for backward-compatibility only
    */
+  @Deprecated
   public GenOptions getGenOptions();
 
   /**

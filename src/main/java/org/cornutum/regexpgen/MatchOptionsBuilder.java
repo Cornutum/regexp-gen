@@ -237,6 +237,7 @@ public class MatchOptionsBuilder
     /**
      * @deprecated Provides {@link GenOptions} for backward-compatibility only
      */
+    @Deprecated
     public GenOptions getGenOptions()
       {
       return genOptions_;
